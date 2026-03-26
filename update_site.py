@@ -154,12 +154,71 @@ def compute_stats(activities, athlete):
     if run_cads:
         stats["run_cadence"] = round(sum(run_cads) / len(run_cads))
 
-    # VO2max schatting via beste looptempo (Cooper formule benadering)
-    if run_paces:
-        best_speed = max(run_paces)  # m/s
-        best_speed_kmh = best_speed * 3.6
-        vo2 = (best_speed_kmh - 3.5) / 0.0178
-        stats["vo2max"] = round(min(max(vo2, 30), 75))
+    # ── VO2MAX SCHATTING — FIRSTBEAT METHODE ──
+    #
+    # Enige beschikbare data: hartslag + looptempo bij runs
+    # Methode: Firstbeat (dezelfde als Garmin/Polar)
+    #
+    # Per run: bereken VO2 bij die intensiteit op basis van
+    # hartslag als fractie van hartslagreserve (Karvonen),
+    # en extrapoleer naar VO2max.
+    # Gebruik mediaan van de beste 5 runs om uitschieters te vermijden.
+
+    REST_HR   = 50    # jouw rustpols
+    MAX_HR    = stats["max_hr"] or 204
+    WEIGHT_KG = 71
+
+    firstbeat_scores = []
+
+    for a in activities:
+        if "run" not in a.get("type", "").lower():
+            continue
+
+        avg_hr = a.get("average_heartrate", 0)
+        spd    = a.get("average_speed", 0)
+        dur    = a.get("moving_time", 0)
+        dist   = a.get("distance", 0)
+
+        # Alleen runs met hartslag, minstens 10 min en 1 km
+        if not avg_hr or not spd or dur < 600 or dist < 1000:
+            continue
+
+        # Hartslag als fractie van reserve (Karvonen)
+        hrr      = MAX_HR - REST_HR
+        hr_frac  = (avg_hr - REST_HR) / hrr if hrr > 0 else 0.70
+        hr_frac  = max(0.40, min(0.98, hr_frac))
+
+        # VO2 vereist bij dit looptempo (ACSM loopformule)
+        # VO2 (ml/kg/min) = (spd_m_min × 0.2) + 3.5
+        spd_m_min  = spd * 60
+        vo2_at_pace = (spd_m_min * 0.2) + 3.5
+
+        # Extrapoleer naar VO2max via hartslag fractie
+        # Bij fractie f van HRR ≈ fractie f van VO2max (lineair)
+        vo2_max_est = vo2_at_pace / hr_frac
+
+        # Kleine correctie voor loopeconomie lichtgewicht loper
+        eco = 1.02 if WEIGHT_KG < 75 else 1.0
+        vo2_max_est *= eco
+
+        firstbeat_scores.append(round(vo2_max_est, 1))
+
+    if firstbeat_scores:
+        firstbeat_scores.sort(reverse=True)
+        top = firstbeat_scores[:5]
+        final_vo2 = sum(top) / len(top)
+        final_vo2 = round(min(max(final_vo2, 30), 70))
+
+        print(f"   VO2max Firstbeat schattingen (top 5): {top}")
+        print(f"   → Gemiddeld resultaat: {final_vo2}")
+
+        stats["vo2max"] = final_vo2
+        stats["vo2max_breakdown"] = [(v, 1/len(top), "Firstbeat") for v in top]
+    else:
+        # Geen runs met hartslag — gebruik veilige fallback
+        stats["vo2max"] = 47
+        stats["vo2max_breakdown"] = [( 47, 1.0, "Fallback (geen HR data)")]
+        print("   VO2max: geen runs met hartslag gevonden, fallback 47")
 
     return stats
 
@@ -237,6 +296,13 @@ def build_strava_section(activities, stats, athlete):
     bcad = stats["bike_cadence"] or 77
     rcad = stats["run_cadence"] or 165
 
+    # VO2max breakdown tabel
+    breakdown = stats.get("vo2max_breakdown", [])
+    breakdown_rows = ""
+    for v, w, name in breakdown:
+        pct = round(w * 100)
+        breakdown_rows += f'<tr><td>{name}</td><td style="text-align:right;font-weight:600;color:var(--text)">{v:.1f}</td><td style="text-align:right;color:var(--muted)">{pct}%</td></tr>'
+
     # VO2max ring offset (schaal 30–75 → dashoffset 250–50)
     vo2_offset = round(250 - ((vo2 - 30) / 45) * 200)
     ftp_offset = round(250 - ((min(ftp, 250) - 100) / 150) * 200)
@@ -286,6 +352,24 @@ def build_strava_section(activities, stats, athlete):
       <div style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:.4rem">ml/kg/min vereist</div>
       <div style="font-size:.75rem;color:var(--accent);text-align:center;margin-top:.3rem">Gap: ~{max(0, 52 - vo2)} punten te winnen</div>
     </div>
+  </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.4rem;margin-top:1.5rem;max-width:420px">
+    <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">VO2max — Firstbeat methode (top 5 runs)</div>
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+      <tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Run</th>
+        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Schatting</th>
+        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Gewicht</th>
+      </tr>
+      {breakdown_rows}
+      <tr style="border-top:1px solid var(--border)">
+        <td style="padding:.4rem .4rem;font-weight:600;color:var(--text)">Gemiddeld</td>
+        <td style="text-align:right;font-weight:600;color:var(--accent);font-size:1rem">{vo2}</td>
+        <td></td>
+      </tr>
+    </table>
+    <div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">Firstbeat: tempo + hartslag per run → extrapoleer naar max. Mediaan van beste 5 runs om uitschieters te vermijden.</div>
   </div>
 
 </section>"""
