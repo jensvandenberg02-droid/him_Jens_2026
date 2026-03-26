@@ -247,6 +247,7 @@ def estimate_him_time(activities):
             swim_speeds.append(spd)
 
     if swim_speeds:
+        # Open water ~3% trager dan bad, Knokke: vlak water, geen stroom correctie
         him_swim_speed = max(swim_speeds) * 0.97
     else:
         him_swim_speed = 100 / 112  # fallback 1:52/100m
@@ -254,21 +255,52 @@ def estimate_him_time(activities):
     swim_secs = round(1900 / him_swim_speed)
 
     # ── FIETSEN ──
-    # Gebruik gemiddelde van lange ritten (>40km)
-    # HIM factor ×0.88: wind kust + vermoeidheid na zwemmen + tempobeheer
+    # Gebruik gemiddelde van ritten >20km (was >40km, te strikt voor 30 activiteiten)
+    # HIM factor ×0.93: lichte wind kust + vermoeidheid na zwemmen
+    # 12% was te agressief — 7% is realistischer voor getrainde triatleet
     ride_speeds = []
     for a in activities:
         if "ride" not in a.get("type","").lower():
             continue
         spd  = a.get("average_speed", 0)
         dist = a.get("distance", 0)
-        if spd > 0 and dist > 40000:
+        if spd > 0 and dist > 20000:  # >20km
             ride_speeds.append(spd)
 
-    if ride_speeds:
-        him_ride_speed = (sum(ride_speeds) / len(ride_speeds)) * 0.88
+    # Hoogtemetercorrectie fiets:
+    # HIM Knokke parcours: 44hm / 90km = ~49hm per 100km (vrijwel vlak)
+    # Als trainingsritten meer hoogtemeters hebben → op Knokke ga je sneller
+    # Vuistregel: elk verschil van 100hm/100km = ~1.5 km/u snelheidsverschil
+    HIM_HM_PER_100KM = 44 / 90 * 100  # ~49 hm/100km
+
+    ride_data = [
+        (a.get("average_speed", 0), a.get("distance", 0), a.get("total_elevation_gain", 0))
+        for a in activities
+        if "ride" in a.get("type","").lower()
+        and a.get("average_speed", 0) > 0
+        and a.get("distance", 0) > 20000
+    ]
+
+    if ride_data:
+        avg_speed_ms  = sum(s for s,_,_ in ride_data) / len(ride_data)
+        total_dist    = sum(d for _,d,_ in ride_data)
+        total_elev    = sum(e for _,_,e in ride_data)
+        train_hm_per_100km = (total_elev / total_dist * 100000) if total_dist > 0 else HIM_HM_PER_100KM
+
+        # Hoogteverschil tussen training en HIM parcours
+        hm_diff = train_hm_per_100km - HIM_HM_PER_100KM
+        speed_bonus_kmh = hm_diff * 0.005  # 0.5 km/u per 100hm/100km verschil (realistisch voor amateur)
+
+        him_speed_kmh = (avg_speed_ms * 3.6 + speed_bonus_kmh) * 0.93
+        him_ride_speed = him_speed_kmh / 3.6
+
+        print(f"   Fiets: trainingsgemiddelde {avg_speed_ms*3.6:.1f} km/u")
+        print(f"   Fiets: training {train_hm_per_100km:.0f} hm/100km vs HIM {HIM_HM_PER_100KM:.0f} hm/100km")
+        print(f"   Fiets: hoogtebonus +{speed_bonus_kmh:.2f} km/u → HIM tempo {him_speed_kmh:.1f} km/u")
+    elif ride_speeds:
+        him_ride_speed = (sum(ride_speeds) / len(ride_speeds)) * 0.93
     else:
-        him_ride_speed = 27 / 3.6  # fallback 27 km/u
+        him_ride_speed = (27 * 0.93) / 3.6  # fallback
 
     bike_secs = round(90000 / him_ride_speed)
 
@@ -286,9 +318,9 @@ def estimate_him_time(activities):
             run_speeds.append(spd)
 
     if run_speeds:
-        him_run_speed = (sum(run_speeds) / len(run_speeds)) * 0.88
+        him_run_speed = (sum(run_speeds) / len(run_speeds)) * 0.93
     else:
-        him_run_speed = 1000 / 380  # fallback 6:20/km
+        him_run_speed = (1000 / 380) * 0.93  # fallback 6:20/km × 0.93
 
     run_secs = round(21100 / him_run_speed)
 
