@@ -1,0 +1,42 @@
+name: Strava Auto-Update
+
+on:
+  schedule:
+    # Elke nacht om 03:00 UTC (05:00 Belgische tijd)
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    # Ook manueel te starten via GitHub Actions tab
+
+jobs:
+  update-site:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@v4
+
+      - name: Python installeren
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Dependencies installeren
+        run: pip install requests
+
+      - name: Site updaten met Strava data
+        env:
+          STRAVA_CLIENT_ID:     ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+        run: python update_site.py
+
+      - name: Wijzigingen committen en pushen
+        run: |
+          git config user.name  "Strava Bot"
+          git config user.email "bot@strava-update.local"
+          git add index.html
+          git diff --staged --quiet || git commit -m "🏃 Auto-update: Strava data $(date +'%d/%m/%Y %H:%M')"
+          git push
