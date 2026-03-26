@@ -222,6 +222,111 @@ def compute_stats(activities, athlete):
 
     return stats
 
+
+# ── HIM EINDTIJD SCHATTING ──
+def estimate_him_time(activities):
+    """
+    Schat de HIM eindtijd op basis van actuele Strava data.
+
+    Zwem  1.900m  op basis van beste zwemtempo met wedstrijdfactor
+    Fiets 90 km   op basis van gemiddelde fietssnelheid lange ritten
+    Run   21,1km  op basis van duurlooptempo met vermoeidheidsfactor
+    T1+T2         vaste schatting 4 min totaal (niet apart vermeld)
+    """
+
+    # ── ZWEMMEN ──
+    # Open water ~5% trager dan bad, wedstrijdadrenaline +2% → netto ×0.97
+    swim_speeds = []
+    for a in activities:
+        if "swim" not in a.get("type","").lower():
+            continue
+        spd  = a.get("average_speed", 0)
+        dist = a.get("distance", 0)
+        dur  = a.get("moving_time", 0)
+        if spd > 0 and dist > 500 and dur > 300:
+            swim_speeds.append(spd)
+
+    if swim_speeds:
+        him_swim_speed = max(swim_speeds) * 0.97
+    else:
+        him_swim_speed = 100 / 112  # fallback 1:52/100m
+
+    swim_secs = round(1900 / him_swim_speed)
+
+    # ── FIETSEN ──
+    # Gebruik gemiddelde van lange ritten (>40km)
+    # HIM factor ×0.88: wind kust + vermoeidheid na zwemmen + tempobeheer
+    ride_speeds = []
+    for a in activities:
+        if "ride" not in a.get("type","").lower():
+            continue
+        spd  = a.get("average_speed", 0)
+        dist = a.get("distance", 0)
+        if spd > 0 and dist > 40000:
+            ride_speeds.append(spd)
+
+    if ride_speeds:
+        him_ride_speed = (sum(ride_speeds) / len(ride_speeds)) * 0.88
+    else:
+        him_ride_speed = 27 / 3.6  # fallback 27 km/u
+
+    bike_secs = round(90000 / him_ride_speed)
+
+    # ── LOPEN ──
+    # Gebruik gemiddelde van langere duurlopen (>8km)
+    # HIM correctie ×0.88: vermoeid na zwem+fiets, bewust rustig starten
+    run_speeds = []
+    for a in activities:
+        if "run" not in a.get("type","").lower():
+            continue
+        spd  = a.get("average_speed", 0)
+        dist = a.get("distance", 0)
+        dur  = a.get("moving_time", 0)
+        if spd > 0 and dist > 8000 and dur > 2400:
+            run_speeds.append(spd)
+
+    if run_speeds:
+        him_run_speed = (sum(run_speeds) / len(run_speeds)) * 0.88
+    else:
+        him_run_speed = 1000 / 380  # fallback 6:20/km
+
+    run_secs = round(21100 / him_run_speed)
+
+    # ── TRANSITIES (inbegrepen in totaal, niet apart getoond) ──
+    t1_secs = 150  # T1 zwem→fiets: 2:30
+    t2_secs = 90   # T2 fiets→run:  1:30
+
+    total_secs = swim_secs + bike_secs + run_secs + t1_secs + t2_secs
+
+    def hm(s):
+        return f"{s//3600}:{(s%3600)//60:02d}"
+
+    def hms(s):
+        h = s // 3600
+        m = (s % 3600) // 60
+        sec = s % 60
+        return str(h) + "u" + f"{m:02d}m" + f"{sec:02d}s"
+
+    def swim_pace(spd):
+        spm = 100 / spd
+        return f"{int(spm//60)}:{int(spm%60):02d}/100m"
+
+    def run_pace(spd):
+        spm = 1000 / spd
+        return f"{int(spm//60)}:{int(spm%60):02d}/km"
+
+    return {
+        "swim_time":  hm(swim_secs),
+        "bike_time":  hm(bike_secs),
+        "run_time":   hm(run_secs),
+        "total_time": hms(total_secs),
+        "swim_pace":  swim_pace(him_swim_speed),
+        "bike_kmh":   f"{him_ride_speed*3.6:.1f} km/u",
+        "run_pace":   run_pace(him_run_speed),
+        "total_secs": total_secs,
+    }
+
+
 # ── HTML GENERATORS ──
 def activity_card_html(a):
     t     = a.get("type", "Workout")
@@ -296,12 +401,15 @@ def build_strava_section(activities, stats, athlete):
     bcad = stats["bike_cadence"] or 77
     rcad = stats["run_cadence"] or 165
 
+    # HIM eindtijd schatting
+    him = estimate_him_time(activities)
+
     # VO2max breakdown tabel
     breakdown = stats.get("vo2max_breakdown", [])
     breakdown_rows = ""
-    for v, w, name in breakdown:
+    for v, w, bname in breakdown:
         pct = round(w * 100)
-        breakdown_rows += f'<tr><td>{name}</td><td style="text-align:right;font-weight:600;color:var(--text)">{v:.1f}</td><td style="text-align:right;color:var(--muted)">{pct}%</td></tr>'
+        breakdown_rows += f'<tr><td>{bname}</td><td style="text-align:right;font-weight:600;color:var(--text)">{v:.1f}</td><td style="text-align:right;color:var(--muted)">{pct}%</td></tr>'
 
     # VO2max ring offset (schaal 30–75 → dashoffset 250–50)
     vo2_offset = round(250 - ((vo2 - 30) / 45) * 200)
@@ -328,6 +436,35 @@ def build_strava_section(activities, stats, athlete):
     <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val {'gr' if rcad >= 168 else 'ay'}">{rcad} spm</div><div class="mhc-sub">{'✓ goed' if rcad >= 168 else 'doel: 168–172 spm'}</div></div>
     <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val">{len(activities)}</div><div class="mhc-sub">🏃 {stats['total_runs']} · 🚴 {stats['total_rides']} · 🏊 {stats['total_swims']}</div></div>
     <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
+  </div>
+
+  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">HIM Eindtijd</span></h3>
+
+  <div style="background:var(--card);border:1px solid rgba(232,81,42,.35);border-radius:14px;padding:1.5rem 1.8rem;margin-bottom:2.5rem;max-width:580px">
+    <div style="display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:900;line-height:1;color:var(--yellow);letter-spacing:-.01em">{him['total_time']}</div>
+      <div style="font-size:.78rem;color:var(--muted);font-weight:500">geschatte eindtijd<br>incl. transities</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem">
+      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:.9rem 1rem">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4de88a;margin-bottom:.35rem">🏊 Zwemmen</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{him['swim_time']}</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">1,9 km · {him['swim_pace']}</div>
+      </div>
+      <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:9px;padding:.9rem 1rem">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6ab4ff;margin-bottom:.35rem">🚴 Fietsen</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{him['bike_time']}</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">90 km · {him['bike_kmh']}</div>
+      </div>
+      <div style="background:rgba(232,81,42,.07);border:1px solid rgba(232,81,42,.2);border-radius:9px;padding:.9rem 1rem">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ff8060;margin-bottom:.35rem">🏃 Lopen</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{him['run_time']}</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">21,1 km · {him['run_pace']}</div>
+      </div>
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:.8rem">
+      Schatting op basis van actuele Strava data · Open water −3% zwem · HIM-tempo correctie −12% fiets en run · Transities inbegrepen in totaal · Wordt automatisch bijgewerkt bij elke sync.
+    </div>
   </div>
 
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">Schatting</span></h3>
