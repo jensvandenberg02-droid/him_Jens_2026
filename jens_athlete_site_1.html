@@ -1,0 +1,2385 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jens van den Berg — HIM Knokke 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --bg2: #0d0d18;
+  --card: #111120;
+  --card2: #161628;
+  --border: #1e1e35;
+  --border2: #252540;
+  --accent: #e8512a;
+  --accent2: #ff6b40;
+  --blue: #3a8fff;
+  --green: #22c55e;
+  --yellow: #f5a623;
+  --purple: #8b5cf6;
+  --text: #e8e8f4;
+  --muted: #5a5a78;
+  --subtle: #1a1a2e;
+  --dim: #9090b0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .9rem 2.5rem;
+  background: rgba(8,8,16,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(232,81,42,.15);
+}
+
+.nav-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: .06em;
+  color: var(--text);
+}
+
+.nav-logo span { color: var(--accent); }
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.nav-links a:hover { color: var(--accent); }
+
+.nav-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  padding: .3rem .8rem;
+  border: 1px solid rgba(232,81,42,.5);
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6rem 2.5rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(232,81,42,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,81,42,.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+}
+
+.hero-glow {
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(ellipse, rgba(232,81,42,.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-glow2 {
+  position: absolute;
+  bottom: -10%;
+  right: -5%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(ellipse, rgba(58,143,255,.06) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.hero-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(4rem, 10vw, 9rem);
+  font-weight: 900;
+  line-height: .92;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.hero-name .first { display: block; color: var(--text); }
+.hero-name .last { display: block; color: var(--accent); -webkit-text-stroke: 0; }
+.hero-name .sub {
+  display: block;
+  font-size: clamp(1.5rem, 3vw, 2.8rem);
+  font-weight: 300;
+  letter-spacing: .15em;
+  color: var(--muted);
+  margin-top: .3rem;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.hstat {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
+.hstat-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+}
+
+.hstat-val.ac { color: var(--accent); }
+.hstat-val.bl { color: var(--blue); }
+.hstat-val.gr { color: var(--green); }
+
+.hstat-lbl {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border2);
+  align-self: center;
+}
+
+/* ── COUNTDOWN ── */
+.countdown-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.cd-label {
+  padding: 1rem 1.4rem;
+  background: var(--accent);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: white;
+  white-space: nowrap;
+}
+
+.cd-units {
+  display: flex;
+  gap: 0;
+}
+
+.cd-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: .9rem 1.1rem;
+  border-right: 1px solid var(--border);
+  min-width: 64px;
+}
+
+.cd-unit:last-child { border-right: none; }
+
+.cd-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+
+.cd-u {
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: .2rem;
+}
+
+/* ── SECTION ── */
+.section {
+  padding: 6rem 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-full {
+  padding: 6rem 2.5rem;
+}
+
+.section-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sec-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: .6rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.sec-label::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.sec-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: .95;
+  letter-spacing: -.01em;
+  margin-bottom: 3rem;
+}
+
+.sec-title span { color: var(--accent); }
+
+/* ── RACE CALENDAR ── */
+.race-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.race-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, transform .2s;
+}
+
+.race-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.race-card.rc-run::before { background: var(--accent); }
+.race-card.rc-tri::before { background: var(--blue); }
+.race-card.rc-him::before { background: linear-gradient(90deg, var(--accent), var(--yellow)); }
+.race-card.rc-rest::before { background: var(--muted); }
+
+.race-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+.race-card.rc-him {
+  border-color: rgba(232,81,42,.4);
+  background: rgba(232,81,42,.04);
+}
+
+.race-date {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .6rem;
+}
+
+.race-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  margin-bottom: .35rem;
+}
+
+.race-card.rc-run .race-name { color: var(--accent); }
+.race-card.rc-tri .race-name { color: var(--blue); }
+.race-card.rc-him .race-name { color: var(--yellow); }
+.race-card.rc-rest .race-name { color: var(--muted); }
+
+.race-type {
+  font-size: .75rem;
+  color: var(--dim);
+}
+
+.race-goal {
+  margin-top: .8rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--border);
+  font-size: .78rem;
+  color: var(--dim);
+  line-height: 1.5;
+}
+
+.race-icon {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  font-size: 1.6rem;
+  opacity: .7;
+}
+
+/* ── PROGRESS BARS ── */
+.goals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.goal-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem 1.6rem;
+}
+
+.goal-discipline {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+}
+
+.goal-row {
+  margin-bottom: 1.2rem;
+}
+
+.goal-row:last-child { margin-bottom: 0; }
+
+.goal-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: .4rem;
+}
+
+.goal-param {
+  font-size: .8rem;
+  color: var(--dim);
+}
+
+.goal-vals {
+  font-size: .75rem;
+  display: flex;
+  gap: .6rem;
+  align-items: baseline;
+}
+
+.goal-now {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.goal-arrow { color: var(--muted); font-size: .7rem; }
+
+.goal-target {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.pbar-track {
+  height: 6px;
+  background: var(--subtle);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.pbar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+
+.pf-run { background: linear-gradient(90deg, #c0392b, var(--accent)); }
+.pf-bike { background: linear-gradient(90deg, #2255bb, var(--blue)); }
+.pf-swim { background: linear-gradient(90deg, #16a35a, var(--green)); }
+.pf-vo2 { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+
+/* ── TRAINING PLAN ── */
+.plan-bg {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.phase-block {
+  margin-bottom: 3rem;
+}
+
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: .9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.phase-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--border2);
+  letter-spacing: -.02em;
+}
+
+.phase-info {}
+
+.phase-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.phase-dates {
+  font-size: .76rem;
+  color: var(--muted);
+  margin-top: .1rem;
+}
+
+.weeks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: .7rem;
+}
+
+.week-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  transition: border-color .2s;
+}
+
+.week-card:hover { border-color: var(--border2); }
+.week-card.wc-race { border-color: rgba(232,81,42,.4); background: rgba(232,81,42,.03); }
+.week-card.wc-taper { border-color: rgba(245,166,35,.3); background: rgba(245,166,35,.02); }
+.week-card.wc-rest { border-color: rgba(58,143,255,.25); background: rgba(58,143,255,.02); }
+
+.wk-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .3rem;
+}
+
+.wk-dates {
+  font-size: .7rem;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+
+.wk-days {
+  display: flex;
+  gap: 3px;
+  margin-bottom: .6rem;
+}
+
+.wk-day {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .5rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.wd-rest { background: var(--subtle); color: var(--muted); }
+.wd-run  { background: rgba(232,81,42,.2); color: #ff8060; }
+.wd-bike { background: rgba(58,143,255,.18); color: #6ab4ff; }
+.wd-swim { background: rgba(34,197,94,.15); color: #4de88a; }
+.wd-str  { background: rgba(139,92,246,.15); color: #b090ff; }
+.wd-race { background: var(--accent); color: white; }
+
+.wk-tag {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .15rem .5rem;
+  border-radius: 3px;
+}
+
+.wtag-race { background: rgba(232,81,42,.2); color: var(--accent); border: 1px solid rgba(232,81,42,.35); }
+.wtag-taper { background: rgba(245,166,35,.15); color: var(--yellow); border: 1px solid rgba(245,166,35,.3); }
+.wtag-rest { background: rgba(58,143,255,.12); color: var(--blue); border: 1px solid rgba(58,143,255,.25); }
+.wtag-base { background: var(--subtle); color: var(--dim); }
+.wtag-build { background: rgba(139,92,246,.12); color: var(--purple); border: 1px solid rgba(139,92,246,.25); }
+.wtag-peak { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.25); }
+
+.wk-note {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: .45rem;
+  line-height: 1.4;
+}
+
+/* ── EXPANDABLE WEEK CARDS ── */
+.week-card { cursor: pointer; }
+.wk-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: .5rem;
+}
+.wk-expand-hint {
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color .2s;
+}
+.week-card:hover .wk-expand-hint { color: var(--accent); }
+.wk-chevron {
+  width: 14px; height: 14px;
+  color: var(--muted);
+  transition: transform .25s ease, color .2s;
+  flex-shrink: 0;
+}
+.week-card.open .wk-chevron { transform: rotate(180deg); color: var(--accent); }
+.week-card.open .wk-expand-hint { color: var(--accent); }
+.wk-detail {
+  display: none;
+  margin-top: .9rem;
+  padding-top: .9rem;
+  border-top: 1px solid var(--border);
+  animation: wkfade .2s ease;
+}
+@keyframes wkfade { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.week-card.open .wk-detail { display: block; }
+.wk-session {
+  margin-bottom: .85rem;
+  padding-bottom: .85rem;
+  border-bottom: 1px solid var(--border);
+}
+.wk-session:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.wks-hd { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; }
+.wks-icon {
+  width: 24px; height: 24px;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; flex-shrink: 0;
+}
+.wks-day {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .65rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+}
+.wks-name { font-size: .8rem; font-weight: 600; color: var(--text); }
+.wks-chips { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: .3rem; }
+.wks-chip {
+  font-size: .58rem; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  padding: .1rem .4rem; border-radius: 3px;
+}
+.wkc-run  { background: rgba(232,81,42,.15); color: #ff8060; }
+.wkc-bike { background: rgba(58,143,255,.15); color: #6ab4ff; }
+.wkc-swim { background: rgba(34,197,94,.13); color: #4de88a; }
+.wkc-str  { background: rgba(139,92,246,.13); color: #b090ff; }
+.wkc-rest { background: var(--subtle); color: var(--muted); }
+.wkc-race { background: rgba(232,81,42,.25); color: var(--accent); }
+.wkc-z2   { background: rgba(34,197,94,.08); color: #3dcc7a; }
+.wkc-lt   { background: rgba(245,166,35,.12); color: #f5b840; }
+.wkc-vo2  { background: rgba(232,81,42,.12); color: var(--accent); }
+.wkc-itb  { background: rgba(255,160,100,.1); color: #ffaa80; }
+.wkc-him  { background: rgba(245,166,35,.15); color: var(--yellow); }
+.wks-desc { font-size: .75rem; color: var(--dim); line-height: 1.55; }
+.wks-metrics { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: .25rem; }
+.wksm { font-size: .7rem; color: var(--muted); }
+.wksm strong { color: var(--text); font-weight: 600; }
+
+/* ── STRAVA ANALYSIS ── */
+.strava-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.sact {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  transition: border-color .2s;
+}
+
+.sact:hover { border-color: var(--border2); }
+
+.sact-hd {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: .9rem;
+}
+
+.sact-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.si-r { background: rgba(232,81,42,.15); }
+.si-b { background: rgba(58,143,255,.15); }
+.si-s { background: rgba(34,197,94,.15); }
+.si-w { background: rgba(245,166,35,.15); }
+
+.sact-name {
+  font-weight: 600;
+  font-size: .88rem;
+}
+
+.sact-date {
+  font-size: .7rem;
+  color: var(--muted);
+  margin-top: .05rem;
+}
+
+.sact-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+}
+
+.sm-lbl {
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sm-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: .02em;
+}
+
+.sact-zbar {
+  margin-top: .8rem;
+  height: 5px;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex;
+  gap: 1px;
+}
+
+.szs { height: 100%; border-radius: 2px; }
+.sz1 { background: rgba(58,143,255,.5); }
+.sz2 { background: rgba(34,197,94,.6); }
+.sz3 { background: rgba(245,166,35,.7); }
+.sz4 { background: rgba(232,81,42,.8); }
+
+/* ── VO2MAX RINGS ── */
+.vo2-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.vo2-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ring-svg {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin-bottom: .8rem;
+}
+
+.ring-svg svg {
+  width: 110px;
+  height: 110px;
+  transform: rotate(-90deg);
+}
+
+.ring-svg .rbg { fill: none; stroke: var(--subtle); stroke-width: 8; }
+.ring-svg .rfill { fill: none; stroke-width: 8; stroke-linecap: round; }
+
+.ring-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.ring-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.01em;
+}
+
+.ring-unit {
+  font-size: .6rem;
+  color: var(--muted);
+  margin-top: .1rem;
+}
+
+.vo2-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ft-brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: .06em;
+  color: var(--text);
+}
+
+.ft-brand span { color: var(--accent); }
+
+.ft-info {
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+.hero-eyebrow { animation: fadeUp .6s ease both; }
+.hero-name    { animation: fadeUp .6s .1s ease both; }
+.hero-stats   { animation: fadeUp .6s .2s ease both; }
+.countdown-block { animation: fadeUp .6s .3s ease both; }
+
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 1.5s infinite;
+  margin-right: .3rem;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: .8rem 1.2rem; }
+  .nav-links { display: none; }
+  .hero { padding: 5rem 1.2rem 3rem; }
+  .section, .section-full { padding: 4rem 1.2rem; }
+  .hero-stats { gap: 1.5rem; }
+  .cd-unit { padding: .7rem .8rem; min-width: 52px; }
+  .cd-num { font-size: 1.5rem; }
+  .goals-grid { grid-template-columns: 1fr; }
+  .vo2-row { grid-template-columns: 1fr 1fr; }
+  footer { padding: 1.5rem 1.2rem; }
+}
+
+/* ── SECTION DIVIDER ── */
+.divider-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 0;
+}
+
+/* ── CHIP ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .22rem .65rem;
+  border-radius: 3px;
+  border: 1px solid;
+}
+
+.chip-run  { background: rgba(232,81,42,.1); color: var(--accent); border-color: rgba(232,81,42,.3); }
+.chip-bike { background: rgba(58,143,255,.1); color: var(--blue); border-color: rgba(58,143,255,.3); }
+.chip-swim { background: rgba(34,197,94,.1); color: var(--green); border-color: rgba(34,197,94,.3); }
+.chip-him  { background: rgba(245,166,35,.1); color: var(--yellow); border-color: rgba(245,166,35,.3); }
+
+/* ── INTRO TEXT ── */
+.intro-text {
+  font-size: 1.05rem;
+  color: var(--dim);
+  line-height: 1.75;
+  max-width: 640px;
+  margin-bottom: 2.5rem;
+}
+
+/* metric highlight card */
+.mhc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: .8rem;
+  margin-bottom: 3rem;
+}
+
+.mhc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+}
+
+.mhc-lbl {
+  font-size: .65rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .3rem;
+}
+
+.mhc-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.7rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.01em;
+}
+
+.mhc-val.ac { color: var(--accent); }
+.mhc-val.bl { color: var(--blue); }
+.mhc-val.gr { color: var(--green); }
+.mhc-val.yl { color: var(--yellow); }
+
+.mhc-sub {
+  font-size: .68rem;
+  color: var(--muted);
+  margin-top: .2rem;
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">JENS<span>.</span>VDB</div>
+  <ul class="nav-links">
+    <li><a href="#profiel">Profiel</a></li>
+    <li><a href="#races">Races</a></li>
+    <li><a href="#doelen">Doelen</a></li>
+    <li><a href="#plan">Plan</a></li>
+    <li><a href="#analyse">Analyse</a></li>
+  </ul>
+  <div class="nav-badge">HIM 2026</div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" id="profiel">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+
+    <div class="hero-eyebrow">
+      <span class="live-dot"></span>
+      Triatleet in voorbereiding
+    </div>
+
+    <h1 class="hero-name">
+      <span class="first">Jens</span>
+      <span class="last">van den Berg</span>
+      <span class="sub">Halve Ironman 2026</span>
+    </h1>
+
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-val ac">165<small style="font-size:.9rem">W</small></div>
+        <div class="hstat-lbl">FTP Fiets</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hstat">
+        <div class="hstat-val">2,32</div>
+        <div class="hstat-lbl">W/kg</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hstat">
+        <div class="hstat-val bl">1:52</div>
+        <div class="hstat-lbl">CSS /100m</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hstat">
+        <div class="hstat-val gr">~48</div>
+        <div class="hstat-lbl">VO2max</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hstat">
+        <div class="hstat-val">204</div>
+        <div class="hstat-lbl">Max HS bpm</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hstat">
+        <div class="hstat-val gr">50</div>
+        <div class="hstat-lbl">Rust HS bpm</div>
+      </div>
+    </div>
+
+    <div class="countdown-block">
+      <div class="cd-label">⛵ HIM Knokke — 6 sept 2026</div>
+      <div class="cd-units">
+        <div class="cd-unit"><div class="cd-num" id="cd-d">—</div><div class="cd-u">Dagen</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-h">—</div><div class="cd-u">Uren</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-m">—</div><div class="cd-u">Min</div></div>
+        <div class="cd-unit"><div class="cd-num" id="cd-s">—</div><div class="cd-u">Sec</div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ── RACES ── -->
+<section class="section" id="races">
+  <div class="sec-label">Race Kalender</div>
+  <h2 class="sec-title">De <span>Weg</span> naar Knokke</h2>
+
+  <div class="race-grid">
+    <div class="race-card rc-run">
+      <div class="race-icon">🏃</div>
+      <div class="race-date">Zondag 19 april 2026</div>
+      <div class="race-name">HM Leuven</div>
+      <div class="race-type">Halve Marathon · Leuven</div>
+      <div class="race-goal">Doel: finishen zonder ITB-klachten. Volledig Z2 — het is een lange trainingsrun, geen race.</div>
+    </div>
+
+    <div class="race-card rc-run">
+      <div class="race-icon">👟</div>
+      <div class="race-date">Zaterdag 25 april 2026</div>
+      <div class="race-name">5 Miles Antwerpen</div>
+      <div class="race-type">Loopwedstrijd · 8 km · Antwerpen</div>
+      <div class="race-goal">Doel: lopen op gevoel, tempo testen post-Leuven. Geen race-effort.</div>
+    </div>
+
+    <div class="race-card rc-rest">
+      <div class="race-icon">🌊</div>
+      <div class="race-date">Zondag 10 mei 2026</div>
+      <div class="race-name">Wetsuit Pasdag</div>
+      <div class="race-type">Open water zwemmen · voorbereiding</div>
+      <div class="race-goal">Eerste open water sessie van het jaar met wetsuit. Techniek en acclimatisering.</div>
+    </div>
+
+    <div class="race-card rc-tri">
+      <div class="race-icon">🚴</div>
+      <div class="race-date">Zondag 31 mei 2026</div>
+      <div class="race-name">Sprint Triatlon Stein</div>
+      <div class="race-type">Sprint Triatlon · Stein</div>
+      <div class="race-goal">Eerste triatlon van het seizoen. Doel: soepel overstappen, tempo leren in wedstrijdcontext.</div>
+    </div>
+
+    <div class="race-card rc-tri">
+      <div class="race-icon">🏊</div>
+      <div class="race-date">Zondag 5 juli 2026</div>
+      <div class="race-name">Sprint Maastriatlon</div>
+      <div class="race-type">Sprint Triatlon · Maastricht</div>
+      <div class="race-goal">Tweede sprint. Meetmoment: FTP en zwem CSS vergelijken met mei. Verwachte PR.</div>
+    </div>
+
+    <div class="race-card rc-tri">
+      <div class="race-icon">⛰️</div>
+      <div class="race-date">Zaterdag 25 juli 2026</div>
+      <div class="race-name">Sprint Cave Triatlon</div>
+      <div class="race-type">Sprint Triatlon · Cave</div>
+      <div class="race-goal">Laatste sprint voor HIM. Race op HIM-tempo — de juiste intensiteitservaring opdoen.</div>
+    </div>
+
+    <div class="race-card rc-rest">
+      <div class="race-icon">🏖️</div>
+      <div class="race-date">Vrijdag 31 juli — zondag 2 aug</div>
+      <div class="race-name">Trainingsweekend Zee</div>
+      <div class="race-type">Open water training · parcours fiets</div>
+      <div class="race-goal">Open water zwemmen op het HIM parcours, fietsparcours verkennen, brick op HIM-tempo.</div>
+    </div>
+
+    <div class="race-card rc-him">
+      <div class="race-icon">🏅</div>
+      <div class="race-date">Zondag 6 september 2026</div>
+      <div class="race-name">Halve Ironman Knokke</div>
+      <div class="race-type">1,9 km zwem · 90 km fiets · 21,1 km run · Knokke-Heist</div>
+      <div class="race-goal"><strong style="color:var(--yellow)">Hoofddoel.</strong> Zwem rustig vetrekken · fiets 80–83% FTP · run 6:00–6:30/km eerste helft.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ── DOELEN ── -->
+<section class="section" id="doelen">
+  <div class="sec-label">Progressie & Targets</div>
+  <h2 class="sec-title">Van Nu naar <span>HIM</span></h2>
+
+  <div class="intro-text">
+    Op 71 kg en 182 cm heeft Jens een solide amateuratleten basis. De voornaamste verbeterpunten zijn het FTP op de fiets, looptempo aan lactaatdrempel, en zwem-CSS. De VO2max van ~48 ml/kg/min is al dichtbij het HIM-doelniveau.
+  </div>
+
+  <div class="mhc-grid">
+    <div class="mhc"><div class="mhc-lbl">Gewicht</div><div class="mhc-val">71 kg</div><div class="mhc-sub">182 cm</div></div>
+    <div class="mhc"><div class="mhc-lbl">FTP nu</div><div class="mhc-val ac">165 W</div><div class="mhc-sub">2,32 W/kg</div></div>
+    <div class="mhc"><div class="mhc-lbl">FTP doel HIM</div><div class="mhc-val gr">199–227 W</div><div class="mhc-sub">2,8–3,2 W/kg</div></div>
+    <div class="mhc"><div class="mhc-lbl">Looptempo LT</div><div class="mhc-val yl">6:16/km</div><div class="mhc-sub">doel: 5:40/km</div></div>
+    <div class="mhc"><div class="mhc-lbl">Zwem CSS</div><div class="mhc-val bl">1:52</div><div class="mhc-sub">doel: 1:40/100m</div></div>
+    <div class="mhc"><div class="mhc-lbl">Fiets cadans</div><div class="mhc-val ac">77 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
+    <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr">~48</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
+    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
+  </div>
+
+  <div class="goals-grid">
+
+    <div class="goal-card">
+      <div class="goal-discipline">🚴 Fietsen</div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">FTP absoluut</span>
+          <div class="goal-vals"><span class="goal-now">165W</span><span class="goal-arrow">→</span><span class="goal-target">199–227W</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-bike" style="width:73%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">FTP per kg</span>
+          <div class="goal-vals"><span class="goal-now">2,32</span><span class="goal-arrow">→</span><span class="goal-target">2,8–3,2 W/kg</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-bike" style="width:66%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">Cadans</span>
+          <div class="goal-vals"><span class="goal-now">77 rpm</span><span class="goal-arrow">→</span><span class="goal-target">90 rpm</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-bike" style="width:56%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">HIM fietsstrategie</span>
+          <div class="goal-vals"><span class="goal-now" style="font-size:.9rem;color:var(--dim)">80–83% FTP · ~135–140W</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-bike" style="width:100%;opacity:.3"></div></div>
+      </div>
+    </div>
+
+    <div class="goal-card">
+      <div class="goal-discipline">🏃 Lopen</div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">Tempo LT</span>
+          <div class="goal-vals"><span class="goal-now">6:16/km</span><span class="goal-arrow">→</span><span class="goal-target">5:40/km</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-run" style="width:60%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">LTHR</span>
+          <div class="goal-vals"><span class="goal-now">~163–168 bpm</span><span class="goal-arrow">→</span><span class="goal-target">170+ bpm</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-run" style="width:72%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">Cadans</span>
+          <div class="goal-vals"><span class="goal-now">162–165 spm</span><span class="goal-arrow">→</span><span class="goal-target">168–172 spm</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-run" style="width:80%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">HIM loopstrategie</span>
+          <div class="goal-vals"><span class="goal-now" style="font-size:.9rem;color:var(--dim)">6:30/km eerste 3 km · nooit &lt;6:00</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-run" style="width:100%;opacity:.3"></div></div>
+      </div>
+    </div>
+
+    <div class="goal-card">
+      <div class="goal-discipline">🏊 Zwemmen</div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">CSS</span>
+          <div class="goal-vals"><span class="goal-now">1:52/100m</span><span class="goal-arrow">→</span><span class="goal-target">1:40/100m</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-swim" style="width:63%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">HIM zwem tempo</span>
+          <div class="goal-vals"><span class="goal-now">~1:52</span><span class="goal-arrow">→</span><span class="goal-target">1:45/100m</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-swim" style="width:68%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">HIM zwem doel</span>
+          <div class="goal-vals"><span class="goal-now" style="font-size:.9rem;color:var(--dim)">rustig starten · wetsuit · boeilijn</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-swim" style="width:100%;opacity:.3"></div></div>
+      </div>
+    </div>
+
+    <div class="goal-card">
+      <div class="goal-discipline">❤️ Fysiologisch</div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">VO2max schatting</span>
+          <div class="goal-vals"><span class="goal-now">~48</span><span class="goal-arrow">→</span><span class="goal-target">52+ ml/kg/min</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:76%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">Apple Watch VO2max</span>
+          <div class="goal-vals"><span class="goal-now" style="color:var(--yellow)">52,1</span><span class="goal-arrow" style="font-size:.65rem">≈10% overschat</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:83%"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">Rusthartslag</span>
+          <div class="goal-vals"><span class="goal-now" style="color:var(--green)">50 bpm ✓</span><span style="font-size:.75rem;color:var(--green)">uitstekend</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:95%;background:var(--green)"></div></div>
+      </div>
+
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">Max hartslag</span>
+          <div class="goal-vals"><span class="goal-now">204 bpm</span></div>
+        </div>
+        <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:100%;opacity:.4"></div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ── PLAN ── -->
+<div class="plan-bg section-full" id="plan">
+  <div class="section-inner">
+    <div class="sec-label">W1 t/m W23</div>
+    <h2 class="sec-title">Trainingsplan <span>2026</span></h2>
+
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:2.5rem">
+      <span class="chip chip-run">🏃 Lopen</span>
+      <span class="chip chip-bike">🚴 Fietsen</span>
+      <span class="chip chip-swim">🏊 Zwemmen</span>
+      <div class="wk-day wd-str" style="width:auto;padding:.2rem .55rem;font-size:.6rem;letter-spacing:.06em">💪 Kracht</div>
+      <span class="wtag-race wk-tag">Race week</span>
+      <span class="wtag-taper wk-tag">Taper</span>
+      <span class="wtag-rest wk-tag">Herstel</span>
+    </div>
+
+    <!-- FASE 1 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div class="phase-num">01</div>
+        <div class="phase-info">
+          <div class="phase-name" style="color:var(--accent)">Fase 1 — HM Leuven prep</div>
+          <div class="phase-dates">30 maart – 26 april · W1–W4 · ITB herstel + halve marathon</div>
+        </div>
+      </div>
+      <div class="weeks-grid">
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 1</div>
+          <div class="wk-dates">30 mrt – 5 apr</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-str">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-run">Za</div><div class="wk-day wd-bike">Zo</div>
+          </div>
+          <span class="wtag-base wk-tag">Basis</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht + ITB revalidatie</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span><span class="wks-chip wkc-itb">ITB focus</span></div>
+              <div class="wks-desc">Zwaarste krachtsessie. Clam shells 3×20, lateral band walks 3×15, single leg deadlift 3×10 (excentrisch 3 sec neer), Bulgarian split squat 3×10, zijplank 3×45 sec. Foam rol ITB 2 min afsluiting.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~70 min</strong></span><span class="wksm">Heupabductors prioriteit</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Easy Run Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span><span class="wks-chip wkc-itb">ITB</span></div>
+              <div class="wks-desc">Volledig Z2, hartslag leidend (134–155 bpm). Warming-up 8 min rustig · loopblok 25–30 min op 6:30–6:50/km. Na de loop: foam rol ITB + heupabductorstretch + clam shells.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span><span class="wksm">Tempo: 6:30–6:50/km</span><span class="wksm">HS: 134–155 bpm</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Functionele kracht — upper body + core</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">Bewust licht voor de benen. Pull-ups 4×8, seated row 3×12, dumbbell press 3×10, face pulls 3×15, plank variaties 3×45 sec, dead bug 3×10. Geen zware lower body — benen sparen voor vrijdag en zaterdag.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS + VO2max</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">Warming-up 4×100m (2:05–2:10/100m, 20 sec rust) · drill 4×50m · CSS Blok 1: 6×100m op 1:45–1:48/100m, 15 sec rust · 200m easy · CSS Blok 2: 4×150m op 1:46–1:50/100m, 20 sec rust · 100m easy · VO2max sprints: 8×50m MAX (~1:10–1:20/100m), 30 sec rust · 200m cool-down.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~2.800m</strong></span><span class="wksm">~55 min</span><span class="wks-chip wkc-race" style="font-size:.58rem;padding:.1rem .4rem">Zwaarste sessie week</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Lange duurloop Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span><span class="wks-chip wkc-itb">ITB</span></div>
+              <div class="wks-desc">Belangrijkste loopsessie. Volledig Z2 (140–158 bpm). Stop bij meer dan 2/10 ITB-pijn. Basis bevestigen richting halve marathon.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>13–14 km</strong></span><span class="wksm">6:15–6:30/km</span><span class="wksm">140–158 bpm</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zondag</div><div class="wks-name">Lange duurrit Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Puur Z2 fietsen — geen kwaliteitswerk in fase 1. Cadansfocus: 85+ rpm als minimum. Van 77 naar 90 rpm gaat via gewenning, niet via kracht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>60–70 km</strong></span><span class="wksm">140–158 bpm</span><span class="wksm">Cadans 85+ rpm</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 2</div>
+          <div class="wk-dates">6 apr – 12 apr</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-str">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-run">Za</div><div class="wk-day wd-bike">Zo</div>
+          </div>
+          <span class="wtag-build wk-tag">Opbouw</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht + ITB revalidatie</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span><span class="wks-chip wkc-itb">ITB</span></div>
+              <div class="wks-desc">Identiek aan week 1 maar 1 extra set per oefening. Clam shells 3×20, lateral band walks 3×20, single leg deadlift 4×10, heupabductie 3×15, zijplank 3×50 sec. Foam rol afsluiting.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~70 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Easy Run Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Volume licht opgebouwd. Warming-up 8 min · loopblok 30–35 min op 6:30–6:50/km. ITB protocol nadien.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~45 min</strong></span><span class="wksm">134–155 bpm</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Kracht licht — upper body</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">Pull-ups 4×9, seated row 3×12, dumbbell press 3×10, plank variaties, dead bug. Licht voor de benen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS — progressie</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">Warming-up 4×100m · drill 4×50m · CSS Blok 1: 8×100m op 1:45–1:48/100m, 15 sec rust (progressie t.o.v. W1) · 200m easy · CSS Blok 2: 4×150m · VO2max sprints 8×50m MAX · Cool-down 200m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~3.000m</strong></span><span class="wksm">~58 min</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Lange duurloop Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Volume opbouwen richting halve marathon. Hartslag 140–158 bpm. Cadans 165–168 spm bewaken.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>15–16 km</strong></span><span class="wksm">6:15–6:30/km</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zondag</div><div class="wks-name">Lange duurrit Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Volume opgebouwd. Cadans 87+ rpm als doel. Elke rit beginnen met bewuste cadansfocus.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>70–80 km</strong></span><span class="wksm">87+ rpm</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 3</div>
+          <div class="wk-dates">13 apr – 19 apr</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-str">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-race">Za</div><div class="wk-day wd-rest">Zo</div>
+          </div>
+          <span class="wtag-race wk-tag">🏃 HM Leuven</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht licht — taper week</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">Lichte kracht — geen zware belasting. ITB protocol uitvoeren. Clam shells + foam rol prioriteit. Benen sparen voor de race.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~45 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Easy Run Z2 — kort</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Kort, rustief. 25 min op 6:40–7:00/km. Benen losmaken, geen vermoeidheid opbouwen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~25 min</strong></span><span class="wksm">&lt;150 bpm</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Heel lichte activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">Lichte mobiliteits- en activeringsoefeningen. Foam rol, stretching, lichte kern. Geen spiervermoeidheid veroorzaken.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~30 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwem activering — kort</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span></div>
+              <div class="wks-desc">Lichte activering voor de race. 4×100m easy · 4×50m CSS · 4×50m sprint MAX · 200m cool-down. Geen zware intervallen — benen en systeem fris houden.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.200m</strong></span><span class="wksm">~25 min</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-race" style="background:var(--accent)">🏆</div><div><div class="wks-day">Zaterdag 19 april</div><div class="wks-name">RACE — Halve Marathon Leuven</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-race">Race dag</span><span class="wks-chip wkc-run">21,1 km</span></div>
+              <div class="wks-desc">Doel: finishen zonder blessure. Volledig Z2 — 140–158 bpm. Eerste 5 km rustig instappen op 6:30/km. Luister naar de ITB, pas tempo aan. Voeding: elke 40 min gel. Dit is een lange trainingsrun, geen PR-poging.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>21,1 km</strong></span><span class="wksm">~6:20–6:40/km</span><span class="wksm">Doel: aankomen</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-rest" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 4</div>
+          <div class="wk-dates">20 apr – 26 apr</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-rest">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-race">Za</div><div class="wk-day wd-rest">Zo</div>
+          </div>
+          <span class="wtag-race wk-tag">👟 5 Miles Antwerpen</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Herstelrun</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Lichte herstelrun na de halve marathon. 20–25 min op 6:50–7:10/km. Benen losmaken, geen druk. ITB protocol nadien controleren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~25 min</strong></span><span class="wksm">&lt;145 bpm</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen — actief herstel</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Actief herstel in het water. Techniekfocus, geen intensiteit. 4×200m easy + 6×50m drill. Schouders en rug losmaken.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.500m</strong></span><span class="wksm">~30 min</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-race" style="background:var(--accent)">🏆</div><div><div class="wks-day">Zaterdag 25 april</div><div class="wks-name">5 Miles Antwerpen</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-race">Race</span><span class="wks-chip wkc-run">8 km</span></div>
+              <div class="wks-desc">Lopen op gevoel post-Leuven. Geen PR-poging, geen race-effort. Tempogevoel testen. Als benen zwaar aanvoelen: direct terugschakelen naar Z2. Genieten van de loopsfeer.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>8 km</strong></span><span class="wksm">Op gevoel</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FASE 2 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div class="phase-num">02</div>
+        <div class="phase-info">
+          <div class="phase-name" style="color:var(--blue)">Fase 2 — Sprint Triatlon opbouw</div>
+          <div class="phase-dates">27 april – 31 mei · W5–W9 · Eerste triatlon seizoen</div>
+        </div>
+      </div>
+      <div class="weeks-grid">
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 5</div>
+          <div class="wk-dates">27 apr – 3 mei</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-swim">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-run">Zo</div>
+          </div>
+          <span class="wtag-build wk-tag">Triatlon basis</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht — 1× per week vanaf nu</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span><span class="wks-chip wkc-itb">ITB</span></div>
+              <div class="wks-desc">Vanaf fase 2: 1× kracht per week (onderhoud). Clam shells 2×15, single leg deadlift 3×10, pull-ups 3×8, core circuit 3 ronden. Foam rol afsluiting.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Easy Run Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Herstelrun na 5 Miles. Hartslag leidend, 6:30–6:50/km. 35–40 min.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Zwemmen CSS</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">Zwemintervallen CSS + VO2max. Warming-up 400m · 8×100m CSS 1:45–1:48/100m, 15 sec rust · 200m easy · 4×150m CSS · VO2max 8×50m MAX · cool-down 200m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~3.000m</strong></span><span class="wksm">~58 min</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Sweet Spot fiets — opbouw</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Lactaat</span></div>
+              <div class="wks-desc">Eerste Sweet Spot sessie. Warming-up 15 min · 3×12 min op 145–153W (163–170 bpm buiten), 5 min herstel tussen blokken · cool-down 10 min. Cadans 88–92 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~70 min</strong></span><span class="wksm">145–153W</span><span class="wksm">163–170 bpm</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Zondag</div><div class="wks-name">Duurloop Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Rustige lange duurloop. 6:15–6:30/km, 140–158 bpm. Basis consolideren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>14–16 km</strong></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 6</div>
+          <div class="wk-dates">4 mei – 10 mei</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-swim">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-swim">Zo</div>
+          </div>
+          <span class="wtag-base wk-tag">Open water</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">Onderhoudssessie. Clam shells, single leg deadlift, upper body circuit, core. Foam rol.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Easy Run Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Stevige Z2 run. 6:20–6:40/km, 140–158 bpm. Cadans bewust op 165–168 spm houden.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>45–50 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Zwemmen CSS — progressie</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">Warming-up 400m · CSS Blok: 5×200m op 1:45–1:50/100m, 20 sec rust · 200m easy · VO2max sprints 8×50m MAX · cool-down 200m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~3.200m</strong></span><span class="wksm">~62 min</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">VO2max Fietsintervallen</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">Warming-up 15 min + activering 5 min op 130W · 4×4 min op 190–200W (185–195 bpm buiten), 4 min herstel op 80W · cool-down 10 min. Cadans 90–95 rpm. Eerste interval telt als opwarmer.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~62 min</strong></span><span class="wksm">190–200W</span><span class="wksm">185–195 bpm</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Zondag 10 mei</div><div class="wks-name">Wetsuit Pasdag — open water</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Open water</span></div>
+              <div class="wks-desc">Eerste open water sessie van het jaar met wetsuit. Techniek en acclimatisering prioriteit. Focus op boeilijn volgen, rechte lijn zwemmen, comfortabel worden met wetsuit. Geen intensiteitswerk — gewenning is het doel.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.500–2.000m</strong></span><span class="wksm">Z1–Z2 tempo</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 7</div>
+          <div class="wk-dates">11 mei – 17 mei</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-swim">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-run">Zo</div>
+          </div>
+          <span class="wtag-build wk-tag">Opbouw</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span><span class="wks-chip wkc-itb">ITB</span></div>
+              <div class="wks-desc">Onderhoudssessie met extra focus op ITB preventie. Clam shells, heupabductie, single leg deadlift, upper body, core. Foam rol.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Tempoloop — Lactaatdrempel</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-lt">Lactaat</span></div>
+              <div class="wks-desc">Eerste loopkwaliteitssessie. Warming-up 15 min · 3×8 min op 5:35–5:45/km (163–170 bpm), 3 min herstel · cool-down 10 min. "Comfortably hard" gevoel.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span><span class="wksm">5:35–5:45/km</span><span class="wksm">163–170 bpm</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Zwemmen CSS + VO2max</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">Standaard CSS sessie met progressie. 8×100m CSS + 4×150m + VO2max sprints 8×50m. Totaal ~3.000m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~3.000m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Sweet Spot — progressie</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Lactaat</span></div>
+              <div class="wks-desc">Sweet Spot progressie: 3×15 min op 145–153W (163–170 bpm), 5 min herstel. Cadans 88–92 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~75 min</strong></span><span class="wksm">45 min Sweet Spot</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Zondag</div><div class="wks-name">VO2max Loopintervallen</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">Warming-up 15 min · 5×3 min op 4:50–5:10/km (185–195 bpm), 3 min herstelstap · cool-down 10 min. Minstens 3 van de 5 intervals boven 190 bpm komen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~50 min</strong></span><span class="wksm">4:50–5:10/km</span><span class="wksm">185–195 bpm</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 8</div>
+          <div class="wk-dates">18 mei – 24 mei</div>
+          <div class="wk-days">
+            <div class="wk-day wd-run">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-swim">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-rest">Zo</div>
+          </div>
+          <span class="wtag-rest wk-tag">Vr–Zo geen training</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Maandag</div><div class="wks-name">Easy Run Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Rustige run. 6:30–6:50/km, 40 min. Bewegen voor de rustperiode eind van de week.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">Onderhoudssessie. Geen uitputtend werk vanwege rustperiode eind van de week.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~50 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Zwemmen CSS</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span></div>
+              <div class="wks-desc">Laatste sessie voor de rustperiode. Standaard CSS sessie: 8×100m + 4×150m + VO2max sprints.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~2.800m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-rest">💤</div><div><div class="wks-day">Vrijdag – Zondag 22–24 mei</div><div class="wks-name">Geen training gepland</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-rest">Rust</span></div>
+              <div class="wks-desc">Rustperiode gepland. Actieve herstel indien gewenst: korte wandeling of mobiliteitswerk. Geen gestructureerde training.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 9</div>
+          <div class="wk-dates">25 mei – 31 mei</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-race">Zo</div>
+          </div>
+          <span class="wtag-race wk-tag">🚴 Sprint Stein</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Activeringsrun</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Lichte activering. 30 min op 6:30–6:50/km. Benen losmaken voor de race.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~30 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Zwem activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span></div>
+              <div class="wks-desc">Lichte zwem activering. 4×100m easy · 4×50m CSS · 4×50m sprint · 200m cool-down. Techniek en gevoel.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.200m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Fiets activering + race sim</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span></div>
+              <div class="wks-desc">30 min easy + 3×1 min op 85% FTP (135–140W) als racetempobriefing. Cadans 90 rpm. Benen fris houden.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-race" style="background:var(--blue)">🏆</div><div><div class="wks-day">Zondag 31 mei</div><div class="wks-name">RACE — Sprint Triatlon Stein</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-race">Race dag</span><span class="wks-chip wkc-him">Sprint</span></div>
+              <div class="wks-desc">Eerste triatlon van het seizoen. Doel: soepel wisselen, tempo leren in wedstrijdcontext. Zwem: rustig starten, wetsuit aan. Fiets: 75–80% FTP, cadans 88+ rpm. Run: eerste km rustig, dan opbouwen. Genieten!</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Sprint afstand</strong></span><span class="wksm">Eerste triatlon</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FASE 3 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div class="phase-num">03</div>
+        <div class="phase-info">
+          <div class="phase-name" style="color:var(--yellow)">Fase 3 — HIM Opbouw</div>
+          <div class="phase-dates">1 juni – 26 juli · W10–W17 · Volume en intensiteit opbouwen</div>
+        </div>
+      </div>
+      <div class="weeks-grid">
+
+        <div class="week-card wc-rest" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 10</div>
+          <div class="wk-dates">1 jun – 7 jun</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-swim">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-str">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-rest">Zo</div>
+          </div>
+          <span class="wtag-rest wk-tag">Herstel post-Stein</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Actief herstel zwemmen</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Herstel</span></div>
+              <div class="wks-desc">Actief herstel na de race. 4×200m easy, techniekfocus. Geen intensiteit.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.200m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Easy Run herstel</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Lichte herstelrun. 30 min op 6:40–7:00/km. Benen losmaken, geen druk.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~30 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">Lichte onderhoudssessie. Upper body + core + ITB protocol.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~50 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS — herstart</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span></div>
+              <div class="wks-desc">Terug naar volle CSS sessie. 8×100m + 4×150m + VO2max sprints. Volume opbouwen richting HIM.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~3.000m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Lange duurrit Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Herstelrit op Z2. Cadans 88+ rpm bewust inzetten. Volume opbouwen na de race.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>75–85 km</strong></span><span class="wksm">88+ rpm</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">W11–W13</div>
+          <div class="wk-dates">8 jun – 28 jun</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-swim">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-bike">Zo</div>
+          </div>
+          <span class="wtag-build wk-tag">HIM opbouw</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">1× kracht per week. ITB protocol, upper body, core. Volume afbouwen naarmate HIM nadert.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Loopkwaliteit — afwisselend</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-lt">Lactaat</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">Week A: tempoloop 3×10 min op 5:35–5:45/km (163–170 bpm). Week B: VO2max 4×4 min op 4:50–5:10/km (185–195 bpm). Afwisselen per week.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span><span class="wksm">Wekelijks afwisselen</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Zwemmen CSS progressief</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span></div>
+              <div class="wks-desc">CSS volume opbouwen: W11: 3×400m CSS · W12: 5×200m CSS · W13: 2×600m CSS. Steeds met VO2max sprints aan het einde.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>3.200–3.600m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen Z2 + techniek</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Tweede zwemsessie. Z2 blokken: 3×400m continu op 1:55–2:00/100m. Techniek drill blok. HIM open water gewenning.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~2.000–2.200m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Fietskwaliteit — Sweet Spot of VO2max</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Kwaliteit</span></div>
+              <div class="wks-desc">Week A: Sweet Spot 3×15 min op 145–153W. Week B: VO2max 4×4 min op 190–200W. Afwisselen. Cadans altijd 88–92 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~70 min</strong></span><span class="wksm">Wekelijks afwisselen</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zondag</div><div class="wks-name">Lange duurrit Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Progressief volume: W11: 85–90km · W12: 90–95km · W13: 95–100km. Cadans 88–90 rpm. Voeding oefenen: elke 45 min gel of reep.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>85–100 km</strong></span><span class="wksm">Progressief per week</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 14</div>
+          <div class="wk-dates">29 jun – 5 jul</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-race">Zo</div>
+          </div>
+          <span class="wtag-race wk-tag">🏊 Sprint Maastricht</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Activeringsrun</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Activering voor race. 30–35 min op 6:30/km. 3×1 min race-tempo inschatten. Benen fris houden.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~35 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Zwem activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span></div>
+              <div class="wks-desc">Korte activering. 4×100m easy + 6×50m CSS + 4×25m sprint MAX. Techniek en snelheid in de benen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.200m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Fiets activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span></div>
+              <div class="wks-desc">30 min easy + 3×2 min op 80–85% FTP. Cadans 90 rpm. Systeem activeren zonder vermoeidheid.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-race" style="background:var(--blue)">🏆</div><div><div class="wks-day">Zondag 5 juli</div><div class="wks-name">RACE — Sprint Maastriatlon</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-race">Race dag</span><span class="wks-chip wkc-him">Sprint</span></div>
+              <div class="wks-desc">Meetmoment. Doel: FTP en zwem CSS vergelijken met Stein. Verwachte PR mogelijk. Zwem: wetsuit, rustig instappen. Fiets: 78–83% FTP, cadans 90 rpm. Run: opbouwen na eerste km. Tweede triatlon — betere overstap en racetactiek.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Sprint afstand</strong></span><span class="wksm">PR aanval</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">W15–W16</div>
+          <div class="wk-dates">6 jul – 19 jul</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-swim">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-bike">Zo</div>
+          </div>
+          <span class="wtag-build wk-tag">Brick opbouw</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Loopkwaliteit — afwisselend</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-lt">Lactaat</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">W15: tempoloop 2×15 min op 5:35–5:45/km · W16: VO2max 4×4 min op 4:50–5:10/km.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Donderdag + Vrijdag</div><div class="wks-name">2× Zwemmen per week</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Do: CSS sessie 3×400m + VO2max sprints (~3.400m). Vr: Z2 techniek 3×400m continu + drill blok (~2.000m). Totaal zwemvolume ~5.400m per week.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~5.400m/week</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Fietskwaliteit</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Kwaliteit</span></div>
+              <div class="wks-desc">W15: Sweet Spot 2×20 min · W16: VO2max 5×4 min. Cadans 88–92 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~75 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zondag</div><div class="wks-name">Lange rit — W16 eerste brick</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-run">Brick</span></div>
+              <div class="wks-desc">W15: 95–100km duurrit Z2. W16 (19 juli): eerste brick training — 105km op HIM-tempo (80–83% FTP) + direct 15 min lopen op 6:30/km. Eerste keer "zware benen" ervaren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>W16: 105km + 15min run</strong></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 17</div>
+          <div class="wk-dates">20 jul – 26 jul</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-race">Zo</div>
+          </div>
+          <span class="wtag-race wk-tag">⛰️ Sprint Cave</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Activeringsrun</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">30–35 min. Kort, fris. 3×30 sec strides om benen scherp te houden.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~35 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Zwem activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span></div>
+              <div class="wks-desc">Activering voor race. 4×100m easy + 6×50m CSS + 4×25m sprint. Techniekfocus.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.200m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Fiets activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span></div>
+              <div class="wks-desc">30 min easy + 3×2 min op race-tempo (80–83% FTP). Cadans 90 rpm. Benen activeren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-race" style="background:var(--blue)">🏆</div><div><div class="wks-day">Zaterdag 25 juli</div><div class="wks-name">RACE — Sprint Cave Triatlon</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-race">Race dag</span><span class="wks-chip wkc-him">Sprint</span></div>
+              <div class="wks-desc">Laatste sprint voor HIM. Race op HIM-tempo. Doel: de intensiteit en het gevoel van HIM-fiets tempo (80–83% FTP) leren kennen. Run: bewust HIM-looptempo aanhouden (6:00–6:20/km). Mentale voorbereiding op de grote dag.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Sprint afstand</strong></span><span class="wksm">Op HIM-tempo</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FASE 4 -->
+    <div class="phase-block">
+      <div class="phase-header">
+        <div class="phase-num">04</div>
+        <div class="phase-info">
+          <div class="phase-name" style="color:var(--green)">Fase 4 — HIM Piek & Taper</div>
+          <div class="phase-dates">27 juli – 6 september · W18–W23 · Piekweek + 3 weken taper</div>
+        </div>
+      </div>
+      <div class="weeks-grid">
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 18</div>
+          <div class="wk-dates">27 jul – 2 aug</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-swim">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-bike">Zo</div>
+          </div>
+          <span class="wtag-base wk-tag">🏖️ Trainingsweekend</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Tempoloop</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-lt">Lactaat</span></div>
+              <div class="wks-desc">2×15 min op 5:35–5:45/km (163–170 bpm). Warme zomertemperatuur in rekening brengen: HS zal iets hoger liggen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Donderdag</div><div class="wks-name">CSS zwemmen</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span></div>
+              <div class="wks-desc">Laatste zwempoolsessie voor het trainingsweekend zee. 3×400m CSS + VO2max sprints. ~3.400m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~3.400m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag 31 juli — Zee</div><div class="wks-name">Open water zwemmen — HIM parcours</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Open water</span><span class="wks-chip wkc-him">HIM</span></div>
+              <div class="wks-desc">Eerste open water sessie op of nabij het HIM Knokke-parcours. 1.900m + oefening met wetsuit, boeilijn, open wateroriëntatie. Rustig tempo — techniek en vertrouwen opbouwen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~2.000m open water</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag 1 aug — Zee</div><div class="wks-name">Fietsparcours verkennen</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Verkenning</span></div>
+              <div class="wks-desc">Het HIM-fietsparcours verkennen of vergelijkbaar kustwegparcours rijden. 90km op HIM-tempo: 80–83% FTP (~135–140W), cadans 88–90 rpm. Mentale voorbereiding: het parcours kennen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>90 km</strong></span><span class="wksm">80–83% FTP</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zondag 2 aug — Zee</div><div class="wks-name">Brick training HIM-tempo</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-run">Brick</span><span class="wks-chip wkc-him">HIM tempo</span></div>
+              <div class="wks-desc">Brick training op HIM-tempo. 60km fiets op 80–83% FTP + direct 20 min lopen op 6:10–6:30/km. Zware benen bewust ervaren en overwinnen. Voedingsstrategie testen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>60km + 20min run</strong></span><span class="wksm">HIM race-tempo</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 19</div>
+          <div class="wk-dates">3 aug – 9 aug</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
+            <div class="wk-day wd-swim">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-bike">Zo</div>
+          </div>
+          <span class="wtag-peak wk-tag">Piekweek</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Laatste zware krachtsessie</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-str">Kracht</span></div>
+              <div class="wks-desc">Laatste volledig krachtsessie voor de taper. Alle oefeningen voor het laatste. Na deze week alleen nog licht onderhoud.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Woensdag</div><div class="wks-name">VO2max Loopintervallen</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">4×4 min op 4:50–5:10/km (185–195 bpm), 4 min herstelstap. Laatste VO2max loopsessie voor de taper begint.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span><span class="wksm">16 min hoge intensiteit</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Zwemmen — piekvolume</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span></div>
+              <div class="wks-desc">Piekvolume: 2×800m CSS op 1:45–1:50/100m, 45 sec rust · VO2max sprints 8×50m. Totaal ~3.800m. Langste zwemtraining van het hele plan.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~3.800m</strong></span><span class="wksm">Piekvolume</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen Z2 volume</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Z2 blokken: 4×400m continu op 1:55–2:00/100m. HIM open water simulatie. Geen stops midden in de blokken.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~2.400m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Sweet Spot 2×25 min</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Lactaat</span></div>
+              <div class="wks-desc">Piek Sweet Spot sessie: 2×25 min op 145–153W (163–170 bpm), 8 min herstel. Dit is het langste Sweet Spot werk van het hele plan. Cadans 88–92 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~80 min</strong></span><span class="wksm">50 min Sweet Spot</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zondag</div><div class="wks-name">Brick — piek 110km + lopen</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-run">Brick</span><span class="wks-chip wkc-him">HIM piek</span></div>
+              <div class="wks-desc">De zwaarste trainingsdag van het plan. 110km op HIM-tempo (80–83% FTP, cadans 88–90 rpm) + direct 25 min lopen op 6:10–6:30/km. Voeding elke 45 min. Na deze sessie begint de taper.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>110km + 25min run</strong></span><span class="wksm">~4,5 uur totaal</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 20</div>
+          <div class="wk-dates">10 aug – 16 aug</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-run">Zo</div>
+          </div>
+          <span class="wtag-taper wk-tag">Taper −30%</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Tempoloop — verkort</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-lt">Lactaat</span></div>
+              <div class="wks-desc">Volume −30%: 2×10 min tempoloop op 5:35–5:45/km. Intensiteit behouden, volume verlaagd. Gevoel voor raceritme bewaren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Zwemmen — taper volume</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span></div>
+              <div class="wks-desc">Taper zwem: 6×100m CSS + 200m easy + 6×50m CSS + VO2max sprints 6×50m. Volume −30%: ~2.600m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~2.600m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen Z2 — kort</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">2×400m continu + drill blok. Techniek en gevoel bewaren. ~1.400m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.400m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Sweet Spot — taper versie</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Lactaat</span></div>
+              <div class="wks-desc">2×15 min Sweet Spot (145–153W), 5 min herstel. Volume −30% ten opzichte van piek. Cadans 90 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 min</strong></span><span class="wksm">30 min Sweet Spot</span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Zondag</div><div class="wks-name">Easy Run + strides</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">40 min easy op 6:30–6:50/km + 4×30 sec strides (race-tempo). Benen fris maar scherp houden.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~45 min</strong></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 21</div>
+          <div class="wk-dates">17 aug – 23 aug</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-run">Za</div><div class="wk-day wd-rest">Zo</div>
+          </div>
+          <span class="wtag-taper wk-tag">Taper −50%</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Korte VO2max prikkels</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-vo2">VO2max</span></div>
+              <div class="wks-desc">3×2 min op VO2max tempo (185–195 bpm), 3 min herstel. Kort maar scherp — spierstimulatie behouden zonder vermoeidheid te creëren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~35 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Zwemmen — scherp houden</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span></div>
+              <div class="wks-desc">4×100m CSS + 4×50m sprint MAX + 200m cool-down. Volume minimaal, snelheidsgevoel bewaren. ~1.400m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.400m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Korte fietskwaliteit</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Kwaliteit</span></div>
+              <div class="wks-desc">30 min easy + 3×5 min op 80–83% FTP (race-tempo). Cadans 90 rpm. Spierstimulatie HIM-inspanning bewaren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~50 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Easy Run + strides</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">30 min easy + 4×30 sec strides. Benen moeten al fris beginnen te voelen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~35 min</strong></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 22</div>
+          <div class="wk-dates">24 aug – 30 aug</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-rest">Zo</div>
+          </div>
+          <span class="wtag-taper wk-tag">Minimale taper</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Easy Run met prikkels</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span></div>
+              <div class="wks-desc">25 min easy + 3×30 sec race-tempo. Heel licht. Benen bewegen, systeem activeren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~30 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Zwem — techniek en gevoel</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span></div>
+              <div class="wks-desc">300m easy + 4×50m CSS op tempo + 4×25m sprint MAX + 200m cool-down. Minimaal, gevoel bewaren. ~1.000m.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~1.000m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Fiets activering — heel licht</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span></div>
+              <div class="wks-desc">25 min easy cadans oefening + 2×3 min op race-tempo. Klaar. Benen moeten fris en springerig voelen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~35 min</strong></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="week-card wc-race" style="border-color:rgba(245,166,35,.5);background:rgba(245,166,35,.03)" onclick="toggleWeek(this)">
+          <div class="wk-num">Week 23</div>
+          <div class="wk-dates">31 aug – 6 sep</div>
+          <div class="wk-days">
+            <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
+            <div class="wk-day wd-rest">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-race">Zo</div>
+          </div>
+          <span class="wtag-race wk-tag" style="background:rgba(245,166,35,.2);color:var(--yellow);border-color:rgba(245,166,35,.4)">🏅 HIM KNOKKE</span>
+          <div class="wk-toggle"><span class="wk-expand-hint">Race strategie bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="wk-detail">
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Laatste run activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-run">Lopen</span></div>
+              <div class="wks-desc">20 min easy op 6:45/km + 3×20 sec strides. Laatste looptraining. Lichte benen bewaren.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~25 min</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Zwem techniek — laatste activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span></div>
+              <div class="wks-desc">200m easy + 4×50m CSS + 4×25m sprint + 200m cool-down. Laatste zwemtraining. Alleen gevoel en techniek.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~900m</strong></span></div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-rest">💤</div><div><div class="wks-day">Donderdag + Vrijdag</div><div class="wks-name">Volledige rust — reizen naar Knokke</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-rest">Rust</span></div>
+              <div class="wks-desc">Geen training. Materiaal nakijken, voeding voorbereiden, race-dag plan doorlopen. Aankomen in Knokke, parcours bezoeken, mentale voorbereiding.</div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-rest">💤</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Race-dag voorbereiding</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-rest">Rust</span></div>
+              <div class="wks-desc">Korte activering: 10 min wandelen, 5 min fietsen op lage weerstand, 5 min in het water. Transities opzetten en controleren. Vroeg slapen. Ontbijt al klaarzetten.</div>
+            </div>
+            <div class="wk-session">
+              <div class="wks-hd"><div class="wks-icon wd-race" style="background:var(--yellow);border-radius:5px">🏅</div><div><div class="wks-day">Zondag 6 september — RACE DAY</div><div class="wks-name">HALVE IRONMAN KNOKKE</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-race">Race dag</span><span class="wks-chip wkc-him">HIM 2026</span></div>
+              <div class="wks-desc" style="color:var(--dim)">
+                <strong style="color:var(--yellow)">🏊 Zwem 1,9 km:</strong> Rustig vertrekken, wetsuit aan, boeilijn volgen. Eerste 200m niet overlopen, dan eigen tempo vinden.<br><br>
+                <strong style="color:var(--yellow)">🚴 Fiets 90 km:</strong> Eerste 20km &lt;75% FTP. Dan 80–83% FTP (~135–140W), cadans 88–90 rpm. Elke 45 min eten (gel/reep). Niet te hard beginnen.<br><br>
+                <strong style="color:var(--yellow)">🏃 Run 21,1 km:</strong> Eerste 3km op 6:30/km. Nooit sneller dan 6:00 de eerste 5km. Hartslag bewaken. Eindsprint laatste km als de benen het toelaten.
+              </div>
+              <div class="wks-metrics">
+                <span class="wksm"><strong>1,9km + 90km + 21,1km</strong></span>
+                <span class="wksm" style="color:var(--yellow)">6 september 2026</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+<!-- ── ANALYSE ── -->
+<section class="section" id="analyse">
+  <div class="sec-label">Strava Week 17–22 maart</div>
+  <h2 class="sec-title">Fitness <span>Analyse</span></h2>
+
+  <div class="strava-grid">
+
+    <div class="sact">
+      <div class="sact-hd"><div class="sact-icon si-w">🏋️</div><div><div class="sact-name">Krachttraining</div><div class="sact-date">Ma 17 maart · 16:50</div></div></div>
+      <div class="sact-metrics">
+        <div><div class="sm-lbl">Duur</div><div class="sm-val">1:14</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">120</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">526</div></div>
+      </div>
+    </div>
+
+    <div class="sact">
+      <div class="sact-hd"><div class="sact-icon si-r">🏃</div><div><div class="sact-name">Avondrun Leuven</div><div class="sact-date">Wo 18 maart · 18:35</div></div></div>
+      <div class="sact-metrics">
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">6km</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">6:47</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">142</div></div>
+        <div><div class="sm-lbl">Verm.</div><div class="sm-val">185W</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">162</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">37m</div></div>
+      </div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:8%"></div><div class="szs sz2" style="width:92%"></div></div>
+    </div>
+
+    <div class="sact">
+      <div class="sact-hd"><div class="sact-icon si-w">🏋️</div><div><div class="sact-name">Krachttraining</div><div class="sact-date">Do 19 maart · 16:53</div></div></div>
+      <div class="sact-metrics">
+        <div><div class="sm-lbl">Duur</div><div class="sm-val">1:05</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">107</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">350</div></div>
+      </div>
+    </div>
+
+    <div class="sact">
+      <div class="sact-hd"><div class="sact-icon si-s">🏊</div><div><div class="sact-name">Zwemsessie</div><div class="sact-date">Vr 20 maart · 13:18</div></div></div>
+      <div class="sact-metrics">
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">2750m</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">1:52</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">143</div></div>
+        <div><div class="sm-lbl">Max. HS</div><div class="sm-val">173</div></div>
+        <div><div class="sm-lbl">Tijd</div><div class="sm-val">51:28</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">551</div></div>
+      </div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:30%"></div><div class="szs sz2" style="width:64%"></div><div class="szs sz3" style="width:6%"></div></div>
+    </div>
+
+    <div class="sact">
+      <div class="sact-hd"><div class="sact-icon si-b">🚴</div><div><div class="sact-name">Rustig rondje in de zon</div><div class="sact-date">Za 21 maart · As</div></div></div>
+      <div class="sact-metrics">
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">60km</div></div>
+        <div><div class="sm-lbl">Verm.</div><div class="sm-val">126W</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">151</div></div>
+        <div><div class="sm-lbl">IF</div><div class="sm-val">76%</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">77</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">199m</div></div>
+      </div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:1%"></div><div class="szs sz2" style="width:69%"></div><div class="szs sz3" style="width:29%"></div><div class="szs sz4" style="width:1%"></div></div>
+    </div>
+
+    <div class="sact">
+      <div class="sact-hd"><div class="sact-icon si-r">🏃</div><div><div class="sact-name">Namiddagloop Leuven</div><div class="sact-date">Zo 22 maart · 13:13</div></div></div>
+      <div class="sact-metrics">
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">12km</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">6:16</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">154</div></div>
+        <div><div class="sm-lbl">Max. HS</div><div class="sm-val">173</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">165</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">69m</div></div>
+      </div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:2%"></div><div class="szs sz2" style="width:93%"></div><div class="szs sz3" style="width:5%"></div></div>
+    </div>
+
+  </div>
+
+  <!-- VO2MAX -->
+  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">Schatting</span></h3>
+  <div class="vo2-row">
+    <div class="vo2-card">
+      <div class="ring-svg">
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#e8512a" stroke-dasharray="289" stroke-dashoffset="103"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#e8512a">~48</div><div class="ring-unit">ml/kg/min</div></div>
+      </div>
+      <div class="vo2-label">VO2max Lopen<br><span style="font-size:.62rem;color:#444">71kg gecorrigeerd</span></div>
+    </div>
+    <div class="vo2-card">
+      <div class="ring-svg">
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#3a8fff" stroke-dasharray="289" stroke-dashoffset="123"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#3a8fff">~44</div><div class="ring-unit">ml/kg/min</div></div>
+      </div>
+      <div class="vo2-label">VO2max Fietsen<br><span style="font-size:.62rem;color:#444">via FTP 2,32 W/kg</span></div>
+    </div>
+    <div class="vo2-card">
+      <div class="ring-svg">
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#f5a623" stroke-dasharray="289" stroke-dashoffset="82"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#f5a623">52,1</div><div class="ring-unit">ml/kg/min</div></div>
+      </div>
+      <div class="vo2-label">Apple Watch<br><span style="font-size:.62rem;color:#666">~10% overschat</span></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="ft-brand">JENS<span>.</span>VANDENBERG</div>
+  <div class="ft-info">71 kg · 182 cm · FTP 2,32 W/kg · Halve Ironman Knokke 6 september 2026</div>
+  <div class="ft-info" style="color:var(--accent)">Altijd trainen met een plan.</div>
+</footer>
+
+<script>
+// ── WEEK EXPAND ──
+function toggleWeek(card) {
+  const isOpen = card.classList.contains('open');
+  card.classList.toggle('open', !isOpen);
+}
+
+// ── COUNTDOWN ──
+function updateCD() {
+  const race = new Date('2026-09-06T07:00:00');
+  const now  = new Date();
+  const diff = race - now;
+  if (diff <= 0) {
+    ['d','h','m','s'].forEach(u => document.getElementById('cd-'+u).textContent = '00');
+    return;
+  }
+  const d = Math.floor(diff / 864e5);
+  const h = Math.floor((diff % 864e5) / 36e5);
+  const m = Math.floor((diff % 36e5) / 6e4);
+  const s = Math.floor((diff % 6e4) / 1e3);
+  document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
+  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+}
+updateCD();
+setInterval(updateCD, 1000);
+
+// ── SCROLL REVEAL ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.race-card, .goal-card, .week-card, .sact, .vo2-card, .mhc').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(16px)';
+  el.style.transition = 'opacity .5s ease, transform .5s ease';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
