@@ -629,6 +629,86 @@ nav {
   line-height: 1.4;
 }
 
+/* ── VERLOPEN ITEMS ── */
+.race-card.past {
+  opacity: .45;
+  filter: grayscale(.7);
+  transform: none !important;
+}
+.race-card.past .race-name { text-decoration: line-through; }
+.race-card.past::after {
+  content: '✓ Voorbij';
+  position: absolute;
+  top: .9rem; right: 1.2rem;
+  font-size: .6rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+  background: var(--card2);
+  border: 1px solid var(--border);
+  padding: .15rem .5rem; border-radius: 3px;
+}
+.week-card.past {
+  opacity: .4;
+  filter: grayscale(.6);
+}
+.week-card.past .wk-num { text-decoration: line-through; color: var(--muted); }
+.week-card.past .wk-day { opacity: .5; }
+.week-card.past .wk-toggle { display: none; }
+.week-card.current {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px rgba(232,81,42,.3);
+}
+.week-card.current .wk-num::after {
+  content: ' ← nu';
+  font-family: 'Barlow', sans-serif;
+  font-size: .6rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent); margin-left: .4rem;
+}
+.wk-day.day-past { opacity: .25; }
+.wk-day.day-today {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ── VERLOPEN ITEMS ── */
+.race-card.past {
+  opacity: .42;
+  filter: grayscale(.7);
+  transform: none !important;
+  pointer-events: none;
+}
+.race-card.past .race-name { text-decoration: line-through; }
+.race-card.past::after {
+  content: 'voorbij';
+  position: absolute;
+  top: .9rem; right: 1.2rem;
+  font-size: .58rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+  background: var(--card2);
+  border: 1px solid var(--border);
+  padding: .15rem .5rem; border-radius: 3px;
+}
+.week-card.wk-past {
+  opacity: .35;
+  filter: grayscale(.65);
+}
+.week-card.wk-past .wk-num { text-decoration: line-through; }
+.week-card.wk-past .wk-day { opacity: .4; }
+.week-card.wk-past .wk-toggle { display: none; }
+.week-card.wk-current {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px rgba(232,81,42,.2);
+}
+.week-card.wk-current .wk-num::after {
+  content: ' 90 nu';
+  font-size: .6rem; font-weight: 700;
+  letter-spacing: .1em; color: var(--accent);
+}
+.wk-day.day-past { opacity: .2; }
+.wk-day.day-today { outline: 2px solid var(--accent); outline-offset: 1px; }
+
 /* ── EXPANDABLE WEEK CARDS ── */
 .week-card { cursor: pointer; }
 .wk-toggle {
@@ -1055,12 +1135,12 @@ footer {
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val gr">~53</div>
+        <div class="hstat-val gr">~48</div>
         <div class="hstat-lbl">VO2max</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val">192.0</div>
+        <div class="hstat-val">204</div>
         <div class="hstat-lbl">Max HS bpm</div>
       </div>
       <div class="hero-divider"></div>
@@ -1093,7 +1173,7 @@ footer {
   <div class="race-grid">
     <div class="race-card rc-run">
       <div class="race-icon">🏃</div>
-      <div class="race-date">Zondag 19 april 2026</div>
+      <div class="race-date" data-date="2026-04-19">Zondag 19 april 2026</div>
       <div class="race-name">HM Leuven</div>
       <div class="race-type">Halve Marathon · Leuven</div>
       <div class="race-goal">Doel: finishen zonder ITB-klachten. Volledig Z2 — het is een lange trainingsrun, geen race.</div>
@@ -1101,7 +1181,7 @@ footer {
 
     <div class="race-card rc-run">
       <div class="race-icon">👟</div>
-      <div class="race-date">Zaterdag 25 april 2026</div>
+      <div class="race-date" data-date="2026-04-25">Zaterdag 25 april 2026</div>
       <div class="race-name">5 Miles Antwerpen</div>
       <div class="race-type">Loopwedstrijd · 8 km · Antwerpen</div>
       <div class="race-goal">Doel: lopen op gevoel, tempo testen post-Leuven. Geen race-effort.</div>
@@ -1109,7 +1189,7 @@ footer {
 
     <div class="race-card rc-rest">
       <div class="race-icon">🌊</div>
-      <div class="race-date">Zondag 10 mei 2026</div>
+      <div class="race-date" data-date="2026-05-10">Zondag 10 mei 2026</div>
       <div class="race-name">Wetsuit Pasdag</div>
       <div class="race-type">Open water zwemmen · voorbereiding</div>
       <div class="race-goal">Eerste open water sessie van het jaar met wetsuit. Techniek en acclimatisering.</div>
@@ -1117,7 +1197,7 @@ footer {
 
     <div class="race-card rc-tri">
       <div class="race-icon">🚴</div>
-      <div class="race-date">Zondag 31 mei 2026</div>
+      <div class="race-date" data-date="2026-05-31">Zondag 31 mei 2026</div>
       <div class="race-name">Sprint Triatlon Stein</div>
       <div class="race-type">Sprint Triatlon · Stein</div>
       <div class="race-goal">Eerste triatlon van het seizoen. Doel: soepel overstappen, tempo leren in wedstrijdcontext.</div>
@@ -1125,7 +1205,7 @@ footer {
 
     <div class="race-card rc-tri">
       <div class="race-icon">🏊</div>
-      <div class="race-date">Zondag 5 juli 2026</div>
+      <div class="race-date" data-date="2026-07-05">Zondag 5 juli 2026</div>
       <div class="race-name">Sprint Maastriatlon</div>
       <div class="race-type">Sprint Triatlon · Maastricht</div>
       <div class="race-goal">Tweede sprint. Meetmoment: FTP en zwem CSS vergelijken met mei. Verwachte PR.</div>
@@ -1133,7 +1213,7 @@ footer {
 
     <div class="race-card rc-tri">
       <div class="race-icon">⛰️</div>
-      <div class="race-date">Zaterdag 25 juli 2026</div>
+      <div class="race-date" data-date="2026-07-25">Zaterdag 25 juli 2026</div>
       <div class="race-name">Sprint Cave Triatlon</div>
       <div class="race-type">Sprint Triatlon · Cave</div>
       <div class="race-goal">Laatste sprint voor HIM. Race op HIM-tempo — de juiste intensiteitservaring opdoen.</div>
@@ -1141,7 +1221,7 @@ footer {
 
     <div class="race-card rc-rest">
       <div class="race-icon">🏖️</div>
-      <div class="race-date">Vrijdag 31 juli — zondag 2 aug</div>
+      <div class="race-date" data-date="2026-07-31">Vrijdag 31 juli — zondag 2 aug</div>
       <div class="race-name">Trainingsweekend Zee</div>
       <div class="race-type">Open water training · parcours fiets</div>
       <div class="race-goal">Open water zwemmen op het HIM parcours, fietsparcours verkennen, brick op HIM-tempo.</div>
@@ -1149,7 +1229,7 @@ footer {
 
     <div class="race-card rc-him">
       <div class="race-icon">🏅</div>
-      <div class="race-date">Zondag 6 september 2026</div>
+      <div class="race-date" data-date="2026-09-06">Zondag 6 september 2026</div>
       <div class="race-name">Halve Ironman Knokke</div>
       <div class="race-type">1,9 km zwem · 90 km fiets · 21,1 km run · Knokke-Heist</div>
       <div class="race-goal"><strong style="color:var(--yellow)">Hoofddoel.</strong> Zwem rustig vetrekken · fiets 80–83% FTP · run 6:00–6:30/km eerste helft.</div>
@@ -1351,7 +1431,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">Week 1</div>
-          <div class="wk-dates">30 mrt – 5 apr</div>
+          <div class="wk-dates" data-start="2026-03-30" data-end="2026-04-05">30 mrt – 5 apr</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-str">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-run">Za</div><div class="wk-day wd-bike">Zo</div>
@@ -1400,7 +1480,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">Week 2</div>
-          <div class="wk-dates">6 apr – 12 apr</div>
+          <div class="wk-dates" data-start="2026-04-06" data-end="2026-04-12">6 apr – 12 apr</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-str">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-run">Za</div><div class="wk-day wd-bike">Zo</div>
@@ -1449,7 +1529,7 @@ footer {
 
         <div class="week-card wc-taper" onclick="toggleWeek(this)">
           <div class="wk-num">Week 3</div>
-          <div class="wk-dates">13 apr – 19 apr</div>
+          <div class="wk-dates" data-start="2026-04-13" data-end="2026-04-19">13 apr – 19 apr</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-str">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-race">Za</div><div class="wk-day wd-rest">Zo</div>
@@ -1492,7 +1572,7 @@ footer {
 
         <div class="week-card wc-rest" onclick="toggleWeek(this)">
           <div class="wk-num">Week 4</div>
-          <div class="wk-dates">20 apr – 26 apr</div>
+          <div class="wk-dates" data-start="2026-04-20" data-end="2026-04-26">20 apr – 26 apr</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-rest">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-race">Za</div><div class="wk-day wd-rest">Zo</div>
@@ -1537,7 +1617,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">Week 5</div>
-          <div class="wk-dates">27 apr – 3 mei</div>
+          <div class="wk-dates" data-start="2026-04-27" data-end="2026-05-03">27 apr – 3 mei</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-swim">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-run">Zo</div>
@@ -1580,7 +1660,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">Week 6</div>
-          <div class="wk-dates">4 mei – 10 mei</div>
+          <div class="wk-dates" data-start="2026-05-04" data-end="2026-05-10">4 mei – 10 mei</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-swim">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-swim">Zo</div>
@@ -1623,7 +1703,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">Week 7</div>
-          <div class="wk-dates">11 mei – 17 mei</div>
+          <div class="wk-dates" data-start="2026-05-11" data-end="2026-05-17">11 mei – 17 mei</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-swim">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-run">Zo</div>
@@ -1666,7 +1746,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">Week 8</div>
-          <div class="wk-dates">18 mei – 24 mei</div>
+          <div class="wk-dates" data-start="2026-05-18" data-end="2026-05-24">18 mei – 24 mei</div>
           <div class="wk-days">
             <div class="wk-day wd-run">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-swim">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-rest">Zo</div>
@@ -1702,7 +1782,7 @@ footer {
 
         <div class="week-card wc-taper" onclick="toggleWeek(this)">
           <div class="wk-num">Week 9</div>
-          <div class="wk-dates">25 mei – 31 mei</div>
+          <div class="wk-dates" data-start="2026-05-25" data-end="2026-05-31">25 mei – 31 mei</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-race">Zo</div>
@@ -1753,7 +1833,7 @@ footer {
 
         <div class="week-card wc-rest" onclick="toggleWeek(this)">
           <div class="wk-num">Week 10</div>
-          <div class="wk-dates">1 jun – 7 jun</div>
+          <div class="wk-dates" data-start="2026-06-01" data-end="2026-06-07">1 jun – 7 jun</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-swim">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-str">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-rest">Zo</div>
@@ -1796,7 +1876,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">W11–W13</div>
-          <div class="wk-dates">8 jun – 28 jun</div>
+          <div class="wk-dates" data-start="2026-06-08" data-end="2026-06-28">8 jun – 28 jun</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-swim">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-bike">Zo</div>
@@ -1845,7 +1925,7 @@ footer {
 
         <div class="week-card wc-taper" onclick="toggleWeek(this)">
           <div class="wk-num">Week 14</div>
-          <div class="wk-dates">29 jun – 5 jul</div>
+          <div class="wk-dates" data-start="2026-06-29" data-end="2026-07-05">29 jun – 5 jul</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-race">Zo</div>
@@ -1882,7 +1962,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">W15–W16</div>
-          <div class="wk-dates">6 jul – 19 jul</div>
+          <div class="wk-dates" data-start="2026-07-06" data-end="2026-07-19">6 jul – 19 jul</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-swim">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-bike">Zo</div>
@@ -1919,7 +1999,7 @@ footer {
 
         <div class="week-card wc-taper" onclick="toggleWeek(this)">
           <div class="wk-num">Week 17</div>
-          <div class="wk-dates">20 jul – 26 jul</div>
+          <div class="wk-dates" data-start="2026-07-20" data-end="2026-07-26">20 jul – 26 jul</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-race">Zo</div>
@@ -1970,7 +2050,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">Week 18</div>
-          <div class="wk-dates">27 jul – 2 aug</div>
+          <div class="wk-dates" data-start="2026-07-27" data-end="2026-08-02">27 jul – 2 aug</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-swim">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-bike">Zo</div>
@@ -2013,7 +2093,7 @@ footer {
 
         <div class="week-card" onclick="toggleWeek(this)">
           <div class="wk-num">Week 19</div>
-          <div class="wk-dates">3 aug – 9 aug</div>
+          <div class="wk-dates" data-start="2026-08-03" data-end="2026-08-09">3 aug – 9 aug</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-str">Di</div><div class="wk-day wd-run">Wo</div>
             <div class="wk-day wd-swim">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-bike">Zo</div>
@@ -2062,7 +2142,7 @@ footer {
 
         <div class="week-card wc-taper" onclick="toggleWeek(this)">
           <div class="wk-num">Week 20</div>
-          <div class="wk-dates">10 aug – 16 aug</div>
+          <div class="wk-dates" data-start="2026-08-10" data-end="2026-08-16">10 aug – 16 aug</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-swim">Vr</div><div class="wk-day wd-bike">Za</div><div class="wk-day wd-run">Zo</div>
@@ -2105,7 +2185,7 @@ footer {
 
         <div class="week-card wc-taper" onclick="toggleWeek(this)">
           <div class="wk-num">Week 21</div>
-          <div class="wk-dates">17 aug – 23 aug</div>
+          <div class="wk-dates" data-start="2026-08-17" data-end="2026-08-23">17 aug – 23 aug</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-run">Za</div><div class="wk-day wd-rest">Zo</div>
@@ -2142,7 +2222,7 @@ footer {
 
         <div class="week-card wc-taper" onclick="toggleWeek(this)">
           <div class="wk-num">Week 22</div>
-          <div class="wk-dates">24 aug – 30 aug</div>
+          <div class="wk-dates" data-start="2026-08-24" data-end="2026-08-30">24 aug – 30 aug</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-bike">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-rest">Zo</div>
@@ -2173,7 +2253,7 @@ footer {
 
         <div class="week-card wc-race" style="border-color:rgba(245,166,35,.5);background:rgba(245,166,35,.03)" onclick="toggleWeek(this)">
           <div class="wk-num">Week 23</div>
-          <div class="wk-dates">31 aug – 6 sep</div>
+          <div class="wk-dates" data-start="2026-08-31" data-end="2026-09-06">31 aug – 6 sep</div>
           <div class="wk-days">
             <div class="wk-day wd-rest">Ma</div><div class="wk-day wd-run">Di</div><div class="wk-day wd-swim">Wo</div>
             <div class="wk-day wd-rest">Do</div><div class="wk-day wd-rest">Vr</div><div class="wk-day wd-rest">Za</div><div class="wk-day wd-race">Zo</div>
@@ -2224,256 +2304,107 @@ footer {
 
 <!-- ── ANALYSE ── -->
 <section class="section" id="analyse">
-  <div class="sec-label">Live via Strava API</div>
-  <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 27 March 2026 om 06:49</p>
+  <div class="sec-label">Strava Week 17–22 maart</div>
+  <h2 class="sec-title">Fitness <span>Analyse</span></h2>
 
   <div class="strava-grid">
-    
+
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">In kniebesparingsmodus 🦵🪫</div>
-          <div class="sact-date">Thu 26 Mar</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-w">🏋️</div><div><div class="sact-name">Krachttraining</div><div class="sact-date">Ma 17 maart · 16:50</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">6.4km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:35/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">42:05</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">170 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">30m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">145 bpm</div></div>
+        <div><div class="sm-lbl">Duur</div><div class="sm-val">1:14</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">120</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">526</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Namiddagsessie krachttraining</div>
-          <div class="sact-date">Tue 24 Mar</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-r">🏃</div><div><div class="sact-name">Avondrun Leuven</div><div class="sact-date">Wo 18 maart · 18:35</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">1u16</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">107 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">146 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">6km</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">6:47</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">142</div></div>
+        <div><div class="sm-lbl">Verm.</div><div class="sm-val">185W</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">162</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">37m</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:8%"></div><div class="szs sz2" style="width:92%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Namiddagloop</div>
-          <div class="sact-date">Sun 22 Mar</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-w">🏋️</div><div><div class="sact-name">Krachttraining</div><div class="sact-date">Do 19 maart · 16:53</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">12.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:16/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">1u15</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">165 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">69m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">153 bpm</div></div>
+        <div><div class="sm-lbl">Duur</div><div class="sm-val">1:05</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">107</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">350</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Lekker rustig rondje in de ☀️ :-)</div>
-          <div class="sact-date">Sat 21 Mar</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">60.1km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">27.7km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">2u10</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">77 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">199m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">151 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-s">🏊</div>
-        <div>
-          <div class="sact-name">Namiddagzwemsessie</div>
-          <div class="sact-date">Fri 20 Mar</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-s">🏊</div><div><div class="sact-name">Zwemsessie</div><div class="sact-date">Vr 20 maart · 13:18</div></div></div>
       <div class="sact-metrics">
         <div><div class="sm-lbl">Afstand</div><div class="sm-val">2750m</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">1:52/100m</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">51:28</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">143 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">173 bpm</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">1:52</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">143</div></div>
+        <div><div class="sm-lbl">Max. HS</div><div class="sm-val">173</div></div>
+        <div><div class="sm-lbl">Tijd</div><div class="sm-val">51:28</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">551</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:30%"></div><div class="szs sz2" style="width:64%"></div><div class="szs sz3" style="width:6%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Namiddagsessie krachttraining</div>
-          <div class="sact-date">Thu 19 Mar</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-b">🚴</div><div><div class="sact-name">Rustig rondje in de zon</div><div class="sact-date">Za 21 maart · As</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">1u05</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">107 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">149 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">60km</div></div>
+        <div><div class="sm-lbl">Verm.</div><div class="sm-val">126W</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">151</div></div>
+        <div><div class="sm-lbl">IF</div><div class="sm-val">76%</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">77</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">199m</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:1%"></div><div class="szs sz2" style="width:69%"></div><div class="szs sz3" style="width:29%"></div><div class="szs sz4" style="width:1%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Woensdag Avondrun</div>
-          <div class="sact-date">Wed 18 Mar</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-r">🏃</div><div><div class="sact-name">Namiddagloop Leuven</div><div class="sact-date">Zo 22 maart · 13:13</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">6.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:47/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">40:47</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">161 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">36m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">141 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">12km</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">6:16</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">154</div></div>
+        <div><div class="sm-lbl">Max. HS</div><div class="sm-val">173</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">165</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">69m</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:2%"></div><div class="szs sz2" style="width:93%"></div><div class="szs sz3" style="width:5%"></div></div>
     </div>
 
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Namiddagsessie krachttraining</div>
-          <div class="sact-date">Tue 17 Mar</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">1u14</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">120 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">156 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Lekker weertje ☀️</div>
-          <div class="sact-date">Sun 15 Mar</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">85.1km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">24.8km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">3u26</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">73 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">615m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">148 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
-    </div>
   </div>
 
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Live <span style="color:var(--text)">Fitnesswaarden</span></h3>
-
-  <div class="mhc-grid" style="margin-bottom:2.5rem">
-    <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac">165 W</div><div class="mhc-sub">2.32 W/kg</div></div>
-    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val">192.0 bpm</div><div class="mhc-sub">gemeten in training</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max (schatting)</div><div class="mhc-val gr">~53</div><div class="mhc-sub">ml/kg/min</div></div>
-    <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl">1:49/100m</div><div class="mhc-sub">snelste gemiddelde</div></div>
-    <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val ac">76 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val ay">162 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val">30</div><div class="mhc-sub">🏃 13 · 🚴 5 · 🏊 2</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
-  </div>
-
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">HIM Eindtijd</span></h3>
-
-  <div style="background:var(--card);border:1px solid rgba(232,81,42,.35);border-radius:14px;padding:1.5rem 1.8rem;margin-bottom:2.5rem;max-width:580px">
-    <div style="display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:900;line-height:1;color:var(--yellow);letter-spacing:-.01em">6u21m45s</div>
-      <div style="font-size:.78rem;color:var(--muted);font-weight:500">geschatte eindtijd<br>incl. transities</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem">
-      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4de88a;margin-bottom:.35rem">🏊 Zwemmen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">0:35</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">1,9 km · 1:52/100m</div>
-      </div>
-      <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6ab4ff;margin-bottom:.35rem">🚴 Fietsen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">3:25</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">90 km · 26.3 km/u</div>
-      </div>
-      <div style="background:rgba(232,81,42,.07);border:1px solid rgba(232,81,42,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ff8060;margin-bottom:.35rem">🏃 Lopen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">2:17</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">21,1 km · 6:29/km</div>
-      </div>
-    </div>
-    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:.8rem">
-      Schatting op basis van actuele Strava data · Open water −3% zwem · HIM-tempo correctie −12% fiets en run · Transities inbegrepen in totaal · Wordt automatisch bijgewerkt bij elke sync.
-    </div>
-  </div>
-
+  <!-- VO2MAX -->
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">Schatting</span></h3>
   <div class="vo2-row">
     <div class="vo2-card">
       <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#e8512a" stroke-dasharray="289" stroke-dashoffset="148"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:#e8512a">~53</div><div class="ring-unit">ml/kg/min</div></div>
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#e8512a" stroke-dasharray="289" stroke-dashoffset="103"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#e8512a">~48</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
-      <div class="vo2-label">VO2max Schatting<br><span style="font-size:.62rem;color:#444">via looptempo 71kg</span></div>
+      <div class="vo2-label">VO2max Lopen<br><span style="font-size:.62rem;color:#444">71kg gecorrigeerd</span></div>
     </div>
     <div class="vo2-card">
       <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#3a8fff" stroke-dasharray="289" stroke-dashoffset="163"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:#3a8fff">165W</div><div class="ring-unit">2.32 W/kg</div></div>
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#3a8fff" stroke-dasharray="289" stroke-dashoffset="123"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#3a8fff">~44</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
-      <div class="vo2-label">FTP Fietsen<br><span style="font-size:.62rem;color:#444">doel: 199–227W</span></div>
+      <div class="vo2-label">VO2max Fietsen<br><span style="font-size:.62rem;color:#444">via FTP 2,32 W/kg</span></div>
     </div>
-    <div class="vo2-card" style="justify-content:center">
-      <div class="mhc-lbl" style="text-align:center;margin-bottom:.8rem">HIM Doelniveau</div>
-      <div class="ring-val" style="color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;text-align:center">52+</div>
-      <div style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:.4rem">ml/kg/min vereist</div>
-      <div style="font-size:.75rem;color:var(--accent);text-align:center;margin-top:.3rem">Gap: ~0 punten te winnen</div>
+    <div class="vo2-card">
+      <div class="ring-svg">
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#f5a623" stroke-dasharray="289" stroke-dashoffset="82"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#f5a623">52,1</div><div class="ring-unit">ml/kg/min</div></div>
+      </div>
+      <div class="vo2-label">Apple Watch<br><span style="font-size:.62rem;color:#666">~10% overschat</span></div>
     </div>
-  </div>
-
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.4rem;margin-top:1.5rem;max-width:420px">
-    <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">VO2max — Firstbeat methode (top 5 runs)</div>
-    <table style="width:100%;border-collapse:collapse;font-size:.82rem">
-      <tr style="border-bottom:1px solid var(--border)">
-        <th style="text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Run</th>
-        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Schatting</th>
-        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Gewicht</th>
-      </tr>
-      <tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">54.1</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">53.2</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">52.9</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">52.9</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">52.1</td><td style="text-align:right;color:var(--muted)">20%</td></tr>
-      <tr style="border-top:1px solid var(--border)">
-        <td style="padding:.4rem .4rem;font-weight:600;color:var(--text)">Gemiddeld</td>
-        <td style="text-align:right;font-weight:600;color:var(--accent);font-size:1rem">53</td>
-        <td></td>
-      </tr>
-    </table>
-    <div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">Firstbeat: tempo + hartslag per run → extrapoleer naar max. Mediaan van beste 5 runs om uitschieters te vermijden.</div>
   </div>
 
 </section>
@@ -2488,9 +2419,62 @@ footer {
 <script>
 // ── WEEK EXPAND ──
 function toggleWeek(card) {
+  if (card.classList.contains('wk-past')) return;
   const isOpen = card.classList.contains('open');
   card.classList.toggle('open', !isOpen);
 }
+
+// ── MARKEER VERLOPEN WEKEN & RACES ──
+function markPastItems() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const DAY_MS = 864e5;
+  const DAY_NAMES = ['zo','ma','di','wo','do','vr','za'];
+
+  // ── Week kaarten ──
+  document.querySelectorAll('.week-card').forEach(card => {
+    const datesEl = card.querySelector('.wk-dates');
+    if (!datesEl) return;
+    const start = new Date(datesEl.dataset.start);
+    const end   = new Date(datesEl.dataset.end);
+    end.setHours(23,59,59);
+
+    if (end < today) {
+      card.classList.add('wk-past');
+      card.onclick = null;
+    } else if (start <= today && today <= end) {
+      card.classList.add('wk-current');
+      card.classList.add('open'); // huidige week standaard opengeklapt
+
+      // Markeer individuele dag-blokjes
+      const dayEls = card.querySelectorAll('.wk-day');
+      const todayDow = today.getDay(); // 0=zo, 1=ma, ...
+      // wk-days volgorde: Ma Di Wo Do Vr Za Zo = index 0..6
+      // JS getDay(): 0=zo,1=ma,...,6=za
+      // Vertaling JS dag → index in kaart (ma=0 ... zo=6)
+      const jsToIdx = [6,0,1,2,3,4,5];
+      const todayIdx = jsToIdx[todayDow];
+
+      dayEls.forEach((el, i) => {
+        if (i < todayIdx) el.classList.add('day-past');
+        if (i === todayIdx) el.classList.add('day-today');
+      });
+    }
+  });
+
+  // ── Race kaarten ──
+  document.querySelectorAll('.race-card').forEach(card => {
+    const dateEl = card.querySelector('.race-date[data-date]');
+    if (!dateEl) return;
+    const raceDate = new Date(dateEl.dataset.date);
+    raceDate.setHours(23,59,59);
+    if (raceDate < today) {
+      card.classList.add('past');
+    }
+  });
+}
+markPastItems();
 
 // ── COUNTDOWN ──
 function updateCD() {
