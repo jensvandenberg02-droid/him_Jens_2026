@@ -575,15 +575,16 @@ def main():
 
     new_html = html[:start] + new_section + "\n\n" + html[end:]
 
-    # Update ook de hero stats (max HS, VO2max, FTP, CSS)
+    # Update alle waarden doorheen de volledige pagina
     ftp  = stats["ftp"]
     wkg  = round(ftp / 71, 2)
     mhr  = stats["max_hr"]
     vo2  = stats["vo2max"] or 48
     swim = stats["best_swim"] or "1:52"
 
-    # Vervang hero stat waarden via herkenbare patronen
     import re
+
+    # ── Hero stats ──
     new_html = re.sub(
         r'(<div class="hstat-val ac">)\d+(<small[^>]*>W</small></div>\s*<div class="hstat-lbl">FTP Fiets</div>)',
         rf'\g<1>{ftp}\2', new_html
@@ -601,10 +602,40 @@ def main():
         rf'\g<1>{mhr}\2', new_html
     )
 
+    # ── Progressie & Targets — metric kaartjes ──
+    # FTP kaartje
+    new_html = re.sub(
+        r'(<div class="mhc-lbl">FTP nu</div><div class="mhc-val ac">)\d+( W</div><div class="mhc-sub">)\d+\.\d+(</div>)',
+        rf'\g<1>{ftp}\g<2>{wkg}\3', new_html
+    )
+    # VO2max kaartje
+    new_html = re.sub(
+        r'(<div class="mhc-lbl">VO2max</div><div class="mhc-val gr">)~?\d+(</div>)',
+        rf'\g<1>~{vo2}\2', new_html
+    )
+    # Max HS kaartje
+    new_html = re.sub(
+        r'(<div class="mhc-lbl">Max HS bpm</div><div class="mhc-val">)\d+(</div>)',
+        rf'\g<1>{mhr}\2', new_html
+    )
+
+    # ── Progressie & Targets — goal bars ──
+    # VO2max progressiebalk huidige waarde
+    new_html = re.sub(
+        r'(<span class="goal-now">)~?\d+(</span><span class="goal-arrow">→</span><span class="goal-target">52\+)',
+        rf'\g<1>~{vo2}\2', new_html
+    )
+
+    # ── Intro tekst VO2max ──
+    new_html = re.sub(
+        r'(VO2max van )~?\d+( ml/kg/min)',
+        rf'\g<1>~{vo2}\2', new_html
+    )
+
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(new_html)
 
-    print("✅ index.html bijgewerkt!")
+    print(f"✅ index.html bijgewerkt! VO2max: {vo2} · FTP: {ftp}W · Max HS: {mhr} bpm")
 
 if __name__ == "__main__":
     main()
