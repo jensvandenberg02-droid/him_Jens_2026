@@ -590,7 +590,7 @@ def main():
         rf'\g<1>{ftp}\2', new_html
     )
     new_html = re.sub(
-        r'(<div class="hstat-val">)\d+\.\d+(</div>\s*<div class="hstat-lbl">W/kg</div>)',
+        r'(<div class="hstat-val">)\d+[\.,]\d+(</div>\s*<div class="hstat-lbl">W/kg</div>)',
         rf'\g<1>{wkg}\2', new_html
     )
     new_html = re.sub(
@@ -602,31 +602,27 @@ def main():
         rf'\g<1>{mhr}\2', new_html
     )
 
-    # ── Progressie & Targets — metric kaartjes ──
-    # FTP kaartje
+    # ── Progressie & Targets — metric kaartjes (robuuste match) ──
     new_html = re.sub(
-        r'(<div class="mhc-lbl">FTP nu</div><div class="mhc-val ac">)\d+( W</div><div class="mhc-sub">)\d+\.\d+(</div>)',
+        r'(<div class="mhc-lbl">FTP nu</div><div class="mhc-val ac">)\d+(\s*W</div><div class="mhc-sub">)\d+[\.,]\d+(\s*W/kg</div>)',
         rf'\g<1>{ftp}\g<2>{wkg}\3', new_html
     )
-    # VO2max kaartje
     new_html = re.sub(
         r'(<div class="mhc-lbl">VO2max</div><div class="mhc-val gr">)~?\d+(</div>)',
         rf'\g<1>~{vo2}\2', new_html
     )
-    # Max HS kaartje
     new_html = re.sub(
         r'(<div class="mhc-lbl">Max HS bpm</div><div class="mhc-val">)\d+(</div>)',
         rf'\g<1>{mhr}\2', new_html
     )
 
-    # ── Progressie & Targets — goal bars ──
-    # VO2max progressiebalk huidige waarde
+    # ── Progressie balk VO2max huidige waarde ──
     new_html = re.sub(
         r'(<span class="goal-now">)~?\d+(</span><span class="goal-arrow">→</span><span class="goal-target">52\+)',
         rf'\g<1>~{vo2}\2', new_html
     )
 
-    # ── Intro tekst VO2max ──
+    # ── Intro tekst ──
     new_html = re.sub(
         r'(VO2max van )~?\d+( ml/kg/min)',
         rf'\g<1>~{vo2}\2', new_html
