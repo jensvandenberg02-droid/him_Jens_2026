@@ -543,7 +543,88 @@ def build_strava_section(activities, stats, athlete):
 
 </section>"""
 
-# ── MAIN ──
+def generate_ai_update(activities, stats, him):
+    """
+    Roept de Anthropic Claude API aan om een persoonlijke trainingsupdate te schrijven.
+    """
+    import json
+
+    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not ANTHROPIC_API_KEY:
+        return (
+            "AI update niet beschikbaar — voeg ANTHROPIC_API_KEY toe als GitHub Secret.",
+            ""
+        )
+
+    # Bouw een samenvatting van de data voor Claude
+    recent = activities[:5]
+    acts_summary = []
+    for a in recent:
+        t    = a.get("type", "Workout")
+        name = a.get("name", t)
+        dist = a.get("distance", 0)
+        dur  = a.get("moving_time", 0)
+        hr   = a.get("average_heartrate", 0)
+        spd  = a.get("average_speed", 0)
+        date = datetime.fromisoformat(a["start_date_local"].replace("Z","")).strftime("%a %-d %b")
+
+        if "run" in t.lower():
+            detail = f"{dist/1000:.1f}km op {fmt_pace(spd)} (gem. HS {int(hr) if hr else '?'} bpm)"
+        elif "ride" in t.lower():
+            detail = f"{dist/1000:.1f}km op {spd*3.6:.1f}km/u"
+        elif "swim" in t.lower():
+            detail = f"{dist:.0f}m op {fmt_swim_pace(spd)}"
+        else:
+            detail = f"{int(dur//60)} min"
+
+        acts_summary.append(f"- {date}: {name} ({t}) — {detail}")
+
+    acts_text = "\n".join(acts_summary) if acts_summary else "Geen recente activiteiten"
+
+    prompt = f"""Je bent een persoonlijke triatleetcoach. Schrijf een korte, motiverende en eerlijke update voor Jens van den Berg (71kg, 182cm) die traint voor de Halve Ironman Knokke op 6 september 2026.
+
+Actuele fitnessdata:
+- VO2max schatting: ~{stats['vo2max']} ml/kg/min (doel: 52+)
+- FTP: {stats['ftp']}W ({round(stats['ftp']/71, 2)} W/kg) (doel: 2,8–3,2 W/kg)
+- Max hartslag: {stats['max_hr']} bpm
+- Beste zwemtempo: {stats.get('best_swim') or '—'}
+- Fietscadans: {stats.get('bike_cadence') or '—'} rpm
+- Geschatte HIM eindtijd: {him['total_time']} (zwem {him['swim_time']} / fiets {him['bike_time']} / run {him['run_time']})
+
+Laatste 5 activiteiten:
+{acts_text}
+
+Schrijf een persoonlijke update van 3–4 zinnen in het Nederlands. Wees specifiek over de laatste training en wat die betekent voor zijn voorbereiding. Geef ook één concrete tip voor de komende dagen. Schrijf in de tweede persoon ("je", niet "u"). Geen opsomming, gewoon lopende tekst."""
+
+    try:
+        response = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-haiku-4-5-20251001",
+                "max_tokens": 300,
+                "messages": [{"role": "user", "content": prompt}]
+            },
+            timeout=30
+        )
+        response.raise_for_status()
+        text = response.json()["content"][0]["text"].strip()
+        now  = datetime.now().strftime("%-d %B %Y om %H:%M")
+        meta = f"— Gegenereerd door Claude op {now} op basis van Strava data"
+        return text, meta
+
+    except Exception as e:
+        print(f"   Claude API fout: {e}")
+        return (
+            f"Je staat er goed voor richting HIM Knokke. VO2max ~{stats['vo2max']} ml/kg/min, FTP {stats['ftp']}W. Blijf consistent trainen!",
+            f"— Automatische fallback · {datetime.now().strftime('%-d %B %Y')}"
+        )
+
+
 def main():
     print("🔄 Strava token ophalen...")
     token = get_access_token()
@@ -582,9 +663,25 @@ def main():
     vo2  = stats["vo2max"] or 48
     swim = stats["best_swim"] or "1:52"
 
+    print("🤖 AI update genereren...")
+    ai_text, ai_meta = generate_ai_update(activities, stats, him_time)
+    print(f"   → {ai_text[:60]}...")
+
     import re
 
-    # ── Hero stats ──
+    # Injecteer AI update tekst
+    new_html = re.sub(
+        r'(<div id="ai-update-text"[^>]*>)(.*?)(</div>)',
+        rf'\g<1>{ai_text}\3',
+        new_html, flags=re.DOTALL
+    )
+    new_html = re.sub(
+        r'(<div id="ai-update-meta"[^>]*>)(.*?)(</div>)',
+        rf'\g<1>{ai_meta}\3',
+        new_html, flags=re.DOTALL
+    )
+
+
     new_html = re.sub(
         r'(<div class="hstat-val ac">)\d+(<small[^>]*>W</small></div>\s*<div class="hstat-lbl">FTP Fiets</div>)',
         rf'\g<1>{ftp}\2', new_html
