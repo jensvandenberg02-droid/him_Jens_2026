@@ -663,6 +663,9 @@ def main():
     vo2  = stats["vo2max"] or 48
     swim = stats["best_swim"] or "1:52"
 
+    # HIM eindtijd berekenen (nodig voor AI update)
+    him_time = estimate_him_time(activities)
+
     print("🤖 AI update genereren...")
     ai_text, ai_meta = generate_ai_update(activities, stats, him_time)
     print(f"   → {ai_text[:60]}...")
