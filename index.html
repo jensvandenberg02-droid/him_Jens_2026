@@ -1371,10 +1371,18 @@ footer {
   </div>
 
   <div class="weight-bar">
-    <label>⚖️ Gewicht aanpassen</label>
+    <label>⚖️ Gewicht</label>
     <input type="number" id="weight-input" class="weight-input" value="71" min="50" max="120" step="0.5">
     <span class="weight-info">kg</span>
-    <button class="weight-save" onclick="updateWeight()">Opslaan & herbereken</button>
+    <div style="width:1px;height:28px;background:var(--border2);margin:0 .4rem"></div>
+    <label>❤️ Rust HS</label>
+    <input type="number" id="rhr-input" class="weight-input" value="50" min="30" max="90" step="1">
+    <span class="weight-info">bpm</span>
+    <div style="width:1px;height:28px;background:var(--border2);margin:0 .4rem"></div>
+    <label>🍎 Apple Watch VO2max</label>
+    <input type="number" id="aw-vo2-input" class="weight-input" value="52.1" min="20" max="80" step="0.1" style="width:82px">
+    <span class="weight-info">ml/kg/min</span>
+    <button class="weight-save" onclick="saveHealthData()">Opslaan & herbereken</button>
     <span id="weight-feedback" class="weight-info" style="color:var(--green)"></span>
   </div>
 
@@ -1467,7 +1475,7 @@ footer {
       <div class="goal-discipline">❤️ Fysiologisch</div>
       <div class="goal-row">
         <div class="goal-label-row">
-          <span class="goal-param">VO2max schatting</span>
+          <span class="goal-param">VO2max — eigen berekening</span>
           <div class="goal-vals"><span class="goal-now" id="pb-vo2-now">~48</span><span class="goal-arrow">→</span><span class="goal-target">52+ ml/kg/min</span></div>
         </div>
         <div class="pbar-wrap">
@@ -1477,12 +1485,22 @@ footer {
       </div>
       <div class="goal-row">
         <div class="goal-label-row">
-          <span class="goal-param">Rusthartslag</span>
-          <div class="goal-vals"><span class="goal-now" style="color:var(--green)">50 bpm ✓</span></div>
+          <span class="goal-param">VO2max — Apple Watch <span style="font-size:.65rem;color:var(--muted)">(~10% overschat)</span></span>
+          <div class="goal-vals"><span class="goal-now" id="pb-awvo2-now" style="color:var(--yellow)">52,1</span><span class="goal-arrow" style="font-size:.65rem;color:var(--muted)">gecorrigeerd:</span><span class="goal-now" id="pb-awvo2-corrected" style="color:var(--dim);font-size:.9rem">~47</span></div>
         </div>
         <div class="pbar-wrap">
-          <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:95%;background:var(--green)"></div></div>
-          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 52</span><span class="pbar-lbl-now" style="color:var(--green)">Nu: 50 ✓</span><span class="pbar-lbl-target">Doel: &lt;48</span></div>
+          <div class="pbar-track"><div class="pbar-fill pf-vo2" id="pb-awvo2" style="width:78%;opacity:.5"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start" style="color:var(--yellow)">Apple Watch</span><span class="pbar-lbl-now" id="pbl-awvo2" style="color:var(--yellow)">52,1 (ruw)</span><span class="pbar-lbl-target" style="color:var(--dim)">−10% = ~47</span></div>
+        </div>
+      </div>
+      <div class="goal-row">
+        <div class="goal-label-row">
+          <span class="goal-param">Rusthartslag</span>
+          <div class="goal-vals"><span class="goal-now" id="pb-rhr-now" style="color:var(--green)">50 bpm ✓</span></div>
+        </div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-vo2" id="pb-rhr" style="width:95%;background:var(--green)"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 52</span><span class="pbar-lbl-now" id="pbl-rhr" style="color:var(--green)">Nu: 50 ✓</span><span class="pbar-lbl-target">Doel: &lt;48</span></div>
         </div>
       </div>
     </div>
@@ -2529,12 +2547,16 @@ function secsToMinSec(s) {
 
 function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
 
-function updateAllBars(weight) {
+function updateAllBars(weight, rhr, awvo2) {
+  rhr   = rhr   || parseFloat(localStorage.getItem('jens-rhr'))   || 50;
+  awvo2 = awvo2 || parseFloat(localStorage.getItem('jens-awvo2')) || 52.1;
+
   const ftp   = STRAVA_DATA.ftp;
   const wkg   = Math.round((ftp / weight) * 100) / 100;
   const bcad  = STRAVA_DATA.bcad;
   const rcad  = STRAVA_DATA.rcad;
   const vo2   = STRAVA_DATA.vo2;
+  const awvo2Corrected = Math.round(awvo2 * 0.90);
 
   // ── FTP balk (min 100W, doel 199W) ──
   const ftpPct = clamp((ftp - 100) / (199 - 100) * 100, 0, 100);
@@ -2595,25 +2617,63 @@ function updateAllBars(weight) {
   document.getElementById('disp-weight') && (document.getElementById('disp-weight').textContent = weight);
   document.getElementById('disp-vo2')    && (document.getElementById('disp-vo2').textContent    = '~' + vo2);
   document.getElementById('mhc-runpace') && (document.getElementById('mhc-runpace').textContent = rp + '/km');
+
+  // ── Apple Watch VO2max vergelijking ──
+  const awPct = clamp((awvo2 - 40) / (60 - 40) * 100, 0, 100);
+  document.getElementById('pb-awvo2')          && (document.getElementById('pb-awvo2').style.width           = awPct + '%');
+  document.getElementById('pb-awvo2-now')      && (document.getElementById('pb-awvo2-now').textContent       = awvo2.toFixed(1));
+  document.getElementById('pb-awvo2-corrected')&& (document.getElementById('pb-awvo2-corrected').textContent = '~' + awvo2Corrected);
+  document.getElementById('pbl-awvo2')         && (document.getElementById('pbl-awvo2').textContent          = awvo2.toFixed(1) + ' (ruw)');
+  document.getElementById('aw-vo2-input')      && (document.getElementById('aw-vo2-input').value             = awvo2);
+
+  // ── Rusthartslag ──
+  // Schaal: 70 bpm (slecht) → 40 bpm (uitstekend), omgekeerd
+  const rhrPct  = clamp((70 - rhr) / (70 - 40) * 100, 0, 100);
+  const rhrColor = rhr <= 50 ? 'var(--green)' : rhr <= 58 ? 'var(--yellow)' : 'var(--accent)';
+  const rhrLabel = rhr <= 48 ? rhr + ' bpm ✓' : rhr <= 55 ? rhr + ' bpm' : rhr + ' bpm';
+  const rhrBar   = document.getElementById('pb-rhr');
+  if (rhrBar) { rhrBar.style.width = rhrPct + '%'; rhrBar.style.background = rhrColor; }
+  document.getElementById('pb-rhr-now') && (document.getElementById('pb-rhr-now').textContent = rhrLabel);
+  document.getElementById('pb-rhr-now') && (document.getElementById('pb-rhr-now').style.color  = rhrColor);
+  document.getElementById('pbl-rhr')    && (document.getElementById('pbl-rhr').textContent     = 'Nu: ' + rhrLabel);
+  document.getElementById('pbl-rhr')    && (document.getElementById('pbl-rhr').style.color      = rhrColor);
+  document.getElementById('hero-rhr')   && (document.getElementById('hero-rhr').textContent    = rhr);
+  document.getElementById('rhr-input')  && (document.getElementById('rhr-input').value         = rhr);
 }
 
-function updateWeight() {
-  const input = document.getElementById('weight-input');
-  const w = parseFloat(input.value);
-  if (!w || w < 40 || w > 150) return;
-  localStorage.setItem('jens-weight', w);
-  updateAllBars(w);
+function saveHealthData() {
+  const w    = parseFloat(document.getElementById('weight-input').value);
+  const rhr  = parseInt(document.getElementById('rhr-input').value);
+  const awvo2 = parseFloat(document.getElementById('aw-vo2-input').value);
+
+  if (w   && w > 40   && w < 150)  localStorage.setItem('jens-weight', w);
+  if (rhr && rhr > 30 && rhr < 90) localStorage.setItem('jens-rhr', rhr);
+  if (awvo2 && awvo2 > 20)          localStorage.setItem('jens-awvo2', awvo2);
+
+  updateAllBars(w || 71, rhr || 50, awvo2 || 52.1);
+
   const fb = document.getElementById('weight-feedback');
   if (fb) { fb.textContent = '✓ Opgeslagen'; setTimeout(() => fb.textContent = '', 2500); }
 }
 
+// Keep old name for backwards compatibility
+function updateWeight() { saveHealthData(); }
+
 // Init on load
 (function() {
-  const saved = localStorage.getItem('jens-weight');
-  const w = saved ? parseFloat(saved) : 71;
-  const input = document.getElementById('weight-input');
-  if (input) input.value = w;
-  updateAllBars(w);
+  const w     = parseFloat(localStorage.getItem('jens-weight')) || 71;
+  const rhr   = parseFloat(localStorage.getItem('jens-rhr'))    || 50;
+  const awvo2 = parseFloat(localStorage.getItem('jens-awvo2'))  || 52.1;
+
+  const weightInput = document.getElementById('weight-input');
+  const rhrInput    = document.getElementById('rhr-input');
+  const awvo2Input  = document.getElementById('aw-vo2-input');
+
+  if (weightInput) weightInput.value = w;
+  if (rhrInput)    rhrInput.value    = rhr;
+  if (awvo2Input)  awvo2Input.value  = awvo2;
+
+  updateAllBars(w, rhr, awvo2);
 })();
 function toggleWeek(card) {
   if (card.classList.contains('wk-past')) return;
