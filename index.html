@@ -1006,6 +1006,108 @@ footer {
   footer { padding: 1.5rem 1.2rem; }
 }
 
+/* ── GEWICHT INPUT ── */
+.weight-bar {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: .8rem 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.weight-bar label {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.weight-input {
+  background: var(--subtle);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: .3rem .7rem;
+  width: 72px;
+  text-align: center;
+}
+.weight-input:focus { outline: none; border-color: var(--accent); }
+.weight-save {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .35rem .9rem;
+  border-radius: 5px;
+  border: 1px solid rgba(232,81,42,.5);
+  background: rgba(232,81,42,.1);
+  color: var(--accent);
+  cursor: pointer;
+  transition: background .2s;
+}
+.weight-save:hover { background: rgba(232,81,42,.2); }
+.weight-info {
+  font-size: .75rem;
+  color: var(--muted);
+}
+
+/* ── PROGRESSIEBALK MET MARKERS ── */
+.pbar-wrap {
+  position: relative;
+  margin-top: .35rem;
+}
+.pbar-track {
+  height: 8px;
+  background: var(--subtle);
+  border-radius: 4px;
+  overflow: visible;
+  position: relative;
+}
+.pbar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+  position: relative;
+}
+.pbar-fill::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: inherit;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px currentColor;
+}
+.pbar-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: .4rem;
+}
+.pbar-lbl-start {
+  font-size: .62rem;
+  color: var(--muted);
+}
+.pbar-lbl-now {
+  font-size: .62rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.pbar-lbl-target {
+  font-size: .62rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
 /* ── SECTION DIVIDER ── */
 .divider-line {
   height: 1px;
@@ -1126,7 +1228,7 @@ footer {
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val">2.32</div>
+        <div class="hstat-val">2,32</div>
         <div class="hstat-lbl">W/kg</div>
       </div>
       <div class="hero-divider"></div>
@@ -1136,12 +1238,12 @@ footer {
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val gr">~53</div>
+        <div class="hstat-val gr">~48</div>
         <div class="hstat-lbl">VO2max</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val">192.0</div>
+        <div class="hstat-val">204</div>
         <div class="hstat-lbl">Max HS bpm</div>
       </div>
       <div class="hero-divider"></div>
@@ -1174,8 +1276,12 @@ footer {
     <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.8rem;position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--accent),var(--blue))"></div>
       <div style="padding-left:.6rem">
-        <div id="ai-update-text" style="font-size:1rem;line-height:1.85;color:var(--dim)">Je staat er goed voor richting HIM Knokke. VO2max ~53 ml/kg/min, FTP 165W. Blijf consistent trainen!</div>
-        <div id="ai-update-meta" style="margin-top:1rem;font-size:.72rem;color:var(--muted);letter-spacing:.06em">— Automatische fallback · 12 April 2026</div>
+        <div id="ai-update-text" style="font-size:1rem;line-height:1.85;color:var(--dim)">
+          Wordt bijgewerkt na de volgende Strava sync...
+        </div>
+        <div id="ai-update-meta" style="margin-top:1rem;font-size:.72rem;color:var(--muted);letter-spacing:.06em">
+          — Gegenereerd door Claude op basis van Strava data
+        </div>
       </div>
     </div>
   </div>
@@ -1260,18 +1366,26 @@ footer {
   <div class="sec-label">Progressie & Targets</div>
   <h2 class="sec-title">Van Nu naar <span>HIM</span></h2>
 
-  <div class="intro-text">
-    Op 71 kg en 182 cm heeft Jens een solide amateuratleten basis. De voornaamste verbeterpunten zijn het FTP op de fiets, looptempo aan lactaatdrempel, en zwem-CSS. De VO2max van ~53 ml/kg/min is al dichtbij het HIM-doelniveau.
+  <div class="intro-text" id="doelen-intro">
+    Op <span id="disp-weight">71</span> kg en 182 cm heeft Jens een solide amateuratleten basis. De voornaamste verbeterpunten zijn het FTP op de fiets, looptempo aan lactaatdrempel, en zwem-CSS. De VO2max van <span id="disp-vo2">~48</span> ml/kg/min is al dichtbij het HIM-doelniveau.
+  </div>
+
+  <div class="weight-bar">
+    <label>⚖️ Gewicht aanpassen</label>
+    <input type="number" id="weight-input" class="weight-input" value="71" min="50" max="120" step="0.5">
+    <span class="weight-info">kg</span>
+    <button class="weight-save" onclick="updateWeight()">Opslaan & herbereken</button>
+    <span id="weight-feedback" class="weight-info" style="color:var(--green)"></span>
   </div>
 
   <div class="mhc-grid">
-    <div class="mhc"><div class="mhc-lbl">Gewicht</div><div class="mhc-val">71 kg</div><div class="mhc-sub">182 cm</div></div>
-    <div class="mhc"><div class="mhc-lbl">FTP nu</div><div class="mhc-val ac">165 W</div><div class="mhc-sub">2.32 W/kg</div></div>
+    <div class="mhc"><div class="mhc-lbl">Gewicht</div><div class="mhc-val" id="mhc-weight">71 kg</div><div class="mhc-sub">182 cm</div></div>
+    <div class="mhc"><div class="mhc-lbl">FTP nu</div><div class="mhc-val ac" id="mhc-ftp">165 W</div><div class="mhc-sub" id="mhc-wkg">2,32 W/kg</div></div>
     <div class="mhc"><div class="mhc-lbl">FTP doel HIM</div><div class="mhc-val gr">199–227 W</div><div class="mhc-sub">2,8–3,2 W/kg</div></div>
-    <div class="mhc"><div class="mhc-lbl">Looptempo LT</div><div class="mhc-val yl">6:16/km</div><div class="mhc-sub">doel: 5:40/km</div></div>
-    <div class="mhc"><div class="mhc-lbl">Zwem CSS</div><div class="mhc-val bl">1:52</div><div class="mhc-sub">doel: 1:40/100m</div></div>
-    <div class="mhc"><div class="mhc-lbl">Fiets cadans</div><div class="mhc-val ac">77 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr">~53</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
+    <div class="mhc"><div class="mhc-lbl">Looptempo LT</div><div class="mhc-val yl" id="mhc-runpace">6:16/km</div><div class="mhc-sub">doel: 5:40/km</div></div>
+    <div class="mhc"><div class="mhc-lbl">Zwem CSS</div><div class="mhc-val bl" id="mhc-swim">1:52</div><div class="mhc-sub">doel: 1:40/100m</div></div>
+    <div class="mhc"><div class="mhc-lbl">Fiets cadans</div><div class="mhc-val ac" id="mhc-bcad">77 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
+    <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr" id="mhc-vo2">~48</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
     <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
   </div>
 
@@ -1279,137 +1393,97 @@ footer {
 
     <div class="goal-card">
       <div class="goal-discipline">🚴 Fietsen</div>
-
       <div class="goal-row">
         <div class="goal-label-row">
           <span class="goal-param">FTP absoluut</span>
-          <div class="goal-vals"><span class="goal-now">165W</span><span class="goal-arrow">→</span><span class="goal-target">199–227W</span></div>
+          <div class="goal-vals"><span class="goal-now" id="pb-ftp-now">165W</span><span class="goal-arrow">→</span><span class="goal-target">199–227W</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-bike" style="width:73%"></div></div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-bike" id="pb-ftp" style="width:73%"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 165W</span><span class="pbar-lbl-now" id="pbl-ftp">Nu: 165W</span><span class="pbar-lbl-target">Doel: 199W</span></div>
+        </div>
       </div>
-
       <div class="goal-row">
         <div class="goal-label-row">
           <span class="goal-param">FTP per kg</span>
-          <div class="goal-vals"><span class="goal-now">2,32</span><span class="goal-arrow">→</span><span class="goal-target">2,8–3,2 W/kg</span></div>
+          <div class="goal-vals"><span class="goal-now" id="pb-wkg-now">2,32</span><span class="goal-arrow">→</span><span class="goal-target">2,8–3,2 W/kg</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-bike" style="width:66%"></div></div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-bike" id="pb-wkg" style="width:66%"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 2,32</span><span class="pbar-lbl-now" id="pbl-wkg">Nu: 2,32</span><span class="pbar-lbl-target">Doel: 2,8</span></div>
+        </div>
       </div>
-
       <div class="goal-row">
         <div class="goal-label-row">
           <span class="goal-param">Cadans</span>
-          <div class="goal-vals"><span class="goal-now">77 rpm</span><span class="goal-arrow">→</span><span class="goal-target">90 rpm</span></div>
+          <div class="goal-vals"><span class="goal-now" id="pb-bcad-now">77 rpm</span><span class="goal-arrow">→</span><span class="goal-target">90 rpm</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-bike" style="width:56%"></div></div>
-      </div>
-
-      <div class="goal-row">
-        <div class="goal-label-row">
-          <span class="goal-param">HIM fietsstrategie</span>
-          <div class="goal-vals"><span class="goal-now" style="font-size:.9rem;color:var(--dim)">80–83% FTP · ~135–140W</span></div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-bike" id="pb-bcad" style="width:56%"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 77</span><span class="pbar-lbl-now" id="pbl-bcad">Nu: 77 rpm</span><span class="pbar-lbl-target">Doel: 90</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-bike" style="width:100%;opacity:.3"></div></div>
       </div>
     </div>
 
     <div class="goal-card">
       <div class="goal-discipline">🏃 Lopen</div>
-
       <div class="goal-row">
         <div class="goal-label-row">
-          <span class="goal-param">Tempo LT</span>
-          <div class="goal-vals"><span class="goal-now">6:16/km</span><span class="goal-arrow">→</span><span class="goal-target">5:40/km</span></div>
+          <span class="goal-param">Tempo duurloop</span>
+          <div class="goal-vals"><span class="goal-now" id="pb-runpace-now">6:16/km</span><span class="goal-arrow">→</span><span class="goal-target">5:40/km</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-run" style="width:60%"></div></div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-run" id="pb-runpace" style="width:60%"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 6:16</span><span class="pbar-lbl-now" id="pbl-runpace">Nu: 6:16/km</span><span class="pbar-lbl-target">Doel: 5:40</span></div>
+        </div>
       </div>
-
       <div class="goal-row">
         <div class="goal-label-row">
-          <span class="goal-param">LTHR</span>
-          <div class="goal-vals"><span class="goal-now">~163–168 bpm</span><span class="goal-arrow">→</span><span class="goal-target">170+ bpm</span></div>
+          <span class="goal-param">Loopcadans</span>
+          <div class="goal-vals"><span class="goal-now" id="pb-rcad-now">162 spm</span><span class="goal-arrow">→</span><span class="goal-target">168–172 spm</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-run" style="width:72%"></div></div>
-      </div>
-
-      <div class="goal-row">
-        <div class="goal-label-row">
-          <span class="goal-param">Cadans</span>
-          <div class="goal-vals"><span class="goal-now">162–165 spm</span><span class="goal-arrow">→</span><span class="goal-target">168–172 spm</span></div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-run" id="pb-rcad" style="width:80%"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 162</span><span class="pbar-lbl-now" id="pbl-rcad">Nu: 162 spm</span><span class="pbar-lbl-target">Doel: 170</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-run" style="width:80%"></div></div>
-      </div>
-
-      <div class="goal-row">
-        <div class="goal-label-row">
-          <span class="goal-param">HIM loopstrategie</span>
-          <div class="goal-vals"><span class="goal-now" style="font-size:.9rem;color:var(--dim)">6:30/km eerste 3 km · nooit &lt;6:00</span></div>
-        </div>
-        <div class="pbar-track"><div class="pbar-fill pf-run" style="width:100%;opacity:.3"></div></div>
       </div>
     </div>
 
     <div class="goal-card">
       <div class="goal-discipline">🏊 Zwemmen</div>
-
       <div class="goal-row">
         <div class="goal-label-row">
-          <span class="goal-param">CSS</span>
-          <div class="goal-vals"><span class="goal-now">1:52/100m</span><span class="goal-arrow">→</span><span class="goal-target">1:40/100m</span></div>
+          <span class="goal-param">CSS tempo</span>
+          <div class="goal-vals"><span class="goal-now" id="pb-swim-now">1:52/100m</span><span class="goal-arrow">→</span><span class="goal-target">1:40/100m</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-swim" style="width:63%"></div></div>
-      </div>
-
-      <div class="goal-row">
-        <div class="goal-label-row">
-          <span class="goal-param">HIM zwem tempo</span>
-          <div class="goal-vals"><span class="goal-now">~1:52</span><span class="goal-arrow">→</span><span class="goal-target">1:45/100m</span></div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-swim" id="pb-swim" style="width:63%"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 1:52</span><span class="pbar-lbl-now" id="pbl-swim">Nu: 1:52</span><span class="pbar-lbl-target">Doel: 1:40</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-swim" style="width:68%"></div></div>
-      </div>
-
-      <div class="goal-row">
-        <div class="goal-label-row">
-          <span class="goal-param">HIM zwem doel</span>
-          <div class="goal-vals"><span class="goal-now" style="font-size:.9rem;color:var(--dim)">rustig starten · wetsuit · boeilijn</span></div>
-        </div>
-        <div class="pbar-track"><div class="pbar-fill pf-swim" style="width:100%;opacity:.3"></div></div>
       </div>
     </div>
 
     <div class="goal-card">
       <div class="goal-discipline">❤️ Fysiologisch</div>
-
       <div class="goal-row">
         <div class="goal-label-row">
           <span class="goal-param">VO2max schatting</span>
-          <div class="goal-vals"><span class="goal-now">~53</span><span class="goal-arrow">→</span><span class="goal-target">52+ ml/kg/min</span></div>
+          <div class="goal-vals"><span class="goal-now" id="pb-vo2-now">~48</span><span class="goal-arrow">→</span><span class="goal-target">52+ ml/kg/min</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:76%"></div></div>
-      </div>
-
-      <div class="goal-row">
-        <div class="goal-label-row">
-          <span class="goal-param">Apple Watch VO2max</span>
-          <div class="goal-vals"><span class="goal-now" style="color:var(--yellow)">52,1</span><span class="goal-arrow" style="font-size:.65rem">≈10% overschat</span></div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-vo2" id="pb-vo2" style="width:76%"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: ~45</span><span class="pbar-lbl-now" id="pbl-vo2">Nu: ~48</span><span class="pbar-lbl-target">Doel: 52+</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:83%"></div></div>
       </div>
-
       <div class="goal-row">
         <div class="goal-label-row">
           <span class="goal-param">Rusthartslag</span>
-          <div class="goal-vals"><span class="goal-now" style="color:var(--green)">50 bpm ✓</span><span style="font-size:.75rem;color:var(--green)">uitstekend</span></div>
+          <div class="goal-vals"><span class="goal-now" style="color:var(--green)">50 bpm ✓</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:95%;background:var(--green)"></div></div>
-      </div>
-
-      <div class="goal-row">
-        <div class="goal-label-row">
-          <span class="goal-param">Max hartslag</span>
-          <div class="goal-vals"><span class="goal-now">204 bpm</span></div>
+        <div class="pbar-wrap">
+          <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:95%;background:var(--green)"></div></div>
+          <div class="pbar-labels"><span class="pbar-lbl-start">Start: 52</span><span class="pbar-lbl-now" style="color:var(--green)">Nu: 50 ✓</span><span class="pbar-lbl-target">Doel: &lt;48</span></div>
         </div>
-        <div class="pbar-track"><div class="pbar-fill pf-vo2" style="width:100%;opacity:.4"></div></div>
       </div>
     </div>
 
@@ -1578,7 +1652,7 @@ footer {
               <div class="wks-metrics"><span class="wksm"><strong>~1.200m</strong></span><span class="wksm">~25 min</span></div>
             </div>
             <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon wd-race" style="background:var(--accent)">🏆</div><div><div class="wks-day">Zaterdag 19 april</div><div class="wks-name">RACE — Halve Marathon Leuven</div></div></div>
+              <div class="wks-hd"><div class="wks-icon wd-race" style="background:var(--accent)">🏆</div><div><div class="wks-day">Zondag 19 april</div><div class="wks-name">RACE — Halve Marathon Leuven</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-race">Race dag</span><span class="wks-chip wkc-run">21,1 km</span></div>
               <div class="wks-desc">Doel: finishen zonder blessure. Volledig Z2 — 140–158 bpm. Eerste 5 km rustig instappen op 6:30/km. Luister naar de ITB, pas tempo aan. Voeding: elke 40 min gel. Dit is een lange trainingsrun, geen PR-poging.</div>
               <div class="wks-metrics"><span class="wksm"><strong>21,1 km</strong></span><span class="wksm">~6:20–6:40/km</span><span class="wksm">Doel: aankomen</span></div>
@@ -2320,259 +2394,107 @@ footer {
 
 <!-- ── ANALYSE ── -->
 <section class="section" id="analyse">
-  <div class="sec-label">Live via Strava API</div>
-  <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 12 April 2026 om 20:36</p>
+  <div class="sec-label">Strava Week 17–22 maart</div>
+  <h2 class="sec-title">Fitness <span>Analyse</span></h2>
 
   <div class="strava-grid">
-    
+
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Another one ☝🏻 🚴‍♂️</div>
-          <div class="sact-date">Sun 12 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-w">🏋️</div><div><div class="sact-name">Krachttraining</div><div class="sact-date">Ma 17 maart · 16:50</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">40.0km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">26.3km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">1u31</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">78 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">370m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">152 bpm</div></div>
+        <div><div class="sm-lbl">Duur</div><div class="sm-val">1:14</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">120</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">526</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">8km zone 2 🌧️🌳</div>
-          <div class="sact-date">Sat 11 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-r">🏃</div><div><div class="sact-name">Avondrun Leuven</div><div class="sact-date">Wo 18 maart · 18:35</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">8.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:00/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">48:10</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">163 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">54m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">153 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">6km</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">6:47</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">142</div></div>
+        <div><div class="sm-lbl">Verm.</div><div class="sm-val">185W</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">162</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">37m</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:8%"></div><div class="szs sz2" style="width:92%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Namiddagsessie krachttraining</div>
-          <div class="sact-date">Thu 9 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-w">🏋️</div><div><div class="sact-name">Krachttraining</div><div class="sact-date">Do 19 maart · 16:53</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">1u08</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">99 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">141 bpm</div></div>
+        <div><div class="sm-lbl">Duur</div><div class="sm-val">1:05</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">107</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">350</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Cobbles and "Bergs" 🚴‍♂️</div>
-          <div class="sact-date">Wed 8 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-s">🏊</div><div><div class="sact-name">Zwemsessie</div><div class="sact-date">Vr 20 maart · 13:18</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">40.7km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">24.0km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">1u41</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">72 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">535m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">153 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">2750m</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">1:52</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">143</div></div>
+        <div><div class="sm-lbl">Max. HS</div><div class="sm-val">173</div></div>
+        <div><div class="sm-lbl">Tijd</div><div class="sm-val">51:28</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">551</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:30%"></div><div class="szs sz2" style="width:64%"></div><div class="szs sz3" style="width:6%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Rondjes rondjes in loop alleen maar rondjes 🔁</div>
-          <div class="sact-date">Tue 7 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-b">🚴</div><div><div class="sact-name">Rustig rondje in de zon</div><div class="sact-date">Za 21 maart · As</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">5.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">5:48/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">29:12</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">167 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">24m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">149 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">60km</div></div>
+        <div><div class="sm-lbl">Verm.</div><div class="sm-val">126W</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">151</div></div>
+        <div><div class="sm-lbl">IF</div><div class="sm-val">76%</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">77</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">199m</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:1%"></div><div class="szs sz2" style="width:69%"></div><div class="szs sz3" style="width:29%"></div><div class="szs sz4" style="width:1%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Paasbrunch bij de schoonfamilie 🐰🐣🪺</div>
-          <div class="sact-date">Mon 6 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-r">🏃</div><div><div class="sact-name">Namiddagloop Leuven</div><div class="sact-date">Zo 22 maart · 13:13</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">26.9km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">22.8km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">1u10</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">69 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">97m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">124 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">12km</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">6:16</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">154</div></div>
+        <div><div class="sm-lbl">Max. HS</div><div class="sm-val">173</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">165</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">69m</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:2%"></div><div class="szs sz2" style="width:93%"></div><div class="szs sz3" style="width:5%"></div></div>
     </div>
 
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">16km heuvelachtige lange duurloop</div>
-          <div class="sact-date">Sat 4 Apr</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">16.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:13/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">1u39</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">165 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">118m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">152 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-s">🏊</div>
-        <div>
-          <div class="sact-name">Simulatietraining Zwemmen 🏊</div>
-          <div class="sact-date">Fri 3 Apr</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">1900m</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">1:43/100m</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">32:42</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">154 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">171 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Namiddagsessie krachttraining</div>
-          <div class="sact-date">Thu 2 Apr</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">1u06</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">100 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">138 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
-    </div>
   </div>
 
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Live <span style="color:var(--text)">Fitnesswaarden</span></h3>
-
-  <div class="mhc-grid" style="margin-bottom:2.5rem">
-    <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac">165 W</div><div class="mhc-sub">2.32 W/kg</div></div>
-    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val">193.0 bpm</div><div class="mhc-sub">gemeten in training</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max (schatting)</div><div class="mhc-val gr">~53</div><div class="mhc-sub">ml/kg/min</div></div>
-    <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl">1:43/100m</div><div class="mhc-sub">snelste gemiddelde</div></div>
-    <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val ac">75 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val ay">164 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val">30</div><div class="mhc-sub">🏃 11 · 🚴 7 · 🏊 4</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
-  </div>
-
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">HIM Eindtijd</span></h3>
-
-  <div style="background:var(--card);border:1px solid rgba(232,81,42,.35);border-radius:14px;padding:1.5rem 1.8rem;margin-bottom:2.5rem;max-width:580px">
-    <div style="display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:900;line-height:1;color:var(--yellow);letter-spacing:-.01em">6u19m28s</div>
-      <div style="font-size:.78rem;color:var(--muted);font-weight:500">geschatte eindtijd<br>incl. transities</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem">
-      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4de88a;margin-bottom:.35rem">🏊 Zwemmen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">0:33</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">1,9 km · 1:46/100m</div>
-      </div>
-      <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6ab4ff;margin-bottom:.35rem">🚴 Fietsen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">3:24</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">90 km · 26.5 km/u</div>
-      </div>
-      <div style="background:rgba(232,81,42,.07);border:1px solid rgba(232,81,42,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ff8060;margin-bottom:.35rem">🏃 Lopen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">2:17</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">21,1 km · 6:31/km</div>
-      </div>
-    </div>
-    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:.8rem">
-      Schatting op basis van actuele Strava data · Open water −3% zwem · HIM-tempo correctie −12% fiets en run · Transities inbegrepen in totaal · Wordt automatisch bijgewerkt bij elke sync.
-    </div>
-  </div>
-
+  <!-- VO2MAX -->
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">Schatting</span></h3>
   <div class="vo2-row">
     <div class="vo2-card">
       <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#e8512a" stroke-dasharray="289" stroke-dashoffset="148"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:#e8512a">~53</div><div class="ring-unit">ml/kg/min</div></div>
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#e8512a" stroke-dasharray="289" stroke-dashoffset="103"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#e8512a">~48</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
-      <div class="vo2-label">VO2max Schatting<br><span style="font-size:.62rem;color:#444">via looptempo 71kg</span></div>
+      <div class="vo2-label">VO2max Lopen<br><span style="font-size:.62rem;color:#444">71kg gecorrigeerd</span></div>
     </div>
     <div class="vo2-card">
       <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#3a8fff" stroke-dasharray="289" stroke-dashoffset="163"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:#3a8fff">165W</div><div class="ring-unit">2.32 W/kg</div></div>
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#3a8fff" stroke-dasharray="289" stroke-dashoffset="123"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#3a8fff">~44</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
-      <div class="vo2-label">FTP Fietsen<br><span style="font-size:.62rem;color:#444">doel: 199–227W</span></div>
+      <div class="vo2-label">VO2max Fietsen<br><span style="font-size:.62rem;color:#444">via FTP 2,32 W/kg</span></div>
     </div>
-    <div class="vo2-card" style="justify-content:center">
-      <div class="mhc-lbl" style="text-align:center;margin-bottom:.8rem">HIM Doelniveau</div>
-      <div class="ring-val" style="color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;text-align:center">52+</div>
-      <div style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:.4rem">ml/kg/min vereist</div>
-      <div style="font-size:.75rem;color:var(--accent);text-align:center;margin-top:.3rem">Gap: ~0 punten te winnen</div>
+    <div class="vo2-card">
+      <div class="ring-svg">
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#f5a623" stroke-dasharray="289" stroke-dashoffset="82"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#f5a623">52,1</div><div class="ring-unit">ml/kg/min</div></div>
+      </div>
+      <div class="vo2-label">Apple Watch<br><span style="font-size:.62rem;color:#666">~10% overschat</span></div>
     </div>
-  </div>
-
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.4rem;margin-top:1.5rem;max-width:420px">
-    <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">VO2max — Firstbeat methode (top 5 runs)</div>
-    <table style="width:100%;border-collapse:collapse;font-size:.82rem">
-      <tr style="border-bottom:1px solid var(--border)">
-        <th style="text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Run</th>
-        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Schatting</th>
-        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Gewicht</th>
-      </tr>
-      <tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">55.5</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">53.6</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">53.3</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">52.5</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">51.8</td><td style="text-align:right;color:var(--muted)">20%</td></tr>
-      <tr style="border-top:1px solid var(--border)">
-        <td style="padding:.4rem .4rem;font-weight:600;color:var(--text)">Gemiddeld</td>
-        <td style="text-align:right;font-weight:600;color:var(--accent);font-size:1rem">53</td>
-        <td></td>
-      </tr>
-    </table>
-    <div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">Firstbeat: tempo + hartslag per run → extrapoleer naar max. Mediaan van beste 5 runs om uitschieters te vermijden.</div>
   </div>
 
 </section>
@@ -2585,7 +2507,114 @@ footer {
 </footer>
 
 <script>
-// ── WEEK EXPAND ──
+// ── GEWICHT & PROGRESSIE LIVE UPDATE ──
+const STRAVA_DATA = {
+  ftp:       165,
+  wkg:       2.32,
+  bcad:      77,
+  rcad:      162,
+  runpace:   '6:16',
+  swim:      '1:52',
+  vo2:       48,
+};
+
+function paceToSecs(p) {
+  const parts = p.split(':');
+  return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+}
+
+function secsToMinSec(s) {
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+
+function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+
+function updateAllBars(weight) {
+  const ftp   = STRAVA_DATA.ftp;
+  const wkg   = Math.round((ftp / weight) * 100) / 100;
+  const bcad  = STRAVA_DATA.bcad;
+  const rcad  = STRAVA_DATA.rcad;
+  const vo2   = STRAVA_DATA.vo2;
+
+  // ── FTP balk (min 100W, doel 199W) ──
+  const ftpPct = clamp((ftp - 100) / (199 - 100) * 100, 0, 100);
+  document.getElementById('pb-ftp')     && (document.getElementById('pb-ftp').style.width     = ftpPct + '%');
+  document.getElementById('pb-ftp-now') && (document.getElementById('pb-ftp-now').textContent  = ftp + 'W');
+  document.getElementById('pbl-ftp')    && (document.getElementById('pbl-ftp').textContent     = 'Nu: ' + ftp + 'W');
+
+  // ── W/kg balk (min 1.5, doel 2.8) ──
+  const wkgPct = clamp((wkg - 1.5) / (2.8 - 1.5) * 100, 0, 100);
+  document.getElementById('pb-wkg')     && (document.getElementById('pb-wkg').style.width      = wkgPct + '%');
+  document.getElementById('pb-wkg-now') && (document.getElementById('pb-wkg-now').textContent  = wkg.toFixed(2));
+  document.getElementById('pbl-wkg')    && (document.getElementById('pbl-wkg').textContent     = 'Nu: ' + wkg.toFixed(2));
+
+  // ── Fietscadans (min 70, doel 90) ──
+  const bcadPct = clamp((bcad - 70) / (90 - 70) * 100, 0, 100);
+  document.getElementById('pb-bcad')     && (document.getElementById('pb-bcad').style.width     = bcadPct + '%');
+  document.getElementById('pb-bcad-now') && (document.getElementById('pb-bcad-now').textContent = bcad + ' rpm');
+  document.getElementById('pbl-bcad')    && (document.getElementById('pbl-bcad').textContent    = 'Nu: ' + bcad + ' rpm');
+
+  // ── Looptempo (trager = laag, doel = sneller, schaal omgekeerd)
+  // Start 6:30 (390s), doel 5:40 (340s) → sneller = hogere balk
+  const rp    = STRAVA_DATA.runpace;
+  const rpSec = paceToSecs(rp);
+  const rpPct = clamp((390 - rpSec) / (390 - 340) * 100, 0, 100);
+  document.getElementById('pb-runpace')     && (document.getElementById('pb-runpace').style.width     = rpPct + '%');
+  document.getElementById('pb-runpace-now') && (document.getElementById('pb-runpace-now').textContent = rp + '/km');
+  document.getElementById('pbl-runpace')    && (document.getElementById('pbl-runpace').textContent    = 'Nu: ' + rp + '/km');
+
+  // ── Loopcadans (min 160, doel 170) ──
+  const rcadPct = clamp((rcad - 160) / (170 - 160) * 100, 0, 100);
+  document.getElementById('pb-rcad')     && (document.getElementById('pb-rcad').style.width     = rcadPct + '%');
+  document.getElementById('pb-rcad-now') && (document.getElementById('pb-rcad-now').textContent = rcad + ' spm');
+  document.getElementById('pbl-rcad')    && (document.getElementById('pbl-rcad').textContent    = 'Nu: ' + rcad + ' spm');
+
+  // ── Zwemtempo (trager = laag, schaal omgekeerd)
+  // Start 1:52 (112s), doel 1:40 (100s)
+  const sw    = STRAVA_DATA.swim;
+  const swSec = paceToSecs(sw);
+  const swPct = clamp((112 - swSec) / (112 - 100) * 100, 0, 100);
+  document.getElementById('pb-swim')     && (document.getElementById('pb-swim').style.width     = swPct + '%');
+  document.getElementById('pb-swim-now') && (document.getElementById('pb-swim-now').textContent = sw + '/100m');
+  document.getElementById('pbl-swim')    && (document.getElementById('pbl-swim').textContent    = 'Nu: ' + sw);
+
+  // ── VO2max (min 40, doel 52) ──
+  const vo2Pct = clamp((vo2 - 40) / (52 - 40) * 100, 0, 100);
+  document.getElementById('pb-vo2')     && (document.getElementById('pb-vo2').style.width     = vo2Pct + '%');
+  document.getElementById('pb-vo2-now') && (document.getElementById('pb-vo2-now').textContent = '~' + vo2);
+  document.getElementById('pbl-vo2')    && (document.getElementById('pbl-vo2').textContent    = 'Nu: ~' + vo2);
+
+  // ── mhc kaartjes ──
+  document.getElementById('mhc-ftp')     && (document.getElementById('mhc-ftp').textContent     = ftp + ' W');
+  document.getElementById('mhc-wkg')     && (document.getElementById('mhc-wkg').textContent     = wkg.toFixed(2) + ' W/kg');
+  document.getElementById('mhc-bcad')    && (document.getElementById('mhc-bcad').textContent    = bcad + ' rpm');
+  document.getElementById('mhc-rcad')    && (document.getElementById('mhc-rcad') && (document.getElementById('mhc-rcad').textContent = rcad + ' spm'));
+  document.getElementById('mhc-swim')    && (document.getElementById('mhc-swim').textContent    = sw);
+  document.getElementById('mhc-vo2')     && (document.getElementById('mhc-vo2').textContent     = '~' + vo2);
+  document.getElementById('mhc-weight')  && (document.getElementById('mhc-weight').textContent  = weight + ' kg');
+  document.getElementById('disp-weight') && (document.getElementById('disp-weight').textContent = weight);
+  document.getElementById('disp-vo2')    && (document.getElementById('disp-vo2').textContent    = '~' + vo2);
+  document.getElementById('mhc-runpace') && (document.getElementById('mhc-runpace').textContent = rp + '/km');
+}
+
+function updateWeight() {
+  const input = document.getElementById('weight-input');
+  const w = parseFloat(input.value);
+  if (!w || w < 40 || w > 150) return;
+  localStorage.setItem('jens-weight', w);
+  updateAllBars(w);
+  const fb = document.getElementById('weight-feedback');
+  if (fb) { fb.textContent = '✓ Opgeslagen'; setTimeout(() => fb.textContent = '', 2500); }
+}
+
+// Init on load
+(function() {
+  const saved = localStorage.getItem('jens-weight');
+  const w = saved ? parseFloat(saved) : 71;
+  const input = document.getElementById('weight-input');
+  if (input) input.value = w;
+  updateAllBars(w);
+})();
 function toggleWeek(card) {
   if (card.classList.contains('wk-past')) return;
   const isOpen = card.classList.contains('open');
