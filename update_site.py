@@ -227,15 +227,16 @@ def compute_stats(activities, athlete):
 def estimate_him_time(activities):
     """
     Schat de HIM eindtijd op basis van actuele Strava data.
-
-    Zwem  1.900m  op basis van beste zwemtempo met wedstrijdfactor
-    Fiets 90 km   op basis van gemiddelde fietssnelheid lange ritten
-    Run   21,1km  op basis van duurlooptempo met vermoeidheidsfactor
-    T1+T2         vaste schatting 4 min totaal (niet apart vermeld)
+    Fiets: VAM-gebaseerde normalisatie per rit (hoogtemeters correct verwerkt)
+    Run:   hartslag-gewogen gemiddelde van duurlopen
+    Zwem:  beste zwemtempo x 0.97
     """
 
+    HIM_HM_PER_100KM = 44 / 90 * 100  # ~49 hm/100km (Knokke, vrijwel vlak)
+    MAX_HR  = 204
+    REST_HR = 50
+
     # ── ZWEMMEN ──
-    # Open water ~5% trager dan bad, wedstrijdadrenaline +2% → netto ×0.97
     swim_speeds = []
     for a in activities:
         if "swim" not in a.get("type","").lower():
@@ -246,89 +247,83 @@ def estimate_him_time(activities):
         if spd > 0 and dist > 500 and dur > 300:
             swim_speeds.append(spd)
 
-    if swim_speeds:
-        # Open water ~3% trager dan bad, Knokke: vlak water, geen stroom correctie
-        him_swim_speed = max(swim_speeds) * 0.97
-    else:
-        him_swim_speed = 100 / 112  # fallback 1:52/100m
-
+    him_swim_speed = max(swim_speeds) * 0.97 if swim_speeds else 100 / 112
     swim_secs = round(1900 / him_swim_speed)
 
-    # ── FIETSEN ──
-    # Gebruik gemiddelde van ritten >20km (was >40km, te strikt voor 30 activiteiten)
-    # HIM factor ×0.93: lichte wind kust + vermoeidheid na zwemmen
-    # 12% was te agressief — 7% is realistischer voor getrainde triatleet
-    ride_speeds = []
+    # ── FIETSEN — VAM normalisatie per rit ──
+    # Per rit: corrigeer snelheid naar vlak equivalent via hm/km
+    # 1 hm/km kost ~2.5% snelheidsreductie tov vlak (amateur vuistregel)
+    # Gewogen gemiddelde op ritafstand → meer gewicht aan langere ritten
+    # Daarna: corrigeer terug naar HIM-parcours hoogteprofiel + wedstrijdfactor
+
+    normalized_speeds = []  # (vlak_equiv_ms, dist_km)
+
     for a in activities:
         if "ride" not in a.get("type","").lower():
             continue
         spd  = a.get("average_speed", 0)
         dist = a.get("distance", 0)
-        if spd > 0 and dist > 20000:  # >20km
-            ride_speeds.append(spd)
+        elev = a.get("total_elevation_gain", 0)
+        if not spd or dist < 20000:
+            continue
 
-    # Hoogtemetercorrectie fiets:
-    # HIM Knokke parcours: 44hm / 90km = ~49hm per 100km (vrijwel vlak)
-    # Als trainingsritten meer hoogtemeters hebben → op Knokke ga je sneller
-    # Vuistregel: elk verschil van 100hm/100km = ~1.5 km/u snelheidsverschil
-    HIM_HM_PER_100KM = 44 / 90 * 100  # ~49 hm/100km
+        dist_km   = dist / 1000
+        hm_per_km = elev / dist_km if dist_km > 0 else 0
+        reduction = max(0.55, 1 - hm_per_km * 0.025)
+        flat_equiv = spd / reduction
+        normalized_speeds.append((flat_equiv, dist_km))
+        print(f"   Fiets rit: {dist_km:.0f}km {spd*3.6:.1f}km/u {elev:.0f}hm ({hm_per_km:.1f}hm/km) → vlak equiv {flat_equiv*3.6:.1f}km/u")
 
-    ride_data = [
-        (a.get("average_speed", 0), a.get("distance", 0), a.get("total_elevation_gain", 0))
-        for a in activities
-        if "ride" in a.get("type","").lower()
-        and a.get("average_speed", 0) > 0
-        and a.get("distance", 0) > 20000
-    ]
-
-    if ride_data:
-        avg_speed_ms  = sum(s for s,_,_ in ride_data) / len(ride_data)
-        total_dist    = sum(d for _,d,_ in ride_data)
-        total_elev    = sum(e for _,_,e in ride_data)
-        train_hm_per_100km = (total_elev / total_dist * 100000) if total_dist > 0 else HIM_HM_PER_100KM
-
-        # Hoogteverschil tussen training en HIM parcours
-        hm_diff = train_hm_per_100km - HIM_HM_PER_100KM
-        speed_bonus_kmh = hm_diff * 0.005  # 0.5 km/u per 100hm/100km verschil (realistisch voor amateur)
-
-        him_speed_kmh = (avg_speed_ms * 3.6 + speed_bonus_kmh) * 0.93
-        him_ride_speed = him_speed_kmh / 3.6
-
-        print(f"   Fiets: trainingsgemiddelde {avg_speed_ms*3.6:.1f} km/u")
-        print(f"   Fiets: training {train_hm_per_100km:.0f} hm/100km vs HIM {HIM_HM_PER_100KM:.0f} hm/100km")
-        print(f"   Fiets: hoogtebonus +{speed_bonus_kmh:.2f} km/u → HIM tempo {him_speed_kmh:.1f} km/u")
-    elif ride_speeds:
-        him_ride_speed = (sum(ride_speeds) / len(ride_speeds)) * 0.93
+    if normalized_speeds:
+        total_w    = sum(w for _, w in normalized_speeds)
+        weighted   = sum(s * w for s, w in normalized_speeds) / total_w
+        # Corrigeer terug voor HIM-parcours
+        him_hm_per_km  = HIM_HM_PER_100KM / 100
+        him_reduction  = max(0.55, 1 - him_hm_per_km * 0.025)
+        him_ride_speed = weighted * him_reduction * 0.93
+        print(f"   Fiets: gewogen vlak equiv {weighted*3.6:.1f}km/u → HIM tempo {him_ride_speed*3.6:.1f}km/u")
     else:
-        him_ride_speed = (27 * 0.93) / 3.6  # fallback
+        him_ride_speed = (27 * 0.93) / 3.6
 
     bike_secs = round(90000 / him_ride_speed)
 
-    # ── LOPEN ──
-    # Gebruik gemiddelde van langere duurlopen (>8km)
-    # HIM correctie ×0.88: vermoeid na zwem+fiets, bewust rustig starten
-    run_speeds = []
+    # ── LOPEN — hartslag-gewogen tempo ──
+    # Normaliseer elk looptempo naar HIM-hartslag niveau (160 bpm ~75% HRR)
+    # Zo tellen tempo runs en Z2 runs eerlijk mee
+    run_data = []
+
     for a in activities:
         if "run" not in a.get("type","").lower():
             continue
-        spd  = a.get("average_speed", 0)
-        dist = a.get("distance", 0)
-        dur  = a.get("moving_time", 0)
-        if spd > 0 and dist > 8000 and dur > 2400:
-            run_speeds.append(spd)
+        spd    = a.get("average_speed", 0)
+        dist   = a.get("distance", 0)
+        dur    = a.get("moving_time", 0)
+        avg_hr = a.get("average_heartrate", 0)
+        if not spd or dist < 8000 or dur < 2400:
+            continue
 
-    if run_speeds:
-        him_run_speed = (sum(run_speeds) / len(run_speeds)) * 0.93
+        dist_km = dist / 1000
+        if avg_hr:
+            hr_frac      = max(0.5, min(0.95, (avg_hr - REST_HR) / (MAX_HR - REST_HR)))
+            him_hr_frac  = (160 - REST_HR) / (MAX_HR - REST_HR)
+            him_spd      = spd * (him_hr_frac / hr_frac)
+            run_data.append((him_spd, dist_km))
+            print(f"   Run: {dist_km:.1f}km {fmt_pace(spd)} {avg_hr:.0f}bpm → HIM equiv {fmt_pace(him_spd)}")
+        else:
+            run_data.append((spd, dist_km))
+
+    if run_data:
+        total_w       = sum(w for _, w in run_data)
+        weighted      = sum(s * w for s, w in run_data) / total_w
+        him_run_speed = weighted * 0.93
+        print(f"   Run: gewogen HIM equiv {fmt_pace(weighted)} → na vermoeidheid {fmt_pace(him_run_speed)}")
     else:
-        him_run_speed = (1000 / 380) * 0.93  # fallback 6:20/km × 0.93
+        him_run_speed = (1000 / 380) * 0.93
 
     run_secs = round(21100 / him_run_speed)
 
-    # ── TRANSITIES (inbegrepen in totaal, niet apart getoond) ──
-    t1_secs = 150  # T1 zwem→fiets: 2:30
-    t2_secs = 90   # T2 fiets→run:  1:30
-
-    total_secs = swim_secs + bike_secs + run_secs + t1_secs + t2_secs
+    # ── TRANSITIES ──
+    total_secs = swim_secs + bike_secs + run_secs + 150 + 90
 
     def hm(s):
         return f"{s//3600}:{(s%3600)//60:02d}"
@@ -339,22 +334,16 @@ def estimate_him_time(activities):
         sec = s % 60
         return str(h) + "u" + f"{m:02d}m" + f"{sec:02d}s"
 
-    def swim_pace(spd):
-        spm = 100 / spd
-        return f"{int(spm//60)}:{int(spm%60):02d}/100m"
-
-    def run_pace(spd):
-        spm = 1000 / spd
-        return f"{int(spm//60)}:{int(spm%60):02d}/km"
+    print(f"   HIM: zwem {hm(swim_secs)} fiets {hm(bike_secs)} run {hm(run_secs)} totaal {hms(total_secs)}")
 
     return {
         "swim_time":  hm(swim_secs),
         "bike_time":  hm(bike_secs),
         "run_time":   hm(run_secs),
         "total_time": hms(total_secs),
-        "swim_pace":  swim_pace(him_swim_speed),
+        "swim_pace":  f"{int((100/him_swim_speed)//60)}:{int((100/him_swim_speed)%60):02d}/100m",
         "bike_kmh":   f"{him_ride_speed*3.6:.1f} km/u",
-        "run_pace":   run_pace(him_run_speed),
+        "run_pace":   f"{int((1000/him_run_speed)//60)}:{int((1000/him_run_speed)%60):02d}/km",
         "total_secs": total_secs,
     }
 
