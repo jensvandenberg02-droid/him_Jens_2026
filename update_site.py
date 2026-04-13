@@ -672,6 +672,31 @@ def main():
 
     import re
 
+    # ── Update STRAVA_DATA JS object zodat progressiebalken live werken ──
+    swim_raw = stats.get("best_swim") or "1:52"
+    swim_val = swim_raw.replace("/100m", "").strip()
+    run_raw  = stats.get("best_run_pace") or "6:16"
+    run_val  = run_raw.replace("/km", "").strip()
+    rcad_val = stats.get("run_cadence") or 162
+    bcad_val = stats.get("bike_cadence") or 77
+
+    new_strava_data = f"""const STRAVA_DATA = {{
+  ftp:       {ftp},
+  wkg:       {wkg},
+  bcad:      {bcad_val},
+  rcad:      {rcad_val},
+  runpace:   '{run_val}',
+  swim:      '{swim_val}',
+  vo2:       {vo2},
+}};"""
+
+    new_html = re.sub(
+        r'const STRAVA_DATA = \{[^}]+\};',
+        new_strava_data,
+        new_html,
+        flags=re.DOTALL
+    )
+
     # Injecteer AI update tekst
     new_html = re.sub(
         r'(<div id="ai-update-text"[^>]*>)(.*?)(</div>)',
