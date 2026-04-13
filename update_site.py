@@ -92,8 +92,9 @@ def zone_bar(avg_hr, max_hr):
 # ── COMPUTE STATS ──
 def compute_stats(activities, athlete):
     stats = {
-        "max_hr":    athlete.get("athlete_zone", {}).get("heart_rate", {}).get("custom_zones", False) and 204 or 204,
+        "max_hr":    204,
         "ftp":       athlete.get("ftp") or 165,
+        "rest_hr":   athlete.get("measurement_preference") and 50 or 50,
         "vo2max":    None,
         "best_swim": None,
         "best_run_pace": None,
@@ -105,6 +106,7 @@ def compute_stats(activities, athlete):
     }
 
     max_hr_seen = 0
+    min_avg_hr  = 999  # laagste gemiddelde HS als benadering van rust HS
     swim_speeds = []
     run_paces   = []
     bike_cads   = []
@@ -115,6 +117,10 @@ def compute_stats(activities, athlete):
         mhr = a.get("max_heartrate") or 0
         if mhr > max_hr_seen:
             max_hr_seen = mhr
+        # Laagste gemiddelde HS (krachttraining/rust) als benadering rust HS
+        avg_hr = a.get("average_heartrate", 0)
+        if avg_hr and avg_hr > 30:
+            min_avg_hr = min(min_avg_hr, avg_hr)
 
         if "run" in t:
             stats["total_runs"] += 1
@@ -139,6 +145,12 @@ def compute_stats(activities, athlete):
 
     if max_hr_seen > 0:
         stats["max_hr"] = max_hr_seen
+    # Rust HS: gebruik vaste waarde 50 (Strava geeft dit niet terug via API)
+    # Als min gemiddelde HS uit activiteiten lager dan 60 is, gebruik die als indicatie
+    if min_avg_hr < 60:
+        stats["rest_hr"] = round(min_avg_hr)
+    else:
+        stats["rest_hr"] = 50
 
     if swim_speeds:
         best = max(swim_speeds)
@@ -699,35 +711,58 @@ def main():
     )
 
 
+    # ── Hero stats — ID-gebaseerde vervanging (betrouwbaar) ──
     new_html = re.sub(
-        r'(<div class="hstat-val ac">)\d+(<small[^>]*>W</small></div>\s*<div class="hstat-lbl">FTP Fiets</div>)',
+        r'(<div class="hstat-val ac" id="hero-ftp">)\d+(<small)',
         rf'\g<1>{ftp}\2', new_html
     )
     new_html = re.sub(
-        r'(<div class="hstat-val">)\d+[\.,]\d+(</div>\s*<div class="hstat-lbl">W/kg</div>)',
+        r'(<div class="hstat-val" id="hero-wkg">)[\d,\.]+(<)',
         rf'\g<1>{wkg}\2', new_html
     )
     new_html = re.sub(
-        r'(<div class="hstat-val gr">)~?\d+(</div>\s*<div class="hstat-lbl">VO2max</div>)',
+        r'(<div class="hstat-val bl" id="hero-swim">)[^<]+(</div>)',
+        rf'\g<1>{swim}\2', new_html
+    )
+    new_html = re.sub(
+        r'(<div class="hstat-val gr" id="hero-vo2">)~?\d+(</div>)',
         rf'\g<1>~{vo2}\2', new_html
     )
     new_html = re.sub(
-        r'(<div class="hstat-val">)\d+(</div>\s*<div class="hstat-lbl">Max HS bpm</div>)',
+        r'(<div class="hstat-val" id="hero-mhr">)\d+(</div>)',
         rf'\g<1>{mhr}\2', new_html
+    )
+    # Rust HS — uit Strava athlete profiel indien beschikbaar, anders 50 bpm
+    rhr = stats.get("rest_hr") or 50
+    new_html = re.sub(
+        r'(<div class="hstat-val gr" id="hero-rhr">)\d+(</div>)',
+        rf'\g<1>{rhr}\2', new_html
     )
 
-    # ── Progressie & Targets — metric kaartjes (robuuste match) ──
+    # ── Progressie & Targets — metric kaartjes (ID-gebaseerd) ──
     new_html = re.sub(
-        r'(<div class="mhc-lbl">FTP nu</div><div class="mhc-val ac">)\d+(\s*W</div><div class="mhc-sub">)\d+[\.,]\d+(\s*W/kg</div>)',
-        rf'\g<1>{ftp}\g<2>{wkg}\3', new_html
+        r'(id="mhc-ftp">)\d+(\s*W)',
+        rf'\g<1>{ftp}\2', new_html
     )
     new_html = re.sub(
-        r'(<div class="mhc-lbl">VO2max</div><div class="mhc-val gr">)~?\d+(</div>)',
+        r'(id="mhc-wkg">)[\d,\.]+(\s*W/kg)',
+        rf'\g<1>{wkg}\2', new_html
+    )
+    new_html = re.sub(
+        r'(id="mhc-vo2">)~?\d+(<)',
         rf'\g<1>~{vo2}\2', new_html
     )
     new_html = re.sub(
-        r'(<div class="mhc-lbl">Max HS bpm</div><div class="mhc-val">)\d+(</div>)',
-        rf'\g<1>{mhr}\2', new_html
+        r'(id="mhc-bcad">)\d+(\s*rpm)',
+        rf'\g<1>{stats.get("bike_cadence") or 77}\2', new_html
+    )
+    new_html = re.sub(
+        r'(id="mhc-swim">)[^<]+(<)',
+        rf'\g<1>{swim}\2', new_html
+    )
+    new_html = re.sub(
+        r'(id="mhc-runpace">)[^<]+(<)',
+        rf'\g<1>{stats.get("best_run_pace") or "6:16/km"}\2', new_html
     )
 
     # ── Progressie balk VO2max huidige waarde ──
