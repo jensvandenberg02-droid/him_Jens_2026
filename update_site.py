@@ -133,9 +133,19 @@ def compute_stats(activities, athlete):
 
         elif "ride" in t:
             stats["total_rides"] += 1
-            cad = a.get("average_cadence", 0)
-            if cad > 0:
-                bike_cads.append(cad)
+            cad  = a.get("average_cadence", 0)
+            dist = a.get("distance", 0)
+            elev = a.get("total_elevation_gain", 0)
+            if cad > 0 and dist > 0:
+                dist_km    = dist / 1000
+                hm_per_km  = elev / dist_km if dist_km > 0 else 0
+                # Ritten met veel hoogtemeters hebben meer afdalen zonder trappen
+                # Minimum drempel: cadans onder 55 rpm is te vertekend
+                # Weeg cadans: vlakke ritten (< 5 hm/km) tellen volledig mee
+                # Bergachtige ritten (> 15 hm/km) tellen voor 50%
+                if cad >= 55:
+                    weight = max(0.5, 1 - (hm_per_km - 5) * 0.025) if hm_per_km > 5 else 1.0
+                    bike_cads.append((cad, weight))
 
         elif "swim" in t:
             stats["total_swims"] += 1
@@ -161,7 +171,10 @@ def compute_stats(activities, athlete):
         stats["best_run_pace"] = fmt_pace(best)
 
     if bike_cads:
-        stats["bike_cadence"] = round(sum(bike_cads) / len(bike_cads))
+        total_weight = sum(w for _, w in bike_cads)
+        weighted_cad = sum(c * w for c, w in bike_cads) / total_weight
+        stats["bike_cadence"] = round(weighted_cad)
+        print(f"   Fietscadans: {len(bike_cads)} ritten · gewogen gemiddelde {stats['bike_cadence']} rpm")
 
     if run_cads:
         stats["run_cadence"] = round(sum(run_cads) / len(run_cads))
