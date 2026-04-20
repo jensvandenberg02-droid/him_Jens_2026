@@ -561,7 +561,6 @@ def generate_ai_update(activities, stats, him):
     """
     Roept de Anthropic Claude API aan om een persoonlijke trainingsupdate te schrijven.
     """
-    import json
 
     ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
     if not ANTHROPIC_API_KEY:
@@ -570,10 +569,31 @@ def generate_ai_update(activities, stats, him):
             ""
         )
 
-    # Bouw een samenvatting van de data voor Claude
-    recent = activities[:5]
-    acts_summary = []
-    for a in recent:
+    # Laatste activiteit volledig uitwerken
+    last = activities[0] if activities else {}
+    last_type  = last.get("type", "Workout")
+    last_name  = last.get("name", last_type)
+    last_dist  = last.get("distance", 0)
+    last_dur   = last.get("moving_time", 0)
+    last_hr    = last.get("average_heartrate", 0)
+    last_maxhr = last.get("max_heartrate", 0)
+    last_spd   = last.get("average_speed", 0)
+    last_elev  = last.get("total_elevation_gain", 0)
+    last_cad   = last.get("average_cadence", 0)
+    last_date  = datetime.fromisoformat(last.get("start_date_local", "2026-01-01T00:00:00").replace("Z","")).strftime("%A %-d %B")
+
+    if "run" in last_type.lower():
+        last_detail = f"{last_dist/1000:.1f}km · tempo {fmt_pace(last_spd)} · gem. HS {int(last_hr) if last_hr else '?'} bpm · max HS {int(last_maxhr) if last_maxhr else '?'} bpm · cadans {int(last_cad*2) if last_cad else '?'} spm · hoogte {last_elev:.0f}m"
+    elif "ride" in last_type.lower():
+        last_detail = f"{last_dist/1000:.1f}km · {last_spd*3.6:.1f}km/u · gem. HS {int(last_hr) if last_hr else '?'} bpm · max HS {int(last_maxhr) if last_maxhr else '?'} bpm · cadans {int(last_cad) if last_cad else '?'} rpm · hoogte {last_elev:.0f}m"
+    elif "swim" in last_type.lower():
+        last_detail = f"{last_dist:.0f}m · tempo {fmt_swim_pace(last_spd)} · gem. HS {int(last_hr) if last_hr else '?'} bpm · duur {fmt_time(last_dur)}"
+    else:
+        last_detail = f"duur {fmt_time(last_dur)} · gem. HS {int(last_hr) if last_hr else '?'} bpm"
+
+    # Overzicht laatste 5 activiteiten
+    recent_lines = []
+    for a in activities[1:6]:
         t    = a.get("type", "Workout")
         name = a.get("name", t)
         dist = a.get("distance", 0)
@@ -581,34 +601,43 @@ def generate_ai_update(activities, stats, him):
         hr   = a.get("average_heartrate", 0)
         spd  = a.get("average_speed", 0)
         date = datetime.fromisoformat(a["start_date_local"].replace("Z","")).strftime("%a %-d %b")
-
         if "run" in t.lower():
-            detail = f"{dist/1000:.1f}km op {fmt_pace(spd)} (gem. HS {int(hr) if hr else '?'} bpm)"
+            detail = f"{dist/1000:.1f}km op {fmt_pace(spd)}, HS {int(hr) if hr else '?'} bpm"
         elif "ride" in t.lower():
-            detail = f"{dist/1000:.1f}km op {spd*3.6:.1f}km/u"
+            detail = f"{dist/1000:.1f}km op {spd*3.6:.1f}km/u, HS {int(hr) if hr else '?'} bpm"
         elif "swim" in t.lower():
             detail = f"{dist:.0f}m op {fmt_swim_pace(spd)}"
         else:
             detail = f"{int(dur//60)} min"
+        recent_lines.append(f"- {date}: {name} ({t}) — {detail}")
 
-        acts_summary.append(f"- {date}: {name} ({t}) — {detail}")
+    recent_text = "\n".join(recent_lines) if recent_lines else "Geen andere recente activiteiten"
 
-    acts_text = "\n".join(acts_summary) if acts_summary else "Geen recente activiteiten"
+    prompt = f"""Je bent een persoonlijke triatleetcoach van Jens van den Berg (71kg, 182cm), die traint voor de Halve Ironman Knokke op 6 september 2026. Schrijf een persoonlijke dagelijkse update in het Nederlands.
 
-    prompt = f"""Je bent een persoonlijke triatleetcoach. Schrijf een korte, motiverende en eerlijke update voor Jens van den Berg (71kg, 182cm) die traint voor de Halve Ironman Knokke op 6 september 2026.
+LAATSTE ACTIVITEIT ({last_date}):
+Naam: {last_name}
+Type: {last_type}
+Data: {last_detail}
 
-Actuele fitnessdata:
-- VO2max schatting: ~{stats['vo2max']} ml/kg/min (doel: 52+)
-- FTP: {stats['ftp']}W ({round(stats['ftp']/71, 2)} W/kg) (doel: 2,8–3,2 W/kg)
-- Max hartslag: {stats['max_hr']} bpm
+VORIGE ACTIVITEITEN (ter context):
+{recent_text}
+
+HUIDIGE FITNESSWAARDEN:
+- VO2max: ~{stats['vo2max']} ml/kg/min (doel: 52+)
+- FTP: {stats['ftp']}W ({round(stats['ftp']/71, 2)} W/kg)
+- Max hartslag ooit gemeten: {stats['max_hr']} bpm
 - Beste zwemtempo: {stats.get('best_swim') or '—'}
-- Fietscadans: {stats.get('bike_cadence') or '—'} rpm
+- Fietscadans gemiddeld: {stats.get('bike_cadence') or '—'} rpm
 - Geschatte HIM eindtijd: {him['total_time']} (zwem {him['swim_time']} / fiets {him['bike_time']} / run {him['run_time']})
 
-Laatste 5 activiteiten:
-{acts_text}
+SCHRIJF een update van 5–7 zinnen met deze structuur:
+1. Begin met een concrete analyse van de laatste activiteit — wat viel op aan de hartslag, het tempo, de cadans of de hoogtemeters? Wat zegt dit over zijn huidige vorm?
+2. Vergelijk dit kort met de context van de vorige activiteiten — zit hij in een goede lijn?
+3. Koppel dit aan zijn HIM-voorbereiding — wat betekent dit voor 6 september?
+4. Sluit af met één concrete, specifieke tip voor de komende 2–3 dagen.
 
-Schrijf een persoonlijke update van 3–4 zinnen in het Nederlands. Wees specifiek over de laatste training en wat die betekent voor zijn voorbereiding. Geef ook één concrete tip voor de komende dagen. Schrijf in de tweede persoon ("je", niet "u"). Geen opsomming, gewoon lopende tekst."""
+Schrijf in de tweede persoon ("je"), in lopende tekst zonder opsomming, eerlijk en motiverend. Gebruik de echte cijfers uit de data."""
 
     try:
         response = requests.post(
@@ -620,7 +649,7 @@ Schrijf een persoonlijke update van 3–4 zinnen in het Nederlands. Wees specifi
             },
             json={
                 "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 300,
+                "max_tokens": 600,
                 "messages": [{"role": "user", "content": prompt}]
             },
             timeout=30
