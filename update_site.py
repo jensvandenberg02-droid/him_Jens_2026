@@ -89,6 +89,30 @@ def zone_bar(avg_hr, max_hr):
     else:
         return '<div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>'
 
+# ── HERSTEL FILTER ──
+def is_recovery(activity):
+    """
+    Geeft True terug als een activiteit niet moet meetellen in berekeningen.
+    Filtert op:
+    - Strava workout type: 11 = recovery run, 12 = workout (geen race)
+    - Naam bevat 'herstel', 'recovery', 'rustig', 'easy', 'actief herstel'
+    - Workout type string bevat 'recovery'
+    """
+    name = (activity.get("name") or "").lower()
+    workout_type = activity.get("workout_type") or 0
+    sport_type   = (activity.get("sport_type") or "").lower()
+
+    # Strava workout types: 11 = recovery run
+    if workout_type == 11:
+        return True
+
+    # Naam-gebaseerde filter
+    recovery_keywords = ["herstel", "recovery", "actief herstel", "easy run", "rustig rondje"]
+    if any(kw in name for kw in recovery_keywords):
+        return True
+
+    return False
+
 # ── COMPUTE STATS ──
 def compute_stats(activities, athlete):
     stats = {
@@ -113,6 +137,11 @@ def compute_stats(activities, athlete):
     run_cads    = []
 
     for a in activities:
+        # Herstelactiviteiten overslaan
+        if is_recovery(a):
+            print(f"   Herstel overgeslagen: {a.get('name', '?')}")
+            continue
+
         t = a.get("type", "").lower()
         mhr = a.get("max_heartrate") or 0
         if mhr > max_hr_seen:
@@ -266,6 +295,8 @@ def estimate_him_time(activities):
     for a in activities:
         if "swim" not in a.get("type","").lower():
             continue
+        if is_recovery(a):
+            continue
         spd  = a.get("average_speed", 0)
         dist = a.get("distance", 0)
         dur  = a.get("moving_time", 0)
@@ -285,6 +316,8 @@ def estimate_him_time(activities):
 
     for a in activities:
         if "ride" not in a.get("type","").lower():
+            continue
+        if is_recovery(a):
             continue
         spd  = a.get("average_speed", 0)
         dist = a.get("distance", 0)
@@ -319,6 +352,8 @@ def estimate_him_time(activities):
 
     for a in activities:
         if "run" not in a.get("type","").lower():
+            continue
+        if is_recovery(a):
             continue
         spd    = a.get("average_speed", 0)
         dist   = a.get("distance", 0)
