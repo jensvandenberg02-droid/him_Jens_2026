@@ -709,6 +709,57 @@ nav {
 .wk-day.day-past { opacity: .2; }
 .wk-day.day-today { outline: 2px solid var(--accent); outline-offset: 1px; }
 
+/* ── FIETS LOCATIE TOGGLE ── */
+.bike-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: .5rem 0 .3rem;
+  flex-wrap: wrap;
+}
+.bike-toggle-lbl {
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.bike-loc-btn {
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .2rem .6rem;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: var(--subtle);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.bike-loc-btn.active-leuven {
+  background: rgba(58,143,255,.2);
+  color: var(--blue);
+  border-color: rgba(58,143,255,.4);
+}
+.bike-loc-btn.active-as {
+  background: rgba(34,197,94,.15);
+  color: var(--green);
+  border-color: rgba(34,197,94,.35);
+}
+.bike-loc-btn:hover:not(.active-leuven):not(.active-as) {
+  border-color: var(--border2);
+  color: var(--dim);
+}
+/* Sessie varianten — standaard verborgen */
+.sess-leuven { display: none; }
+.sess-as     { display: none; }
+/* Toon op basis van data-bike attribuut op week-card */
+.week-card[data-bike="leuven"] .sess-leuven { display: block; }
+.week-card[data-bike="as"]     .sess-as     { display: block; }
+/* Als geen keuze: toon leuven als default */
+.week-card:not([data-bike]) .sess-leuven { display: block; }
+
 /* ── EXPANDABLE WEEK CARDS ── */
 .week-card { cursor: pointer; }
 .wk-toggle {
@@ -1228,22 +1279,22 @@ footer {
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val" id="hero-wkg">2.32</div>
+        <div class="hstat-val" id="hero-wkg">2,32</div>
         <div class="hstat-lbl">W/kg</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val bl" id="hero-swim">1:43/100m</div>
+        <div class="hstat-val bl" id="hero-swim">1:52</div>
         <div class="hstat-lbl">CSS /100m</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val gr" id="hero-vo2">~54</div>
+        <div class="hstat-val gr" id="hero-vo2">~48</div>
         <div class="hstat-lbl">VO2max</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val" id="hero-mhr">193.0</div>
+        <div class="hstat-val" id="hero-mhr">204</div>
         <div class="hstat-lbl">Max HS bpm</div>
       </div>
       <div class="hero-divider"></div>
@@ -1276,8 +1327,12 @@ footer {
     <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.8rem;position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--accent),var(--blue))"></div>
       <div style="padding-left:.6rem">
-        <div id="ai-update-text" style="font-size:.95rem;line-height:1.9;color:var(--dim)">Je staat er goed voor richting HIM Knokke. VO2max ~54 ml/kg/min, FTP 165W. Blijf consistent trainen!</div>
-        <div id="ai-update-meta" style="margin-top:1rem;font-size:.72rem;color:var(--muted);letter-spacing:.06em">— Automatische fallback · 26 April 2026</div>
+        <div id="ai-update-text" style="font-size:.95rem;line-height:1.9;color:var(--dim)">
+          Wordt bijgewerkt na de volgende Strava sync...
+        </div>
+        <div id="ai-update-meta" style="margin-top:1rem;font-size:.72rem;color:var(--muted);letter-spacing:.06em">
+          — Gegenereerd door Claude op basis van Strava data
+        </div>
       </div>
     </div>
   </div>
@@ -1384,12 +1439,12 @@ footer {
 
   <div class="mhc-grid">
     <div class="mhc"><div class="mhc-lbl">Gewicht</div><div class="mhc-val" id="mhc-weight">71 kg</div><div class="mhc-sub">182 cm</div></div>
-    <div class="mhc"><div class="mhc-lbl">FTP nu</div><div class="mhc-val ac" id="mhc-ftp">165 W</div><div class="mhc-sub" id="mhc-wkg">2.32 W/kg</div></div>
+    <div class="mhc"><div class="mhc-lbl">FTP nu</div><div class="mhc-val ac" id="mhc-ftp">165 W</div><div class="mhc-sub" id="mhc-wkg">2,32 W/kg</div></div>
     <div class="mhc"><div class="mhc-lbl">FTP doel HIM</div><div class="mhc-val gr">199–227 W</div><div class="mhc-sub">2,8–3,2 W/kg</div></div>
-    <div class="mhc"><div class="mhc-lbl">Looptempo LT</div><div class="mhc-val yl" id="mhc-runpace">5:23/km</div><div class="mhc-sub">doel: 5:40/km</div></div>
-    <div class="mhc"><div class="mhc-lbl">Zwem CSS</div><div class="mhc-val bl" id="mhc-swim">1:43/100m</div><div class="mhc-sub">doel: 1:40/100m</div></div>
-    <div class="mhc"><div class="mhc-lbl">Fiets cadans</div><div class="mhc-val ac" id="mhc-bcad">73 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr" id="mhc-vo2">~54</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
+    <div class="mhc"><div class="mhc-lbl">Looptempo LT</div><div class="mhc-val yl" id="mhc-runpace">6:16/km</div><div class="mhc-sub">doel: 5:40/km</div></div>
+    <div class="mhc"><div class="mhc-lbl">Zwem CSS</div><div class="mhc-val bl" id="mhc-swim">1:52</div><div class="mhc-sub">doel: 1:40/100m</div></div>
+    <div class="mhc"><div class="mhc-lbl">Fiets cadans</div><div class="mhc-val ac" id="mhc-bcad">77 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
+    <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr" id="mhc-vo2">~48</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
     <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
   </div>
 
@@ -1533,7 +1588,7 @@ footer {
       </div>
       <div class="weeks-grid">
 
-        <div class="week-card wk-past" onclick="toggleWeek(this)">
+        <div class="week-card wk-past" onclick="toggleWeek(this)" data-week="1" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Basis — Leuven" data-tagclass-leuven="wtag-base" data-tag-as="Basis — As" data-tagclass-as="wtag-base">
           <div class="wk-num">Week 1</div>
           <div class="wk-dates" data-start="2026-03-30" data-end="2026-04-05">30 mrt – 5 apr</div>
           <div class="wk-days">
@@ -1542,6 +1597,11 @@ footer {
           </div>
           <span class="wtag-base wk-tag">Basis</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(1, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(1, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht — volledig lichaam</div></div></div>
@@ -1549,11 +1609,23 @@ footer {
               <div class="wks-desc">Clam shells 3×20 · single leg deadlift 3×10 · Bulgarian split squat 3×10 · pull-ups 4×8 · core circuit 3 ronden. ITB nagenoeg hersteld — voorzichtig opbouwen.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~65 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — Z2 basis</div></div></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — Z2 basis</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Z2</span></div>
+              <div class="wks-desc">Rustige duurrit buiten Leuven. Hartslag 140–158 bpm, cadans 85+ rpm. Hellingen als uitdaging zonder te veel te vermoeiden.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>60–80 km · 140–158 bpm · 85+ rpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Lange duurrit — As</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2</span></div>
-              <div class="wks-desc">Rustige duurrit buiten Leuven. Hartslag 140–158 bpm, cadans bewust op 85+ rpm. Geen kwaliteitswerk — basis opbouwen voor de HM volgende week.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>60–80 km</strong></span><span class="wksm">140–158 bpm</span><span class="wksm">85+ rpm</span></div>
+              <div class="wks-desc">Lange duurrit vanuit As op vlak terrein. 140–158 bpm, cadans 85+ rpm. Meer volume mogelijk dan Leuven.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>80–90 km · 140–158 bpm · 85+ rpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Kracht — upper body + core</div></div></div>
@@ -1576,7 +1648,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card wk-past" onclick="toggleWeek(this)">
+        <div class="week-card wk-past" onclick="toggleWeek(this)" data-week="2" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Opbouw — Leuven" data-tagclass-leuven="wtag-build" data-tag-as="Opbouw — As" data-tagclass-as="wtag-build">
           <div class="wk-num">Week 2</div>
           <div class="wk-dates" data-start="2026-04-06" data-end="2026-04-12">6 apr – 12 apr</div>
           <div class="wk-days">
@@ -1585,6 +1657,11 @@ footer {
           </div>
           <span class="wtag-build wk-tag">Opbouw</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(2, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(2, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht + loopactivering</div></div></div>
@@ -1592,11 +1669,23 @@ footer {
               <div class="wks-desc">Identiek aan week 1 maar +1 set per oefening. Progressief opbouwen zonder de benen te overbelasten voor het weekend.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~65 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — Sweet Spot week A</div></div></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — Sweet Spot week A</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot</span></div>
-              <div class="wks-desc">Eerste kwaliteitssessie op de fiets. Warming-up 15 min · 3×12 min op 163–170 bpm (Sweet Spot), 5 min herstel · cool-down 10 min. Cadans 88–92 rpm bewust inzetten.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~75 min</strong></span><span class="wksm">163–170 bpm</span><span class="wksm">88–92 rpm</span></div>
+              <div class="wks-desc">Warming-up 15 min · 3×12 min op 163–170 bpm, 5 min herstel · cool-down 10 min. Cadans 88–92 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~75 min · 163–170 bpm · 88–92 rpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Lange rit As + Sweet Spot finish</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2 + Sweet Spot</span></div>
+              <div class="wks-desc">70 km Z2 (140–158 bpm) + laatste 15 min Sweet Spot (163–170 bpm). Cadans 88–92 rpm. Vlakker terrein = consistentere cadans.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~70–80 km · laatste 15 min 163–170 bpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Kracht licht</div></div></div>
@@ -1619,7 +1708,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card wc-taper wk-past" onclick="toggleWeek(this)">
+        <div class="week-card wc-taper wk-past" onclick="toggleWeek(this)" data-week="3" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-rest&quot;>Za</div><div class=&quot;wk-day wd-race&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-rest&quot;>Za</div><div class=&quot;wk-day wd-race&quot;>Zo</div>" data-tag-leuven="🏃 HM Leuven" data-tagclass-leuven="wtag-race" data-tag-as="🏃 HM Leuven" data-tagclass-as="wtag-race">
           <div class="wk-num">Week 3</div>
           <div class="wk-dates" data-start="2026-04-13" data-end="2026-04-19">13 apr – 19 apr</div>
           <div class="wk-days">
@@ -1628,6 +1717,11 @@ footer {
           </div>
           <span class="wtag-race wk-tag">🏃 HM Leuven</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(3, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(3, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht licht — taper</div></div></div>
@@ -1635,13 +1729,18 @@ footer {
               <div class="wks-desc">Lichte onderhoudssessie. Geen zware belasting. Benen volledig sparen voor zondag.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~45 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — activering Z2</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2</span></div>
-              <div class="wks-desc">Korte activeringsrit. 45 min Z2, geen kwaliteitswerk. Benen losmaken, systeem activeren. Cadans 88+ rpm.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~45 min</strong></span><span class="wksm">140–155 bpm</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — activering Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Z2</span></div>
+              <div class="wks-desc">45 min Z2, geen kwaliteitswerk. Benen losmaken voor HM Leuven zondag. Cadans 88+ rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~45 min · 140–155 bpm · taper</strong></span></div>
             </div>
-            <div class="wk-session">
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Korte duurrit As — activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">50–60 km Z2 vanuit As. Benen losmaken voor HM Leuven zondag.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~50–60 km · 140–155 bpm · taper</strong></span></div>
+            </div><div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwem activering — kort</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span></div>
               <div class="wks-desc">4×100m easy · 4×50m CSS · 4×50m sprint MAX · 200m cool-down. Geen zware sessie — activeren en fris blijven.</div>
@@ -1701,7 +1800,7 @@ footer {
       </div>
       <div class="weeks-grid">
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="5" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Triatlon basis — Leuven" data-tagclass-leuven="wtag-build" data-tag-as="Triatlon basis — As" data-tagclass-as="wtag-build">
           <div class="wk-num">Week 5</div>
           <div class="wk-dates" data-start="2026-04-27" data-end="2026-05-03">27 apr – 3 mei</div>
           <div class="wk-days">
@@ -1710,6 +1809,11 @@ footer {
           </div>
           <span class="wtag-build wk-tag">Triatlon basis</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(5, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(5, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht — 1× per week vanaf nu</div></div></div>
@@ -1717,11 +1821,23 @@ footer {
               <div class="wks-desc">Vanaf fase 2: 1× kracht per week (onderhoud). Single leg deadlift 3×10 · clam shells 2×15 · pull-ups 3×8 · core circuit. Foam rol afsluiting.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~60 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — Sweet Spot week A</div></div></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — Sweet Spot week A</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot</span></div>
-              <div class="wks-desc">Warming-up 15 min · 3×15 min op 163–170 bpm, 5 min herstel · cool-down 10 min. Cadans 88–92 rpm. Hellingen Leuven gebruiken als natuurlijke intervals.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~80 min</strong></span><span class="wksm">163–170 bpm</span></div>
+              <div class="wks-desc">Warming-up 15 min · 3×15 min op 163–170 bpm, 5 min herstel · cool-down. Cadans 88–92 rpm. Hellingen als interval.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~80 min · 163–170 bpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Lange rit As — Z2 + Sweet Spot</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2 + Sweet Spot</span></div>
+              <div class="wks-desc">80–90 km Z2 + 3×8 min Sweet Spot (163–170 bpm) ingebouwd. Cadans 88–92 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>80–90 km · 3×8 min Sweet Spot</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS + VO2max</div></div></div>
@@ -1738,7 +1854,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="6" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-swim&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Open water — Leuven" data-tagclass-leuven="wtag-base" data-tag-as="Open water — As" data-tagclass-as="wtag-base">
           <div class="wk-num">Week 6</div>
           <div class="wk-dates" data-start="2026-05-04" data-end="2026-05-10">4 mei – 10 mei</div>
           <div class="wk-days">
@@ -1747,6 +1863,11 @@ footer {
           </div>
           <span class="wtag-base wk-tag">Open water</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(6, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(6, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
@@ -1754,11 +1875,23 @@ footer {
               <div class="wks-desc">Onderhoudssessie. Single leg deadlift, pull-ups, core. Foam rol afsluiting.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — VO2max week B</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-vo2">VO2max</span></div>
-              <div class="wks-desc">Warming-up 15 min + activering · 5×4 min op 185–195 bpm, 4 min herstel · cool-down 10 min. Cadans 90–95 rpm. Gebruik korte klimmen in Leuven als interval.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~75 min</strong></span><span class="wksm">185–195 bpm</span><span class="wksm">90–95 rpm</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — VO2max week B</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">VO2max</span></div>
+              <div class="wks-desc">Warming-up 15 min · 5×4 min op 185–195 bpm, 4 min herstel · cool-down. Cadans 90–95 rpm. Klimmen gebruiken als interval.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~75 min · 185–195 bpm · 90–95 rpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Lange rit As — VO2max blokken</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">VO2max</span></div>
+              <div class="wks-desc">Duurrit As: opwarmen 20 min · 5×4 min op 185–195 bpm op vlak stuk, 4 min herstel · cool-down. Cadans 90–95 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~80 min · 185–195 bpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS</div></div></div>
@@ -1781,7 +1914,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="7" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Opbouw — geen brick" data-tagclass-leuven="wtag-build" data-tag-as="Opbouw + brick — As" data-tagclass-as="wtag-build">
           <div class="wk-num">Week 7</div>
           <div class="wk-dates" data-start="2026-05-11" data-end="2026-05-17">11 mei – 17 mei</div>
           <div class="wk-days">
@@ -1790,6 +1923,11 @@ footer {
           </div>
           <span class="wtag-build wk-tag">Opbouw + eerste brick</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(7, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(7, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
@@ -1797,11 +1935,17 @@ footer {
               <div class="wks-desc">Onderhoudssessie. Volledige circuit in 55 min. Foam rol afsluiting.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — Sweet Spot week A</div></div></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — Sweet Spot week A</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot</span></div>
-              <div class="wks-desc">3×15 min op 163–170 bpm, 5 min herstel. Cadans 88–92 rpm. Progressie t.o.v. week 5.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~80 min</strong></span></div>
+              <div class="wks-desc">3×15 min Sweet Spot (163–170 bpm), 5 min herstel. Cadans 88–92 rpm. ⚠️ Brick op zondag niet mogelijk — fiets staat in Leuven.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~80 min · 163–170 bpm · geen brick</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Brick zondag — As</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Fietsen + Brick</span></div>
+              <div class="wks-desc">60–70 km Z2 (140–158 bpm, cadans 88+ rpm) + direct 15 min lopen op 6:30/km. Eerste brick. Voeding testen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>60–70 km + 15min run · eerste brick</strong></span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS + VO2max</div></div></div>
@@ -1860,7 +2004,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+        <div class="week-card wc-taper" onclick="toggleWeek(this)" data-week="9" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-rest&quot;>Za</div><div class=&quot;wk-day wd-race&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-rest&quot;>Za</div><div class=&quot;wk-day wd-race&quot;>Zo</div>" data-tag-leuven="🚴 Sprint Stein" data-tagclass-leuven="wtag-race" data-tag-as="🚴 Sprint Stein" data-tagclass-as="wtag-race">
           <div class="wk-num">Week 9</div>
           <div class="wk-dates" data-start="2026-05-25" data-end="2026-05-31">25 mei – 31 mei</div>
           <div class="wk-days">
@@ -1869,6 +2013,11 @@ footer {
           </div>
           <span class="wtag-race wk-tag">🚴 Sprint Stein</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(9, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(9, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht licht — taper</div></div></div>
@@ -1876,13 +2025,18 @@ footer {
               <div class="wks-desc">Lichte activering. Geen zware belasting. Benen fris houden voor de race.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — activering + race sim</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span></div>
-              <div class="wks-desc">30 min easy + 3×1 min op 80% FTP (163–168 bpm) als racetempobriefing. Cadans 90 rpm. Benen fris houden.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~40 min</strong></span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — race activering Stein</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Activering</span></div>
+              <div class="wks-desc">30 min easy + 3×1 min op 163–168 bpm als racetempo briefing. Cadans 90 rpm. Benen fris voor Sprint Stein zondag.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40 min · taper</strong></span></div>
             </div>
-            <div class="wk-session">
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Korte activering As — Stein</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Activering</span></div>
+              <div class="wks-desc">40–50 km Z2 + 3×2 min race-tempo. Cadans 90 rpm. Benen fris voor Sprint Stein zondag.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~40–50 km · taper</strong></span></div>
+            </div><div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwem activering</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span></div>
               <div class="wks-desc">4×100m easy · 4×50m CSS · 4×50m sprint MAX · 200m cool-down. ~1.200m. Activeren zonder vermoeidheid.</div>
@@ -1911,7 +2065,7 @@ footer {
       </div>
       <div class="weeks-grid">
 
-        <div class="week-card wc-rest" onclick="toggleWeek(this)">
+        <div class="week-card wc-rest" onclick="toggleWeek(this)" data-week="10" data-default-bike="as" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-swim&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-rest&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-swim&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-str&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-rest&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Herstel — Leuven" data-tagclass-leuven="wtag-rest" data-tag-as="Herstel — As" data-tagclass-as="wtag-rest">
           <div class="wk-num">Week 10</div>
           <div class="wk-dates" data-start="2026-06-01" data-end="2026-06-07">1 jun – 7 jun</div>
           <div class="wk-days">
@@ -1920,6 +2074,11 @@ footer {
           </div>
           <span class="wtag-rest wk-tag">Herstel post-Stein</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(10, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(10, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Actief herstel zwemmen</div></div></div>
@@ -1945,16 +2104,22 @@ footer {
               <div class="wks-desc">Terug naar volle CSS sessie. 8×100m + 4×150m + VO2max sprints. ~3.000m.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~3.000m</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Lange duurrit — As</div></div></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — herstel Z2</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Z2</span></div>
+              <div class="wks-desc">Herstelrit na Sprint Stein. Z2 in Leuven, cadans 88+ rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60–70 km · 140–158 bpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Lange duurrit As — herstel</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2</span></div>
-              <div class="wks-desc">Herstelrit Z2. Cadans 88+ rpm bewust inzetten. Week met fiets thuis in As. Herstel na Stein — opbouw richting Sprint Maastricht (5 juli) start volgende week.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>75–85 km</strong></span><span class="wksm">88+ rpm · As</span></div>
+              <div class="wks-desc">Herstelrit vanuit As. 75–85 km Z2, cadans 88+ rpm. Meer volume op vlak terrein.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>75–85 km · 88+ rpm</strong></span></div>
             </div>
           </div>
         </div>
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="11" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Opbouw → Maastricht — Leuven" data-tagclass-leuven="wtag-build" data-tag-as="Opbouw → Maastricht — As" data-tagclass-as="wtag-build">
           <div class="wk-num">Week 11</div>
           <div class="wk-dates" data-start="2026-06-08" data-end="2026-06-14">8 jun – 14 jun</div>
           <div class="wk-days">
@@ -1963,6 +2128,11 @@ footer {
           </div>
           <span class="wtag-build wk-tag">Opbouw → Maastricht</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(11, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(11, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
@@ -1970,11 +2140,23 @@ footer {
               <div class="wks-desc">1× kracht per week. ITB onderhoud, upper body, core. 55 min.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — Sweet Spot week A</div></div></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — Sweet Spot week A</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot</span></div>
-              <div class="wks-desc">3×15 min op 163–170 bpm, 5 min herstel. Cadans 88–92 rpm. Progressief opbouwen richting 3×20 min.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~80 min</strong></span></div>
+              <div class="wks-desc">3×15 min op 163–170 bpm, 5 min herstel. Cadans 88–92 rpm. Progressief opbouwen richting Maastricht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~80 min · 163–170 bpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Lange rit As — Sweet Spot opbouw</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2 + Sweet Spot</span></div>
+              <div class="wks-desc">85–90 km Z2 + 3×10 min Sweet Spot (163–170 bpm) ingebouwd. Cadans 88–92 rpm. Opbouw richting Maastricht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>85–90 km + Sweet Spot blokken</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS progressief</div></div></div>
@@ -1991,7 +2173,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="12" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="HIM opbouw — geen brick" data-tagclass-leuven="wtag-build" data-tag-as="Piek → Maastricht + brick" data-tagclass-as="wtag-build">
           <div class="wk-num">Week 12</div>
           <div class="wk-dates" data-start="2026-06-15" data-end="2026-06-21">15 jun – 21 jun</div>
           <div class="wk-days">
@@ -2000,6 +2182,11 @@ footer {
           </div>
           <span class="wtag-build wk-tag">Piek → Maastricht + brick</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(12, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(12, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
@@ -2007,11 +2194,23 @@ footer {
               <div class="wks-desc">Onderhoudssessie. Upper body + core + ITB preventie. 55 min.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — VO2max week B</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-vo2">VO2max</span></div>
-              <div class="wks-desc">5×4 min op 185–195 bpm, 4 min herstel. Cadans 90–95 rpm. Klimmen Leuven gebruiken.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~75 min</strong></span><span class="wksm">185–195 bpm</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — VO2max week B</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">VO2max</span></div>
+              <div class="wks-desc">5×4 min op 185–195 bpm, 4 min herstel. Cadans 90–95 rpm. ⚠️ Brick niet mogelijk — fiets staat in Leuven.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~75 min · 185–195 bpm · geen brick</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Brick As — HIM opbouw</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Fietsen + Brick</span></div>
+              <div class="wks-desc">75–85 km Z2 vanuit As (140–158 bpm, 88+ rpm) + direct 20 min lopen op 6:20/km. Voedingsstrategie testen: elke 45 min gel.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>75–85 km + 20min run · brick</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen Z2 volume</div></div></div>
@@ -2034,7 +2233,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="13" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Lichte taper Maastricht" data-tagclass-leuven="wtag-taper" data-tag-as="Lichte taper Maastricht" data-tagclass-as="wtag-taper">
           <div class="wk-num">Week 13</div>
           <div class="wk-dates" data-start="2026-06-22" data-end="2026-06-28">22 jun – 28 jun</div>
           <div class="wk-days">
@@ -2043,6 +2242,11 @@ footer {
           </div>
           <span class="wtag-taper wk-tag">Lichte taper Maastricht</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(13, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(13, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud</div></div></div>
@@ -2050,11 +2254,23 @@ footer {
               <div class="wks-desc">Onderhoud. Kracht begint af te bouwen richting meer triatlonspecifiek werk.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~55 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — Sweet Spot progressie</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot</span></div>
-              <div class="wks-desc">Taper versie: 2×10 min op 163–170 bpm, 5 min herstel. Intensiteit behouden, volume −20%. Cadans 88–92 rpm. Systeem scherp houden.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~60 min (−20%)</strong></span><span class="wksm">20 min Sweet Spot</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — taper Sweet Spot Maastricht</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot −20%</span></div>
+              <div class="wks-desc">2×10 min op 163–170 bpm, 5 min herstel. Volume −20%. Cadans 88–92 rpm. Benen activeren voor Maastricht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 min · 20 min Sweet Spot (−20%)</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Korte rit As — taper Maastricht</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2 −20%</span></div>
+              <div class="wks-desc">50–60 km Z2 + 2×8 min Sweet Spot. Volume −20%. Benen fris houden voor Maastricht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>50–60 km + 16 min Sweet Spot (−20%)</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS lang</div></div></div>
@@ -2108,7 +2324,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="15" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="HIM specificiteit — geen brick" data-tagclass-leuven="wtag-build" data-tag-as="Piek → Cave + HIM brick" data-tagclass-as="wtag-build">
           <div class="wk-num">Week 15</div>
           <div class="wk-dates" data-start="2026-07-06" data-end="2026-07-12">6 jul – 12 jul</div>
           <div class="wk-days">
@@ -2117,6 +2333,11 @@ footer {
           </div>
           <span class="wtag-build wk-tag">Piek → Cave + HIM brick</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(15, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(15, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht onderhoud — afbouwen</div></div></div>
@@ -2124,11 +2345,23 @@ footer {
               <div class="wks-desc">Lichtere krachtsessie. Volume begint af te bouwen richting HIM-piekfase. Core en ITB preventie blijven.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~50 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — HIM tempo simulatie</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-him">HIM tempo</span></div>
-              <div class="wks-desc">Warming-up 15 min · 2×20 min op 80–83% FTP (155–165 bpm) HIM-race tempo, 8 min herstel · cool-down. Cadans 88–90 rpm. Leren wat HIM-tempo aanvoelt.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~80 min</strong></span><span class="wksm">155–165 bpm HIM-tempo</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — HIM tempo simulatie</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">HIM tempo</span></div>
+              <div class="wks-desc">2×20 min op 155–165 bpm HIM-tempo, 8 min herstel. Cadans 88–90 rpm. ⚠️ Brick niet mogelijk — fiets staat in Leuven.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~80 min · 155–165 bpm · geen brick</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Brick 90km HIM-afstand — As</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Fietsen + Brick</span></div>
+              <div class="wks-desc">90 km op HIM-tempo (155–165 bpm), cadans 88–90 rpm + direct 20 min lopen op 6:15/km. Volledige HIM-fietsafstand. Voeding elke 45 min. Zwaarste brick tot nu toe.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>90 km + 20min run · HIM-afstand</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen CSS + open water focus</div></div></div>
@@ -2151,7 +2384,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="16" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Lichte taper Cave" data-tagclass-leuven="wtag-taper" data-tag-as="Lichte taper Cave" data-tagclass-as="wtag-taper">
           <div class="wk-num">Week 16</div>
           <div class="wk-dates" data-start="2026-07-13" data-end="2026-07-19">13 jul – 19 jul</div>
           <div class="wk-days">
@@ -2160,6 +2393,11 @@ footer {
           </div>
           <span class="wtag-taper wk-tag">Lichte taper Cave</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(16, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(16, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Kracht licht</div></div></div>
@@ -2167,13 +2405,24 @@ footer {
               <div class="wks-desc">Onderhoudssessie. Volume verder afbouwen. Core en ITB blijven.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~45 min</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — Sweet Spot lang</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot</span></div>
-              <div class="wks-desc">Taper versie: 2×10 min op 163–170 bpm, 5 min herstel. Volume −20%, intensiteit bewaard. Cadans 88–92 rpm. Benen activeren, niet belasten.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~60 min (−20%)</strong></span><span class="wksm">20 min Sweet Spot</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — taper Cave</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot −20%</span></div>
+              <div class="wks-desc">2×10 min op 163–170 bpm, 5 min herstel. Volume −20%. Cadans 88–92 rpm. Benen activeren voor Cave.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 min · 20 min Sweet Spot (−20%)</strong></span></div>
             </div>
-            <div class="wk-session">
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Korte rit As — taper Cave</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Z2 −20%</span></div>
+              <div class="wks-desc">50–60 km Z2 + 2×8 min Sweet Spot. Volume −20%. Benen fris voor Cave.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>50–60 km + taper (−20%)</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
+            </div><div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Zwemmen volume</div></div></div>
               <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-lt">CSS</span><span class="wks-chip wkc-z2">Z2</span></div>
               <div class="wks-desc">Taper zwem: 4×200m CSS · 200m easy · 6×50m sprint MAX · cool-down. Volume −20%. Snelheid bewaren. ~2.400m.</div>
@@ -2239,7 +2488,7 @@ footer {
       </div>
       <div class="weeks-grid">
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="18" data-default-bike="as" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-run&quot;>Wo</div><div class=&quot;wk-day wd-swim&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-bike&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-str&quot;>Di</div><div class=&quot;wk-day wd-run&quot;>Wo</div><div class=&quot;wk-day wd-swim&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-bike&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="🏖️ Trainingsweekend Zee" data-tagclass-leuven="wtag-base" data-tag-as="🏖️ Trainingsweekend Zee" data-tagclass-as="wtag-base">
           <div class="wk-num">Week 18</div>
           <div class="wk-dates" data-start="2026-07-27" data-end="2026-08-02">27 jul – 2 aug</div>
           <div class="wk-days">
@@ -2248,6 +2497,11 @@ footer {
           </div>
           <span class="wtag-base wk-tag">🏖️ Trainingsweekend Zee</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(18, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(18, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-str">💪</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Laatste krachtsessie</div></div></div>
@@ -2273,11 +2527,17 @@ footer {
               <div class="wks-desc">Open water op of nabij het Knokke-parcours. 1.900m + wetsuit, boeilijn, open wateroriëntatie. Rustig tempo — vertrouwen opbouwen. Meerdere swims mogelijk.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~2.000m open water</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag 1 aug — Zee</div><div class="wks-name">HIM fietsparcours verkennen</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-him">HIM parcours</span></div>
-              <div class="wks-desc">Het HIM-fietsparcours of vergelijkbaar kustwegparcours. 90 km op HIM-tempo: 80–83% FTP (155–165 bpm), cadans 88–90 rpm. Parcours leren kennen. Fiets mee vanuit As.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>90 km</strong></span><span class="wksm">HIM-tempo · parcours verkenning</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — voor zee vertrek</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Z2</span></div>
+              <div class="wks-desc">Laatste Leuven-rit voor het trainingsweekend zee. Rustige Z2 rit, cadans 88+ rpm. Fiets daarna meenemen naar zee.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 km · 140–158 bpm</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">HIM parcours zee — As fiets mee</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">HIM parcours</span></div>
+              <div class="wks-desc">Fiets meenemen naar zee. 90 km op HIM-tempo op het echte Knokke-parcours (155–165 bpm). Cadans 88–90 rpm. + brick zondag.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>90 km + brick zondag · parcours</strong></span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zondag 2 aug — Zee</div><div class="wks-name">Brick — HIM-tempo zee</div></div></div>
@@ -2288,7 +2548,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card" onclick="toggleWeek(this)">
+        <div class="week-card" onclick="toggleWeek(this)" data-week="19" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-rest&quot;>Di</div><div class=&quot;wk-day wd-bike&quot;>Wo</div><div class=&quot;wk-day wd-swim&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-rest&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-swim&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Piekweek — geen brick" data-tagclass-leuven="wtag-peak" data-tag-as="Piekweek + brick" data-tagclass-as="wtag-peak">
           <div class="wk-num">Week 19</div>
           <div class="wk-dates" data-start="2026-08-03" data-end="2026-08-09">3 aug – 9 aug</div>
           <div class="wk-days">
@@ -2297,12 +2557,29 @@ footer {
           </div>
           <span class="wtag-peak wk-tag">Piekweek</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(19, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(19, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Woensdag</div><div class="wks-name">Fiets Leuven — Sweet Spot piek 2×25 min</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot</span></div>
-              <div class="wks-desc">Piek Sweet Spot: 2×25 min op 163–170 bpm, 8 min herstel. Langste Sweet Spot werk van het hele plan. Cadans 88–92 rpm.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~80 min</strong></span><span class="wksm">50 min Sweet Spot</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets Leuven — Sweet Spot piek 2×25</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot piek</span></div>
+              <div class="wks-desc">2×25 min op 163–170 bpm, 8 min herstel. Langste Sweet Spot van het plan. Cadans 88–92 rpm. ⚠️ Brick piek niet mogelijk — fiets in Leuven.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~80 min · 50 min Sweet Spot · geen brick</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Brick piek 110km — As</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Fietsen + Brick piek</span></div>
+              <div class="wks-desc">110 km op HIM-tempo (155–165 bpm), cadans 88–90 rpm + direct 25 min lopen op 6:10–6:30/km. Voeding elke 45 min. Zwaarste trainingsdag van het plan.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>110 km + 25min run · PIEKBRICK</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Donderdag</div><div class="wks-name">Zwemmen piekvolume</div></div></div>
@@ -2331,7 +2608,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+        <div class="week-card wc-taper" onclick="toggleWeek(this)" data-week="20" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-run&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-bike&quot;>Za</div><div class=&quot;wk-day wd-run&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-run&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Taper −30% — Leuven" data-tagclass-leuven="wtag-taper" data-tag-as="Taper −30% — As" data-tagclass-as="wtag-taper">
           <div class="wk-num">Week 20</div>
           <div class="wk-dates" data-start="2026-08-10" data-end="2026-08-16">10 aug – 16 aug</div>
           <div class="wk-days">
@@ -2340,6 +2617,11 @@ footer {
           </div>
           <span class="wtag-taper wk-tag">Taper −30%</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(20, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(20, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Tempoloop — taper versie</div></div></div>
@@ -2359,11 +2641,23 @@ footer {
               <div class="wks-desc">2×400m continu + drill blok. Techniek en gevoel bewaren. ~1.400m.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~1.400m</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Fiets — taper Sweet Spot — As of Leuven</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Lactaat</span></div>
-              <div class="wks-desc">2×15 min Sweet Spot (163–170 bpm), 5 min herstel. Volume −30% t.o.v. piek. Cadans 90 rpm.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~60 min</strong></span><span class="wksm">30 min Sweet Spot</span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets — taper Sweet Spot</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Sweet Spot −30%</span></div>
+              <div class="wks-desc">2×15 min Sweet Spot (163–170 bpm), 5 min herstel. Volume −30%. Cadans 90 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 min · 30 min Sweet Spot (−30%)</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Fiets As — taper Sweet Spot</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Sweet Spot −30%</span></div>
+              <div class="wks-desc">2×15 min Sweet Spot (163–170 bpm), 5 min herstel. Volume −30%. Cadans 90 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~60 min · 30 min Sweet Spot (−30%)</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Zondag</div><div class="wks-name">Easy Run + strides</div></div></div>
@@ -2374,7 +2668,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+        <div class="week-card wc-taper" onclick="toggleWeek(this)" data-week="21" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-run&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-bike&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-run&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-run&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Taper −50% — Leuven" data-tagclass-leuven="wtag-taper" data-tag-as="Taper −50% — As" data-tagclass-as="wtag-taper">
           <div class="wk-num">Week 21</div>
           <div class="wk-dates" data-start="2026-08-17" data-end="2026-08-23">17 aug – 23 aug</div>
           <div class="wk-days">
@@ -2383,6 +2677,11 @@ footer {
           </div>
           <span class="wtag-taper wk-tag">Taper −50%</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(21, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(21, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Korte VO2max prikkels</div></div></div>
@@ -2396,11 +2695,23 @@ footer {
               <div class="wks-desc">4×100m CSS + 4×50m sprint MAX + 200m cool-down. Volume minimaal, snelheidsgevoel bewaren. ~1.400m.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~1.400m</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Korte fietskwaliteit — As of Leuven</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span></div>
-              <div class="wks-desc">30 min easy + 3×5 min op HIM-tempo (155–165 bpm). Cadans 90 rpm. Spierstimulatie bewaren.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~50 min</strong></span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets — korte taper prikkels</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">HIM tempo</span></div>
+              <div class="wks-desc">30 min easy + 3×5 min op HIM-tempo (155–165 bpm). Cadans 90 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~50 min · taper</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Fiets As — korte taper prikkels</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">HIM tempo</span></div>
+              <div class="wks-desc">30 min easy + 3×5 min op HIM-tempo (155–165 bpm). Cadans 90 rpm.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~50 min · taper</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Zaterdag</div><div class="wks-name">Easy Run + strides</div></div></div>
@@ -2411,7 +2722,7 @@ footer {
           </div>
         </div>
 
-        <div class="week-card wc-taper" onclick="toggleWeek(this)">
+        <div class="week-card wc-taper" onclick="toggleWeek(this)" data-week="22" data-default-bike="leuven" data-days-leuven="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-run&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-bike&quot;>Vr</div><div class=&quot;wk-day wd-rest&quot;>Za</div><div class=&quot;wk-day wd-rest&quot;>Zo</div>" data-days-as="<div class=&quot;wk-day wd-rest&quot;>Ma</div><div class=&quot;wk-day wd-run&quot;>Di</div><div class=&quot;wk-day wd-swim&quot;>Wo</div><div class=&quot;wk-day wd-rest&quot;>Do</div><div class=&quot;wk-day wd-swim&quot;>Vr</div><div class=&quot;wk-day wd-rest&quot;>Za</div><div class=&quot;wk-day wd-bike&quot;>Zo</div>" data-tag-leuven="Minimale taper — Leuven" data-tagclass-leuven="wtag-taper" data-tag-as="Minimale taper — As" data-tagclass-as="wtag-taper">
           <div class="wk-num">Week 22</div>
           <div class="wk-dates" data-start="2026-08-24" data-end="2026-08-30">24 aug – 30 aug</div>
           <div class="wk-days">
@@ -2420,6 +2731,11 @@ footer {
           </div>
           <span class="wtag-taper wk-tag">Minimale taper</span>
           <div class="wk-toggle"><span class="wk-expand-hint">Sessies bekijken</span><svg class="wk-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg></div>
+          <div class="bike-toggle" onclick="event.stopPropagation()">
+            <span class="bike-toggle-lbl">🚴 Fiets locatie:</span>
+            <button class="bike-loc-btn" data-loc="leuven" onclick="setBikeLocation(22, 'leuven', this)">📍 Leuven</button>
+            <button class="bike-loc-btn" data-loc="as" onclick="setBikeLocation(22, 'as', this)">🏡 As</button>
+          </div>
           <div class="wk-detail">
             <div class="wk-session">
               <div class="wks-hd"><div class="wks-icon ai-run">🏃</div><div><div class="wks-day">Dinsdag</div><div class="wks-name">Easy Run met prikkels</div></div></div>
@@ -2433,11 +2749,23 @@ footer {
               <div class="wks-desc">300m easy + 4×50m CSS + 4×25m sprint MAX + 200m cool-down. Minimaal, gevoel bewaren. ~1.000m.</div>
               <div class="wks-metrics"><span class="wksm"><strong>~1.000m</strong></span></div>
             </div>
-            <div class="wk-session">
-              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Vrijdag</div><div class="wks-name">Fiets activering — heel licht</div></div></div>
-              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span></div>
-              <div class="wks-desc">25 min easy cadans + 2×3 min HIM-tempo. Benen moeten fris en springerig voelen. Klaar.</div>
-              <div class="wks-metrics"><span class="wksm"><strong>~35 min</strong></span></div>
+                        <div class="wk-session sess-leuven">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 📍 Leuven</div><div class="wks-name">Fiets — activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-lt">Activering</span></div>
+              <div class="wks-desc">25 min easy + 2×3 min HIM-tempo. Heel licht. Benen moeten fris voelen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~35 min · minimale taper</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-bike">🚴</div><div><div class="wks-day">Fiets 🏡 As</div><div class="wks-name">Fiets As — activering</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-bike">Fietsen</span><span class="wks-chip wkc-z2">Activering</span></div>
+              <div class="wks-desc">25 min easy + 2×3 min HIM-tempo. Heel licht. Benen moeten fris voelen.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>~35 min · minimale taper</strong></span></div>
+            </div>
+            <div class="wk-session sess-as">
+              <div class="wks-hd"><div class="wks-icon ai-swim">🏊</div><div><div class="wks-day">Woensdag — geen fiets</div><div class="wks-name">Extra zwem Z2 of rust</div></div></div>
+              <div class="wks-chips"><span class="wks-chip wkc-swim">Zwemmen</span><span class="wks-chip wkc-z2">Z2</span></div>
+              <div class="wks-desc">Fiets staat thuis in As — geen rijdag door de week. Optioneel: 2×400m Z2 zwemmen als extra techniekwerk of volledig rust. Niet verplicht.</div>
+              <div class="wks-metrics"><span class="wksm"><strong>Optioneel ~1.200m</strong></span><span class="wksm">of volledige rust</span></div>
             </div>
           </div>
         </div>
@@ -2495,258 +2823,107 @@ footer {
 
 <!-- ── ANALYSE ── -->
 <section class="section" id="analyse">
-  <div class="sec-label">Live via Strava API</div>
-  <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 26 April 2026 om 09:45</p>
+  <div class="sec-label">Strava Week 17–22 maart</div>
+  <h2 class="sec-title">Fitness <span>Analyse</span></h2>
 
   <div class="strava-grid">
-    
+
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Antwerp 5 miles 💪🏻</div>
-          <div class="sact-date">Sat 25 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-w">🏋️</div><div><div class="sact-name">Krachttraining</div><div class="sact-date">Ma 17 maart · 16:50</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">8.2km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:13/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">50:50</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">162 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">8m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">152 bpm</div></div>
+        <div><div class="sm-lbl">Duur</div><div class="sm-val">1:14</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">120</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">526</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Namiddagrit</div>
-          <div class="sact-date">Thu 23 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-r">🏃</div><div><div class="sact-name">Avondrun Leuven</div><div class="sact-date">Wo 18 maart · 18:35</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">30.3km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">27.7km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">1u05</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">73 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">204m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">153 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">6km</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">6:47</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">142</div></div>
+        <div><div class="sm-lbl">Verm.</div><div class="sm-val">185W</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">162</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">37m</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:8%"></div><div class="szs sz2" style="width:92%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Supportritje voor Sterre</div>
-          <div class="sact-date">Mon 20 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-w">🏋️</div><div><div class="sact-name">Krachttraining</div><div class="sact-date">Do 19 maart · 16:53</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">5.0km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">9.1km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">32:55</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">26m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">96 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">127 bpm</div></div>
+        <div><div class="sm-lbl">Duur</div><div class="sm-val">1:05</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">107</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">350</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Halve marathon Leuven? Check ✅🥲</div>
-          <div class="sact-date">Sun 19 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-s">🏊</div><div><div class="sact-name">Zwemsessie</div><div class="sact-date">Vr 20 maart · 13:18</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">21.3km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">5:23/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">1u54</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">91m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">168 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">188 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">2750m</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">1:52</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">143</div></div>
+        <div><div class="sm-lbl">Max. HS</div><div class="sm-val">173</div></div>
+        <div><div class="sm-lbl">Tijd</div><div class="sm-val">51:28</div></div>
+        <div><div class="sm-lbl">Kcal</div><div class="sm-val">551</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:30%"></div><div class="szs sz2" style="width:64%"></div><div class="szs sz3" style="width:6%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Thuis core training</div>
-          <div class="sact-date">Thu 16 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-b">🚴</div><div><div class="sact-name">Rustig rondje in de zon</div><div class="sact-date">Za 21 maart · As</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">32:00</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">60km</div></div>
+        <div><div class="sm-lbl">Verm.</div><div class="sm-val">126W</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">151</div></div>
+        <div><div class="sm-lbl">IF</div><div class="sm-val">76%</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">77</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">199m</div></div>
       </div>
-      
+      <div class="sact-zbar"><div class="szs sz1" style="width:1%"></div><div class="szs sz2" style="width:69%"></div><div class="szs sz3" style="width:29%"></div><div class="szs sz4" style="width:1%"></div></div>
     </div>
 
     <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Woensdag Ochtendrun</div>
-          <div class="sact-date">Wed 15 Apr</div>
-        </div>
-      </div>
+      <div class="sact-hd"><div class="sact-icon si-r">🏃</div><div><div class="sact-name">Namiddagloop Leuven</div><div class="sact-date">Zo 22 maart · 13:13</div></div></div>
       <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">5.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">5:33/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">27:55</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">168 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">25m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">156 bpm</div></div>
+        <div><div class="sm-lbl">Afstand</div><div class="sm-val">12km</div></div>
+        <div><div class="sm-lbl">Tempo</div><div class="sm-val">6:16</div></div>
+        <div><div class="sm-lbl">Gem. HS</div><div class="sm-val">154</div></div>
+        <div><div class="sm-lbl">Max. HS</div><div class="sm-val">173</div></div>
+        <div><div class="sm-lbl">Cadans</div><div class="sm-val">165</div></div>
+        <div><div class="sm-lbl">Hoogte</div><div class="sm-val">69m</div></div>
       </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
+      <div class="sact-zbar"><div class="szs sz1" style="width:2%"></div><div class="szs sz2" style="width:93%"></div><div class="szs sz3" style="width:5%"></div></div>
     </div>
 
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Namiddagsessie krachttraining</div>
-          <div class="sact-date">Tue 14 Apr</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">1u02</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">103 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">145 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Another one ☝🏻 🚴‍♂️</div>
-          <div class="sact-date">Sun 12 Apr</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">40.0km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">26.3km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">1u31</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">78 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">370m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">152 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">8km zone 2 🌧️🌳</div>
-          <div class="sact-date">Sat 11 Apr</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">8.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:00/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">48:10</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">163 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">63m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">153 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
   </div>
 
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Live <span style="color:var(--text)">Fitnesswaarden</span></h3>
-
-  <div class="mhc-grid" style="margin-bottom:2.5rem">
-    <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac">165 W</div><div class="mhc-sub">2.32 W/kg</div></div>
-    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val">193.0 bpm</div><div class="mhc-sub">gemeten in training</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max (schatting)</div><div class="mhc-val gr">~54</div><div class="mhc-sub">ml/kg/min</div></div>
-    <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl">1:43/100m</div><div class="mhc-sub">snelste gemiddelde</div></div>
-    <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val ac">73 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val ay">165 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val">30</div><div class="mhc-sub">🏃 12 · 🚴 6 · 🏊 3</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
-  </div>
-
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">HIM Eindtijd</span></h3>
-
-  <div style="background:var(--card);border:1px solid rgba(232,81,42,.35);border-radius:14px;padding:1.5rem 1.8rem;margin-bottom:2.5rem;max-width:580px">
-    <div style="display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:900;line-height:1;color:var(--yellow);letter-spacing:-.01em">5u54m33s</div>
-      <div style="font-size:.78rem;color:var(--muted);font-weight:500">geschatte eindtijd<br>incl. transities</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem">
-      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4de88a;margin-bottom:.35rem">🏊 Zwemmen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">0:33</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">1,9 km · 1:46/100m</div>
-      </div>
-      <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6ab4ff;margin-bottom:.35rem">🚴 Fietsen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">3:05</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">90 km · 29.1 km/u</div>
-      </div>
-      <div style="background:rgba(232,81,42,.07);border:1px solid rgba(232,81,42,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ff8060;margin-bottom:.35rem">🏃 Lopen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">2:11</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">21,1 km · 6:14/km</div>
-      </div>
-    </div>
-    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:.8rem">
-      Schatting op basis van actuele Strava data · Open water −3% zwem · HIM-tempo correctie −12% fiets en run · Transities inbegrepen in totaal · Wordt automatisch bijgewerkt bij elke sync.
-    </div>
-  </div>
-
+  <!-- VO2MAX -->
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">Schatting</span></h3>
   <div class="vo2-row">
     <div class="vo2-card">
       <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#e8512a" stroke-dasharray="289" stroke-dashoffset="143"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:#e8512a">~54</div><div class="ring-unit">ml/kg/min</div></div>
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#e8512a" stroke-dasharray="289" stroke-dashoffset="103"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#e8512a">~48</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
-      <div class="vo2-label">VO2max Schatting<br><span style="font-size:.62rem;color:#444">via looptempo 71kg</span></div>
+      <div class="vo2-label">VO2max Lopen<br><span style="font-size:.62rem;color:#444">71kg gecorrigeerd</span></div>
     </div>
     <div class="vo2-card">
       <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#3a8fff" stroke-dasharray="289" stroke-dashoffset="163"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:#3a8fff">165W</div><div class="ring-unit">2.32 W/kg</div></div>
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#3a8fff" stroke-dasharray="289" stroke-dashoffset="123"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#3a8fff">~44</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
-      <div class="vo2-label">FTP Fietsen<br><span style="font-size:.62rem;color:#444">doel: 199–227W</span></div>
+      <div class="vo2-label">VO2max Fietsen<br><span style="font-size:.62rem;color:#444">via FTP 2,32 W/kg</span></div>
     </div>
-    <div class="vo2-card" style="justify-content:center">
-      <div class="mhc-lbl" style="text-align:center;margin-bottom:.8rem">HIM Doelniveau</div>
-      <div class="ring-val" style="color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;text-align:center">52+</div>
-      <div style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:.4rem">ml/kg/min vereist</div>
-      <div style="font-size:.75rem;color:var(--accent);text-align:center;margin-top:.3rem">Gap: ~0 punten te winnen</div>
+    <div class="vo2-card">
+      <div class="ring-svg">
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#f5a623" stroke-dasharray="289" stroke-dashoffset="82"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:#f5a623">52,1</div><div class="ring-unit">ml/kg/min</div></div>
+      </div>
+      <div class="vo2-label">Apple Watch<br><span style="font-size:.62rem;color:#666">~10% overschat</span></div>
     </div>
-  </div>
-
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.4rem;margin-top:1.5rem;max-width:420px">
-    <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">VO2max — Firstbeat methode (top 5 runs)</div>
-    <table style="width:100%;border-collapse:collapse;font-size:.82rem">
-      <tr style="border-bottom:1px solid var(--border)">
-        <th style="text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Run</th>
-        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Schatting</th>
-        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Gewicht</th>
-      </tr>
-      <tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">55.5</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">54.3</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">53.6</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">52.5</td><td style="text-align:right;color:var(--muted)">20%</td></tr><tr><td>Firstbeat</td><td style="text-align:right;font-weight:600;color:var(--text)">51.8</td><td style="text-align:right;color:var(--muted)">20%</td></tr>
-      <tr style="border-top:1px solid var(--border)">
-        <td style="padding:.4rem .4rem;font-weight:600;color:var(--text)">Gemiddeld</td>
-        <td style="text-align:right;font-weight:600;color:var(--accent);font-size:1rem">54</td>
-        <td></td>
-      </tr>
-    </table>
-    <div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">Firstbeat: tempo + hartslag per run → extrapoleer naar max. Mediaan van beste 5 runs om uitschieters te vermijden.</div>
   </div>
 
 </section>
@@ -2763,11 +2940,11 @@ footer {
 const STRAVA_DATA = {
   ftp:       165,
   wkg:       2.32,
-  bcad:      73,
-  rcad:      165,
-  runpace:   '5:23',
-  swim:      '1:43',
-  vo2:       54,
+  bcad:      77,
+  rcad:      162,
+  runpace:   '6:16',
+  swim:      '1:52',
+  vo2:       48,
 };
 
 function paceToSecs(p) {
@@ -2908,11 +3085,90 @@ function updateWeight() { saveHealthData(); }
   if (awvo2Input)  awvo2Input.value  = awvo2;
 
   updateAllBars(w, rhr, awvo2);
+  initBikeLocations();
 })();
 function toggleWeek(card) {
   if (card.classList.contains('wk-past')) return;
   const isOpen = card.classList.contains('open');
   card.classList.toggle('open', !isOpen);
+}
+
+// ── FIETS LOCATIE TOGGLE ──
+function setBikeLocation(weekNum, loc, btn) {
+  localStorage.setItem('bike-' + weekNum, loc);
+
+  const card = btn.closest('.week-card');
+  card.setAttribute('data-bike', loc);
+
+  // Update toggle buttons
+  card.querySelectorAll('.bike-loc-btn').forEach(b => {
+    b.classList.remove('active-leuven', 'active-as');
+  });
+  btn.classList.add(loc === 'leuven' ? 'active-leuven' : 'active-as');
+
+  // Update day blocks
+  const daysEl = card.querySelector('.wk-days');
+  if (daysEl) {
+    const leuDays = card.getAttribute('data-days-leuven');
+    const asDays  = card.getAttribute('data-days-as');
+    const days    = loc === 'leuven' ? leuDays : asDays;
+    if (days) {
+      daysEl.innerHTML = days;
+    }
+  }
+
+  // Update week tag
+  const tagEl = card.querySelector('.wk-tag');
+  if (tagEl) {
+    const leuTag = card.getAttribute('data-tag-leuven');
+    const asTag  = card.getAttribute('data-tag-as');
+    const leuTagClass = card.getAttribute('data-tagclass-leuven');
+    const asTagClass  = card.getAttribute('data-tagclass-as');
+    if (loc === 'leuven' && leuTag) {
+      tagEl.textContent = leuTag;
+      tagEl.className = 'wk-tag ' + (leuTagClass || 'wtag-base');
+    } else if (loc === 'as' && asTag) {
+      tagEl.textContent = asTag;
+      tagEl.className = 'wk-tag ' + (asTagClass || 'wtag-base');
+    }
+  }
+
+  event.stopPropagation();
+}
+
+function initBikeLocations() {
+  document.querySelectorAll('.week-card[data-week]').forEach(card => {
+    const weekNum = card.getAttribute('data-week');
+    const saved   = localStorage.getItem('bike-' + weekNum);
+    const def     = card.getAttribute('data-default-bike') || 'leuven';
+    const loc     = saved || def;
+
+    card.setAttribute('data-bike', loc);
+
+    // Apply correct day blocks
+    const daysEl = card.querySelector('.wk-days');
+    if (daysEl) {
+      const days = loc === 'leuven'
+        ? card.getAttribute('data-days-leuven')
+        : card.getAttribute('data-days-as');
+      if (days) daysEl.innerHTML = days;
+    }
+
+    // Apply correct tag
+    const tagEl = card.querySelector('.wk-tag');
+    if (tagEl) {
+      const tag      = loc === 'leuven' ? card.getAttribute('data-tag-leuven')      : card.getAttribute('data-tag-as');
+      const tagClass = loc === 'leuven' ? card.getAttribute('data-tagclass-leuven') : card.getAttribute('data-tagclass-as');
+      if (tag) {
+        tagEl.textContent = tag;
+        tagEl.className = 'wk-tag ' + (tagClass || 'wtag-base');
+      }
+    }
+
+    // Highlight correct button
+    const btn = card.querySelector(`.bike-loc-btn[data-loc="${loc}"]`);
+    if (btn) btn.classList.add(loc === 'leuven' ? 'active-leuven' : 'active-as');
+  });
 }
 
 // ── MARKEER VERLOPEN WEKEN & RACES ──
