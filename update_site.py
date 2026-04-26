@@ -666,13 +666,13 @@ HUIDIGE FITNESSWAARDEN:
 - Fietscadans gemiddeld: {stats.get('bike_cadence') or '—'} rpm
 - Geschatte HIM eindtijd: {him['total_time']} (zwem {him['swim_time']} / fiets {him['bike_time']} / run {him['run_time']})
 
-SCHRIJF een update van 5–7 zinnen met deze structuur:
-1. Begin met een concrete analyse van de laatste activiteit — wat viel op aan de hartslag, het tempo, de cadans of de hoogtemeters? Wat zegt dit over zijn huidige vorm?
-2. Vergelijk dit kort met de context van de vorige activiteiten — zit hij in een goede lijn?
-3. Koppel dit aan zijn HIM-voorbereiding — wat betekent dit voor 6 september?
-4. Sluit af met één concrete, specifieke tip voor de komende 2–3 dagen.
+SCHRIJF een persoonlijke update van MINIMUM 6 zinnen en MAXIMUM 8 zinnen. Structuur:
+1. Analyseer de laatste activiteit CONCREET — noem de exacte cijfers (tempo, hartslag, cadans, hoogtemeters). Wat valt op? Is de hartslag lager dan verwacht bij dit tempo? Is de cadans verbeterd?
+2. Vergelijk met de vorige activiteiten — zit hij in een goede lijn of is er iets dat opvalt?
+3. Koppel dit aan de HIM-voorbereiding — wat betekent dit concreet voor 6 september?
+4. Geef één concrete, specifieke actietip voor de komende 2–3 dagen gebaseerd op de data.
 
-Schrijf in de tweede persoon ("je"), in lopende tekst zonder opsomming, eerlijk en motiverend. Gebruik de echte cijfers uit de data."""
+Schrijf in vloeiende lopende tekst zonder opsomming of titels. Gebruik de exacte cijfers uit de data. Schrijf in de tweede persoon ("je")."""
 
     try:
         response = requests.post(
@@ -684,7 +684,7 @@ Schrijf in de tweede persoon ("je"), in lopende tekst zonder opsomming, eerlijk 
             },
             json={
                 "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 600,
+                "max_tokens": 800,
                 "messages": [{"role": "user", "content": prompt}]
             },
             timeout=30
@@ -775,17 +775,29 @@ def main():
         flags=re.DOTALL
     )
 
-    # Injecteer AI update tekst
-    new_html = re.sub(
-        r'(<div id="ai-update-text"[^>]*>)(.*?)(</div>)',
-        rf'\g<1>{ai_text}\3',
-        new_html, flags=re.DOTALL
-    )
-    new_html = re.sub(
-        r'(<div id="ai-update-meta"[^>]*>)(.*?)(</div>)',
-        rf'\g<1>{ai_meta}\3',
-        new_html, flags=re.DOTALL
-    )
+    # Injecteer AI update tekst — HTML-safe verwerken
+    # Vervang newlines door <br> zodat alinea's correct worden weergegeven
+    ai_text_html = ai_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    ai_text_html = ai_text_html.replace('\n\n', '</p><p style="margin-top:.8rem">').replace('\n', ' ')
+    ai_text_html = '<p>' + ai_text_html + '</p>'
+
+    # ── AI update tekst injecteren ──
+    # Robuuste aanpak: zoek op volledige openingstag inclusief newlines
+    import re as _re
+
+    def inject_div_content(html_str, div_id, new_content):
+        """Vervang inhoud van een div met gegeven id."""
+        pattern = rf'(<div[^>]*id="{div_id}"[^>]*>)(.*?)(</div>)'
+        replacement = rf'\g<1>{new_content}\3'
+        result = _re.sub(pattern, replacement, html_str, count=1, flags=_re.DOTALL)
+        if result != html_str:
+            print(f"   ✓ {div_id} bijgewerkt ({len(new_content)} chars)")
+        else:
+            print(f"   ✗ {div_id} NIET GEVONDEN")
+        return result
+
+    new_html = inject_div_content(new_html, 'ai-update-text', ai_text_html)
+    new_html = inject_div_content(new_html, 'ai-update-meta', ai_meta)
 
 
     # ── Hero stats — ID-gebaseerde vervanging (betrouwbaar) ──
