@@ -5,6 +5,7 @@ Haalt elke nacht activiteiten op van Strava en werkt de atletensite bij.
 """
 
 import os
+import re
 import json
 import requests
 from datetime import datetime, timezone
@@ -696,7 +697,13 @@ Schrijf in vloeiende lopende tekst zonder opsomming of titels. Gebruik de exacte
         return text, meta
 
     except Exception as e:
-        print(f"   Claude API fout: {e}")
+        print(f"   Claude API fout: {type(e).__name__}: {e}")
+        # Log response if available
+        try:
+            print(f"   Response status: {response.status_code}")
+            print(f"   Response body: {response.text[:200]}")
+        except:
+            pass
         return (
             f"Je staat er goed voor richting HIM Knokke. VO2max ~{stats['vo2max']} ml/kg/min, FTP {stats['ftp']}W. Blijf consistent trainen!",
             f"— Automatische fallback · {datetime.now().strftime('%-d %B %Y')}"
