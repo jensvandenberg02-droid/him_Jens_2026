@@ -873,6 +873,17 @@ def main():
         rf'\g<1>~{vo2}\2', new_html
     )
 
+    # ── GitHub Sync Token injecteren in meta tag ──
+    github_sync_token = os.environ.get("SYNC_TOKEN", "")
+    if github_sync_token:
+        new_html = new_html.replace(
+            'content="GITHUB_SYNC_TOKEN_PLACEHOLDER"',
+            f'content="{github_sync_token}"'
+        )
+        print(f"   GitHub sync token geïnjecteerd")
+    else:
+        print(f"   ⚠️  GITHUB_SYNC_TOKEN niet gevonden — cross-device sync uitgeschakeld")
+
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(new_html)
 
