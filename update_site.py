@@ -874,14 +874,14 @@ def main():
     )
 
     # ── JSONBin credentials injecteren ──
-    jsonbin_bin_id  = os.environ.get("JSONBIN_BIN_ID", "")
+    jsonbin_bin_id  = os.environ.get("JSONBIN_BIN_ID", "") or os.environ.get("JSON_BIN_ID", "")
     jsonbin_api_key = os.environ.get("JSONBIN_API_KEY", "")
     if jsonbin_bin_id and jsonbin_api_key:
         new_html = new_html.replace("'JSONBIN_BIN_ID_PLACEHOLDER'",  f"'{jsonbin_bin_id}'")
         new_html = new_html.replace("'JSONBIN_API_KEY_PLACEHOLDER'", f"'{jsonbin_api_key}'")
         print(f"   JSONBin credentials geïnjecteerd (bin: {jsonbin_bin_id[:8]}...)")
     else:
-        print(f"   ⚠️  JSONBIN_BIN_ID of JSONBIN_API_KEY niet gevonden — sync uitgeschakeld")
+        print(f"   ⚠️  JSONBIN credentials niet gevonden — sync uitgeschakeld")
 
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(new_html)
