@@ -1363,8 +1363,8 @@ footer {
     <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.8rem;position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--accent),var(--blue))"></div>
       <div style="padding-left:.6rem">
-        <div id="ai-update-text" style="font-size:.95rem;line-height:1.9;color:var(--dim)"><p># Dagelijkse Update - Woensdag 29 april</p><p style="margin-top:.8rem">Jens, je middagzwemsessie van gisteren ziet er solide uit: 1900 meter in 32:29 met een gemiddeld tempo van 1:42/100m en een hartslag van 153 bpm — je houdt je vorm vast op het water zonder je overmatig in te spannen, wat precies waar je nu in deze voorbereiding naar toe werkt. Je VO2max van ~54 ml/kg/min ligt al boven je streefwaarde, en dit zwemtempo ondersteunt die efficiëntie perfect, vooral omdat je hartslag redelijk gecontroleerd blijft voor dit intensiteitsniveau. Gekeken naar je vorige activiteiten — de intervallen op de fiets (28.0 km/u), je krachttraining, en vooral je sterke 5-mileloop in Antwerpen (6:13/km) — zit je in een uitstekende trainingsblok waar alle drie disciplines goed op elkaar aansluiten. Dit patroon van sterke loopworkouts, intense fietssessies en gecontroleerde zwemtrainingen is precies wat je nodig hebt voor die geschatte eindtijd van 5:53 op 6 september, want je bent duidelijk in staat om onder druk de juiste inspanningen vol te houden. Mijn advies: zorg de komende 2-3 dagen dat je focust op actief herstel en een rustige, langere zwemtechniektraining van ongeveer 2000 meter op zeer comfortabel tempo (1:45-1:50/100m), zodat je lichaam de recente werkbelasting kan verwerken zonder je vermogen aan te tasten richting je volgende blok.</p></div>
-        <div id="ai-update-meta" style="margin-top:1rem;font-size:.72rem;color:var(--muted);letter-spacing:.06em">— Gegenereerd door Claude op 30 April 2026 om 12:23 op basis van Strava data</div>
+        <div id="ai-update-text" style="font-size:.95rem;line-height:1.9;color:var(--dim)"><p># Persoonlijke Dagelijkse Update — Woensdag 29 april</p><p style="margin-top:.8rem">Jens, je middagzwemsessie van 1900 meter aan 1:42/100m was solide en efficiënt — je hartslag bleef op een gezonde 153 bpm, wat aangeeft dat je op aerobe basis aan het zwemmen bent zonder jezelf overmatig te belasten. Dit tempo sluit perfect aan bij jouw beste zwemtijden en toont consistency, vooral omdat je deze snelheid zonder pieken in hartslagvariabiliteit volhoudt over 32:29. Wat opvalt is dat je deze week een mooi ritmische afwisseling hebt: maandag die intense 17,1 km intervalrit op 28 km/u, dinsdag de krachttraining gecombineerd met een snelle run van 5,1 km in 4:58/km, en nu een gecontroleerde zwemavond — dit is precies de mix die je VO2max op 54 ml/kg/min houdt en je FTP van 165W ondersteunt. Met deze vorm en jouw huidige eindtijdschatting van 5u53m voor de Halve Ironman op 6 september ben je exact op koers; je zwemfase loopt voortvarend, je fietsen is sterk en je loopsnelheid (2:12 verwacht) is realistisch gezien je Antwerp 5 Miles vorige week. Voor de komende 2–3 dagen zou ik je adviseren om morgen een lichte recovery-rit van 45–50 minuten in Zone 2 (rond 135 bpm) in te lassen, zodat je volgende week agressiever kunt trainen zonder overtraining in te boeken — je lichaam vraagt erom na deze intensieve week.</p></div>
+        <div id="ai-update-meta" style="margin-top:1rem;font-size:.72rem;color:var(--muted);letter-spacing:.06em">— Gegenereerd door Claude op 30 April 2026 om 12:27 op basis van Strava data</div>
       </div>
     </div>
   </div>
@@ -1629,7 +1629,7 @@ footer {
 <section class="section" id="analyse">
   <div class="sec-label">Live via Strava API</div>
   <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 30 April 2026 om 12:23</p>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 30 April 2026 om 12:27</p>
 
   <div class="strava-grid">
     
@@ -2045,8 +2045,8 @@ function updateWeight() { saveHealthData(); }
 // Slaat alle data op in JSONBin.io — gratis, geen token in HTML nodig
 // Werkt cross-device: pc, gsm, tablet
 
-const JSONBIN_BIN_ID  = 'JSONBIN_BIN_ID_PLACEHOLDER';
-const JSONBIN_API_KEY = 'JSONBIN_API_KEY_PLACEHOLDER';
+const JSONBIN_BIN_ID  = '69f3489d36566621a80c818e';
+const JSONBIN_API_KEY = '$2a$10$8Qyvt86PwPuXvC.w1Vcff.bN05kyJEoY5DOEz5hlR1mwiW5vKuHka';
 const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 let USER_DATA = {
@@ -2076,7 +2076,7 @@ function setSyncStatus(status, msg) {
 
 // ── LADEN ──
 async function loadFromCloud() {
-  if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'JSONBIN_BIN_ID_PLACEHOLDER') {
+  if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === '69f3489d36566621a80c818e') {
     loadFromLocalStorage();
     return;
   }
@@ -2107,7 +2107,7 @@ function scheduleSync() {
 }
 
 async function saveToCloud() {
-  if (!_syncDirty || !JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'JSONBIN_BIN_ID_PLACEHOLDER') return;
+  if (!_syncDirty || !JSONBIN_BIN_ID || JSONBIN_BIN_ID === '69f3489d36566621a80c818e') return;
   _syncDirty = false;
   setSyncStatus('saving');
   try {
