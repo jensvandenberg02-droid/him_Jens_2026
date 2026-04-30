@@ -873,16 +873,15 @@ def main():
         rf'\g<1>~{vo2}\2', new_html
     )
 
-    # ── GitHub Sync Token injecteren in meta tag ──
-    github_sync_token = os.environ.get("SYNC_TOKEN", "")
-    if github_sync_token:
-        new_html = new_html.replace(
-            'content="GITHUB_SYNC_TOKEN_PLACEHOLDER"',
-            f'content="{github_sync_token}"'
-        )
-        print(f"   GitHub sync token geïnjecteerd")
+    # ── JSONBin credentials injecteren ──
+    jsonbin_bin_id  = os.environ.get("JSONBIN_BIN_ID", "")
+    jsonbin_api_key = os.environ.get("JSONBIN_API_KEY", "")
+    if jsonbin_bin_id and jsonbin_api_key:
+        new_html = new_html.replace("'JSONBIN_BIN_ID_PLACEHOLDER'",  f"'{jsonbin_bin_id}'")
+        new_html = new_html.replace("'JSONBIN_API_KEY_PLACEHOLDER'", f"'{jsonbin_api_key}'")
+        print(f"   JSONBin credentials geïnjecteerd (bin: {jsonbin_bin_id[:8]}...)")
     else:
-        print(f"   ⚠️  GITHUB_SYNC_TOKEN niet gevonden — cross-device sync uitgeschakeld")
+        print(f"   ⚠️  JSONBIN_BIN_ID of JSONBIN_API_KEY niet gevonden — sync uitgeschakeld")
 
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(new_html)
