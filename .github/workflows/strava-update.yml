@@ -32,7 +32,8 @@ jobs:
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
           ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
-          SYNC_TOKEN:           ${{ secrets.SYNC_TOKEN }}
+          JSONBIN_BIN_ID:       ${{ secrets.JSONBIN_BIN_ID }}
+          JSONBIN_API_KEY:      ${{ secrets.JSONBIN_API_KEY }}
         run: python update_site.py
 
       - name: Wijzigingen committen en pushen
