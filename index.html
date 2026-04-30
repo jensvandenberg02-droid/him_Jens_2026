@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="gh-sync-token" content="GITHUB_SYNC_TOKEN_PLACEHOLDER">
 <title>Jens van den Berg — HIM Knokke 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -1896,152 +1895,120 @@ function saveHealthData() {
 // Keep old name for backwards compatibility
 function updateWeight() { saveHealthData(); }
 
-// ── GITHUB SYNC SYSTEEM ──
-// Slaat alle gebruikersinstellingen op in user-data.json in de GitHub repo
-// Werkt cross-device: pc, gsm, tablet — alles gesynchroniseerd
+// ── JSONBIN SYNC SYSTEEM ──
+// Slaat alle data op in JSONBin.io — gratis, geen token in HTML nodig
+// Werkt cross-device: pc, gsm, tablet
 
-const GITHUB_USER = 'jensvandenberg02-droid';
-const GITHUB_REPO = 'him_Jens_2026';
-const GITHUB_FILE = 'user-data.json';
-const GITHUB_API  = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+const JSONBIN_BIN_ID  = 'JSONBIN_BIN_ID_PLACEHOLDER';
+const JSONBIN_API_KEY = 'JSONBIN_API_KEY_PLACEHOLDER';
+const JSONBIN_URL     = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
-// Centrale gebruikersdata — alles staat hier in
 let USER_DATA = {
-  settings: {
-    weight: 71, ftp: 165, mhr: 204, rhr: 50, awvo2: 52.1
-  },
-  bike: {},      // { "5": "leuven", "7": "as", ... }
-  done: {},      // { "done-5-krachtvollediglichaam": true, ... }
+  settings: { weight: 71, ftp: 165, mhr: 204, rhr: 50, awvo2: 52.1 },
+  bike:     {},
+  done:     {},
 };
 
-let _syncSha    = null;   // GitHub blob SHA voor updates
-let _syncDirty  = false;  // Wacht op wegschrijven
-let _syncTimer  = null;
-let _githubToken = null;  // Wordt geladen uit GitHub Pages meta tag
+let _syncDirty = false;
+let _syncTimer = null;
 
-// Laad token uit meta tag (injecteer via update_site.py)
-function loadGithubToken() {
-  const meta = document.querySelector('meta[name="gh-sync-token"]');
-  return meta ? meta.getAttribute('content') : null;
-}
-
-// ── SYNC STATUS INDICATOR ──
+// ── SYNC STATUS ──
 function setSyncStatus(status, msg) {
   const el = document.getElementById('sync-status');
   if (!el) return;
-  const configs = {
+  const cfg = {
     idle:    { icon: '☁️',  color: 'var(--muted)',  text: 'Gesynchroniseerd' },
     loading: { icon: '⟳',   color: 'var(--blue)',   text: 'Laden...' },
     saving:  { icon: '⟳',   color: 'var(--yellow)', text: 'Opslaan...' },
     ok:      { icon: '✓',   color: 'var(--green)',  text: 'Opgeslagen' },
+    offline: { icon: '📵',  color: 'var(--muted)',  text: 'Offline — lokaal opgeslagen' },
     error:   { icon: '⚠️',  color: 'var(--accent)', text: msg || 'Fout' },
-    offline: { icon: '📵',  color: 'var(--muted)',  text: 'Offline (lokaal opgeslagen)' },
   };
-  const c = configs[status] || configs.idle;
-  el.innerHTML = `<span style="color:${c.color}">${c.icon} ${c.text}</span>`;
+  const c = cfg[status] || cfg.idle;
+  el.innerHTML = `<span style="color:${c.color};font-size:.65rem">${c.icon} ${c.text}</span>`;
 }
 
-// ── LADEN VAN GITHUB ──
-async function loadFromGitHub() {
-  if (!_githubToken) { loadFromLocalStorage(); return; }
+// ── LADEN ──
+async function loadFromCloud() {
+  if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'JSONBIN_BIN_ID_PLACEHOLDER') {
+    loadFromLocalStorage();
+    return;
+  }
   setSyncStatus('loading');
   try {
-    const res = await fetch(GITHUB_API, {
-      headers: { Authorization: `token ${_githubToken}`, Accept: 'application/vnd.github.v3+json' }
+    const res = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
     });
-    if (res.status === 404) {
-      // Bestand bestaat nog niet — maak het aan bij eerste opslaan
-      loadFromLocalStorage();
-      setSyncStatus('idle');
-      return;
-    }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
-    _syncSha = json.sha;
-    const decoded = JSON.parse(atob(json.content.replace(/\n/g, '')));
-    USER_DATA = { ...USER_DATA, ...decoded };
+    USER_DATA = { ...USER_DATA, ...json.record };
+    localStorage.setItem('jens-userdata', JSON.stringify(USER_DATA));
     applyUserData();
     setSyncStatus('idle');
   } catch(e) {
-    console.warn('GitHub sync laden mislukt:', e.message);
+    console.warn('Cloud sync laden mislukt:', e.message);
     loadFromLocalStorage();
     setSyncStatus('offline');
   }
 }
 
-// ── OPSLAAN NAAR GITHUB ── (debounced: max 1x per 2 seconden)
+// ── OPSLAAN ── (debounced: 2 seconden na laatste wijziging)
 function scheduleSync() {
   _syncDirty = true;
+  localStorage.setItem('jens-userdata', JSON.stringify(USER_DATA));
   clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(saveToGitHub, 2000);
+  _syncTimer = setTimeout(saveToCloud, 2000);
 }
 
-async function saveToGitHub() {
-  if (!_githubToken || !_syncDirty) return;
+async function saveToCloud() {
+  if (!_syncDirty || !JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'JSONBIN_BIN_ID_PLACEHOLDER') return;
   _syncDirty = false;
   setSyncStatus('saving');
-  // Sla ook lokaal op als backup
-  localStorage.setItem('jens-userdata', JSON.stringify(USER_DATA));
   try {
-    const body = {
-      message: 'Site sync: gebruikersinstellingen bijgewerkt',
-      content: btoa(unescape(encodeURIComponent(JSON.stringify(USER_DATA, null, 2)))),
-    };
-    if (_syncSha) body.sha = _syncSha;
-    const res = await fetch(GITHUB_API, {
+    const res = await fetch(JSONBIN_URL, {
       method: 'PUT',
       headers: {
-        Authorization: `token ${_githubToken}`,
-        Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY,
+        'X-Bin-Versioning': 'false',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(USER_DATA),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    _syncSha = json.content.sha;
     setSyncStatus('ok');
     setTimeout(() => setSyncStatus('idle'), 2000);
   } catch(e) {
-    console.warn('GitHub sync opslaan mislukt:', e.message);
+    console.warn('Cloud sync opslaan mislukt:', e.message);
     setSyncStatus('error', 'Sync mislukt — lokaal opgeslagen');
     setTimeout(() => setSyncStatus('offline'), 3000);
   }
 }
 
-// ── FALLBACK: LOCALSTORAGE ──
+// ── LOCALSTORAGE FALLBACK ──
 function loadFromLocalStorage() {
   const saved = localStorage.getItem('jens-userdata');
   if (saved) {
     try { USER_DATA = { ...USER_DATA, ...JSON.parse(saved) }; } catch(e) {}
   } else {
-    // Oude losse keys migreren
-    const w = parseFloat(localStorage.getItem('jens-weight'));
-    const f = parseInt(localStorage.getItem('jens-ftp'));
-    const m = parseInt(localStorage.getItem('jens-mhr'));
-    const r = parseFloat(localStorage.getItem('jens-rhr'));
-    const a = parseFloat(localStorage.getItem('jens-awvo2'));
-    if (w) USER_DATA.settings.weight = w;
-    if (f) USER_DATA.settings.ftp    = f;
-    if (m) USER_DATA.settings.mhr    = m;
-    if (r) USER_DATA.settings.rhr    = r;
-    if (a) USER_DATA.settings.awvo2  = a;
-    // Migreer bike locaties
+    // Migreer oude losse keys
+    const keys = { weight:'jens-weight', ftp:'jens-ftp', mhr:'jens-mhr', rhr:'jens-rhr', awvo2:'jens-awvo2' };
+    Object.entries(keys).forEach(([k,v]) => {
+      const val = localStorage.getItem(v);
+      if (val) USER_DATA.settings[k] = parseFloat(val);
+    });
     for (let i = 1; i <= 23; i++) {
       const loc = localStorage.getItem('bike-' + i);
       if (loc) USER_DATA.bike[i] = loc;
     }
-    // Migreer done states
-    for (let key of Object.keys(localStorage)) {
-      if (key.startsWith('done-') && localStorage.getItem(key) === '1') {
-        USER_DATA.done[key] = true;
-      }
-    }
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('done-') && localStorage.getItem(k) === '1')
+        USER_DATA.done[k] = true;
+    });
   }
   applyUserData();
 }
 
-// ── TOEPASSEN VAN GELADEN DATA ──
+// ── TOEPASSEN ──
 function applyUserData() {
   const s = USER_DATA.settings;
   STRAVA_DATA.ftp    = s.ftp    || STRAVA_DATA.ftp;
@@ -2059,36 +2026,15 @@ function applyUserData() {
   renderPlan();
 }
 
-// ── PUBLIEKE API VOOR ANDERE FUNCTIES ──
-
-function getSetting(key)          { return USER_DATA.settings[key]; }
-
-function saveSetting(key, val) {
-  USER_DATA.settings[key] = val;
-  scheduleSync();
-}
-
-function getBikeLocation(weekNum) {
-  return USER_DATA.bike[weekNum] || 'leuven';
-}
-
-function saveBikeLocation(weekNum, loc) {
-  USER_DATA.bike[weekNum] = loc;
-  scheduleSync();
-}
-
-function getSessionDone(key)      { return USER_DATA.done[key] === true; }
-
-function saveSessionDone(key, done) {
-  if (done) USER_DATA.done[key] = true;
-  else delete USER_DATA.done[key];
-  scheduleSync();
-}
+// ── DATA API ──
+function getBikeLocation(weekNum)    { return USER_DATA.bike[weekNum] || 'leuven'; }
+function saveBikeLocation(w, loc)    { USER_DATA.bike[w] = loc; scheduleSync(); }
+function getSessionDone(key)         { return USER_DATA.done[key] === true; }
+function saveSessionDone(key, done)  { if (done) USER_DATA.done[key] = true; else delete USER_DATA.done[key]; scheduleSync(); }
 
 // Init on load
 (function() {
-  _githubToken = loadGithubToken();
-  loadFromGitHub(); // Laadt data en roept applyUserData() → renderPlan() aan
+  loadFromCloud(); // Laadt data van JSONBin → applyUserData() → renderPlan()
 })();
 // ── TRAININGSPLAN ENGINE ──
 // Genereert het volledige trainingsplan dynamisch vanuit STRAVA_DATA + week definities
