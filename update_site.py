@@ -773,6 +773,7 @@ def main():
   runpace:   '{run_val}',
   swim:      '{swim_val}',
   vo2:       {vo2},
+  max_hr:    {mhr},
 }};"""
 
     new_html = re.sub(
