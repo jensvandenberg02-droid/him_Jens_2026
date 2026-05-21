@@ -510,14 +510,14 @@ def build_strava_section(activities, stats, athlete):
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Live <span style="color:var(--text)">Fitnesswaarden</span></h3>
 
   <div class="mhc-grid" style="margin-bottom:2.5rem">
-    <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac">{ftp} W</div><div class="mhc-sub">{wkg} W/kg</div></div>
-    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val">{mhr} bpm</div><div class="mhc-sub">gemeten in training</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max (schatting)</div><div class="mhc-val gr">~{vo2}</div><div class="mhc-sub">ml/kg/min</div></div>
-    <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl">{swim}</div><div class="mhc-sub">snelste gemiddelde</div></div>
-    <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val {'gr' if bcad >= 88 else 'ac'}">{bcad} rpm</div><div class="mhc-sub">{'✓ op schema' if bcad >= 88 else 'doel: 90 rpm'}</div></div>
-    <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val {'gr' if rcad >= 168 else 'ay'}">{rcad} spm</div><div class="mhc-sub">{'✓ goed' if rcad >= 168 else 'doel: 168–172 spm'}</div></div>
+    <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac" id="live-ftp">{ftp} W</div><div class="mhc-sub" id="live-wkg">{wkg} W/kg</div></div>
+    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val" id="live-mhr">{mhr} bpm</div><div class="mhc-sub">gemeten in training</div></div>
+    <div class="mhc"><div class="mhc-lbl">VO2max (schatting)</div><div class="mhc-val gr" id="live-vo2">~{vo2}</div><div class="mhc-sub">ml/kg/min</div></div>
+    <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl" id="live-swim">{swim}</div><div class="mhc-sub">snelste gemiddelde</div></div>
+    <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val {'gr' if bcad >= 88 else 'ac'}" id="live-bcad">{bcad} rpm</div><div class="mhc-sub">{'✓ op schema' if bcad >= 88 else 'doel: 90 rpm'}</div></div>
+    <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val {'gr' if rcad >= 168 else 'ay'}" id="live-rcad">{rcad} spm</div><div class="mhc-sub">{'✓ goed' if rcad >= 168 else 'doel: 168–172 spm'}</div></div>
     <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val">{len(activities)}</div><div class="mhc-sub">🏃 {stats['total_runs']} · 🚴 {stats['total_rides']} · 🏊 {stats['total_swims']}</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
+    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="live-rhr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
   </div>
 
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">HIM Eindtijd</span></h3>
