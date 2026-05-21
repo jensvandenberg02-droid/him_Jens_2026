@@ -826,7 +826,7 @@ def main():
         rf'\g<1>~{vo2}\2', new_html
     )
     new_html = re.sub(
-        r'(<div class="hstat-val" id="hero-mhr">)\d+(</div>)',
+        r'(<div class="hstat-val" id="hero-mhr">)[\d\.]+(<\/div>)',
         rf'\g<1>{mhr}\2', new_html
     )
     # Rust HS — uit Strava athlete profiel indien beschikbaar, anders 50 bpm
@@ -860,6 +860,54 @@ def main():
     new_html = re.sub(
         r'(id="mhc-runpace">)[^<]+(<)',
         rf'\g<1>{stats.get("best_run_pace") or "6:16/km"}\2', new_html
+    )
+    new_html = re.sub(
+        r'(id="mhc-mhr">)\d+(\.\d+)?( bpm)',
+        rf'\g<1>{mhr}\3', new_html
+    )
+    new_html = re.sub(
+        r'(id="mhc-rhr">)\d+( bpm)',
+        rf'\g<1>{rhr}\2', new_html
+    )
+    rcad = stats.get("run_cadence") or 162
+    new_html = re.sub(
+        r'(id="mhc-rcad">)\d+( spm)',
+        rf'\g<1>{rcad}\2', new_html
+    )
+    # ── VO2max ringen ──
+    vo2bike = round(ftp / float(str(wkg).replace(",",".")) / 71 * 71 * 10.8 + 7) if wkg else round(ftp / 71 * 10.8 + 7)
+    new_html = re.sub(
+        r'(id="ring-vo2">)~?\d+(<)',
+        rf'\g<1>~{vo2}\2', new_html
+    )
+    new_html = re.sub(
+        r'(id="ring-vo2-bike">)~?\d+(<)',
+        rf'\g<1>~{vo2bike}\2', new_html
+    )
+    new_html = re.sub(
+        r'(id="ring-vo2-aw">)[\d,\.]+(<)',
+        rf'\g<1>{vo2}\2', new_html
+    )
+    # ── SVG ring fill (dashoffset = 289 - val/70*289) ──
+    run_offset  = round(289 - (min(vo2,    70) / 70 * 289))
+    bike_offset = round(289 - (min(vo2bike, 70) / 70 * 289))
+    new_html = re.sub(
+        r'(id="ring-svg-run"[^/]*)stroke-dashoffset="\d+"',
+        rf'\g<1>stroke-dashoffset="{run_offset}"', new_html
+    )
+    new_html = re.sub(
+        r'(id="ring-svg-bike"[^/]*)stroke-dashoffset="\d+"',
+        rf'\g<1>stroke-dashoffset="{bike_offset}"', new_html
+    )
+    # ── Fitnesswaarden footer label ──
+    weight_val = stats.get("weight") or 71
+    new_html = re.sub(
+        r'(id="disp-wkg-vo2">)via FTP [\d,\.]+ W/kg',
+        rf'\g<1>via FTP {wkg} W/kg', new_html
+    )
+    new_html = re.sub(
+        r'(id="disp-footer-info">)[^<]+(<)',
+        rf'\g<1>{weight_val} kg · 182 cm · FTP {ftp}W ({wkg} W/kg) · Halve Ironman Knokke 6 september 2026\2', new_html
     )
 
     # ── Progressie balk VO2max huidige waarde ──
