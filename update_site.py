@@ -117,9 +117,9 @@ def is_recovery(activity):
 # ── COMPUTE STATS ──
 def compute_stats(activities, athlete):
     stats = {
-        "max_hr":    204,
-        "ftp":       athlete.get("ftp") or 165,
-        "rest_hr":   athlete.get("measurement_preference") and 50 or 50,
+        "max_hr":    191,   # actuele waarde
+        "ftp":       athlete.get("ftp") or 203,   # actuele waarde
+        "rest_hr":   49,    # actuele waarde
         "vo2max":    None,
         "best_swim": None,
         "best_run_pace": None,
@@ -128,6 +128,7 @@ def compute_stats(activities, athlete):
         "total_runs": 0,
         "total_rides": 0,
         "total_swims": 0,
+        "weight":    71,
     }
 
     max_hr_seen = 0
@@ -190,7 +191,7 @@ def compute_stats(activities, athlete):
     if min_avg_hr < 60:
         stats["rest_hr"] = round(min_avg_hr)
     else:
-        stats["rest_hr"] = 50
+        stats["rest_hr"] = 49  # actuele waarde
 
     if swim_speeds:
         best = max(swim_speeds)
@@ -220,7 +221,7 @@ def compute_stats(activities, athlete):
     # Gebruik mediaan van de beste 5 runs om uitschieters te vermijden.
 
     REST_HR   = 50    # jouw rustpols
-    MAX_HR    = stats["max_hr"] or 204
+    MAX_HR    = stats["max_hr"] or 191
     WEIGHT_KG = 71
 
     firstbeat_scores = []
@@ -271,9 +272,9 @@ def compute_stats(activities, athlete):
         stats["vo2max_breakdown"] = [(v, 1/len(top), "Firstbeat") for v in top]
     else:
         # Geen runs met hartslag — gebruik veilige fallback
-        stats["vo2max"] = 47
-        stats["vo2max_breakdown"] = [( 47, 1.0, "Fallback (geen HR data)")]
-        print("   VO2max: geen runs met hartslag gevonden, fallback 47")
+        stats["vo2max"] = 53   # actuele waarde als fallback
+        stats["vo2max_breakdown"] = [( 53, 1.0, "Fallback (geen HR data)")]
+        print("   VO2max: geen runs met hartslag gevonden, fallback 53")
 
     return stats
 
@@ -288,7 +289,7 @@ def estimate_him_time(activities):
     """
 
     HIM_HM_PER_100KM = 44 / 90 * 100  # ~49 hm/100km (Knokke, vrijwel vlak)
-    MAX_HR  = 204
+    MAX_HR  = 191
     REST_HR = 50
 
     # ── ZWEMMEN ──
@@ -452,7 +453,7 @@ def activity_card_html(a):
         for lbl, val in metrics[:6]
     )
 
-    zbar = zone_bar(avg_hr, max_hr or 204)
+    zbar = zone_bar(avg_hr, max_hr or 191)
 
     return f"""
     <div class="sact">
@@ -481,7 +482,7 @@ def build_strava_section(activities, stats, athlete):
     vo2  = stats["vo2max"] or 48
     swim = stats["best_swim"] or "—"
     bcad = stats["bike_cadence"] or 77
-    rcad = stats["run_cadence"] or 165
+    rcad = stats["run_cadence"] or 166
 
     # HIM eindtijd schatting
     him = estimate_him_time(activities)
@@ -599,7 +600,11 @@ def generate_ai_update(activities, stats, him):
     """
 
     ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+    print(f"  🤖 ANTHROPIC_API_KEY aanwezig: {'ja' if ANTHROPIC_API_KEY else 'NEE — ontbreekt'}")
+    if ANTHROPIC_API_KEY:
+        print(f"  🤖 Key begint met: {ANTHROPIC_API_KEY[:8]}...")
     if not ANTHROPIC_API_KEY:
+        print("  ❌ ANTHROPIC_API_KEY niet gevonden als environment variable")
         return (
             "AI update niet beschikbaar — voeg ANTHROPIC_API_KEY toe als GitHub Secret.",
             ""
@@ -697,13 +702,12 @@ Schrijf in vloeiende lopende tekst zonder opsomming of titels. Gebruik de exacte
         return text, meta
 
     except Exception as e:
-        print(f"   Claude API fout: {type(e).__name__}: {e}")
-        # Log response if available
+        print(f"  ❌ Claude API fout: {type(e).__name__}: {e}")
         try:
-            print(f"   Response status: {response.status_code}")
-            print(f"   Response body: {response.text[:200]}")
-        except:
-            pass
+            print(f"  ❌ Response status: {response.status_code}")
+            print(f"  ❌ Response body: {response.text[:500]}")
+        except Exception as log_err:
+            print(f"  ❌ Response niet beschikbaar: {log_err}")
         return (
             f"Je staat er goed voor richting HIM Knokke. VO2max ~{stats['vo2max']} ml/kg/min, FTP {stats['ftp']}W. Blijf consistent trainen!",
             f"— Automatische fallback · {datetime.now().strftime('%-d %B %Y')}"
@@ -746,7 +750,7 @@ def main():
     wkg  = round(ftp / 71, 2)
     mhr  = stats["max_hr"]
     vo2  = stats["vo2max"] or 48
-    swim = stats["best_swim"] or "1:52"
+    swim = stats["best_swim"] or "1:40"
 
     # HIM eindtijd berekenen (nodig voor AI update)
     him_time = estimate_him_time(activities)
@@ -758,7 +762,7 @@ def main():
     import re
 
     # ── Update STRAVA_DATA JS object zodat progressiebalken live werken ──
-    swim_raw = stats.get("best_swim") or "1:52"
+    swim_raw = stats.get("best_swim") or "1:40"
     swim_val = swim_raw.replace("/100m", "").strip()
     run_raw  = stats.get("best_run_pace") or "6:16"
     run_val  = run_raw.replace("/km", "").strip()
@@ -830,7 +834,7 @@ def main():
         rf'\g<1>{mhr}\2', new_html
     )
     # Rust HS — uit Strava athlete profiel indien beschikbaar, anders 50 bpm
-    rhr = stats.get("rest_hr") or 50
+    rhr = stats.get("rest_hr") or 49
     new_html = re.sub(
         r'(<div class="hstat-val gr" id="hero-rhr">)\d+(</div>)',
         rf'\g<1>{rhr}\2', new_html
@@ -875,7 +879,9 @@ def main():
         rf'\g<1>{rcad}\2', new_html
     )
     # ── VO2max ringen ──
-    vo2bike = round(ftp / float(str(wkg).replace(",",".")) / 71 * 71 * 10.8 + 7) if wkg else round(ftp / 71 * 10.8 + 7)
+    # FIX: correcte formule is (ftp / gewicht) * 10.8 + 7
+    # Oude code: ftp/wkg/71*71 = ftp/wkg = gewicht_kg → fout
+    vo2bike = round((ftp / 71) * 10.8 + 7)
     new_html = re.sub(
         r'(id="ring-vo2">)~?\d+(<)',
         rf'\g<1>~{vo2}\2', new_html
