@@ -117,9 +117,9 @@ def is_recovery(activity):
 # ── COMPUTE STATS ──
 def compute_stats(activities, athlete):
     stats = {
-        "max_hr":    191,   # actuele waarde
-        "ftp":       athlete.get("ftp") or 203,   # actuele waarde
-        "rest_hr":   49,    # actuele waarde
+        "max_hr":    204,
+        "ftp":       athlete.get("ftp") or 165,
+        "rest_hr":   athlete.get("measurement_preference") and 50 or 50,
         "vo2max":    None,
         "best_swim": None,
         "best_run_pace": None,
@@ -128,7 +128,6 @@ def compute_stats(activities, athlete):
         "total_runs": 0,
         "total_rides": 0,
         "total_swims": 0,
-        "weight":    71,
     }
 
     max_hr_seen = 0
@@ -191,7 +190,7 @@ def compute_stats(activities, athlete):
     if min_avg_hr < 60:
         stats["rest_hr"] = round(min_avg_hr)
     else:
-        stats["rest_hr"] = 49  # actuele waarde
+        stats["rest_hr"] = 50
 
     if swim_speeds:
         best = max(swim_speeds)
@@ -221,7 +220,7 @@ def compute_stats(activities, athlete):
     # Gebruik mediaan van de beste 5 runs om uitschieters te vermijden.
 
     REST_HR   = 50    # jouw rustpols
-    MAX_HR    = stats["max_hr"] or 191
+    MAX_HR    = stats["max_hr"] or 204
     WEIGHT_KG = 71
 
     firstbeat_scores = []
@@ -272,9 +271,9 @@ def compute_stats(activities, athlete):
         stats["vo2max_breakdown"] = [(v, 1/len(top), "Firstbeat") for v in top]
     else:
         # Geen runs met hartslag — gebruik veilige fallback
-        stats["vo2max"] = 53   # actuele waarde als fallback
-        stats["vo2max_breakdown"] = [( 53, 1.0, "Fallback (geen HR data)")]
-        print("   VO2max: geen runs met hartslag gevonden, fallback 53")
+        stats["vo2max"] = 47
+        stats["vo2max_breakdown"] = [( 47, 1.0, "Fallback (geen HR data)")]
+        print("   VO2max: geen runs met hartslag gevonden, fallback 47")
 
     return stats
 
@@ -289,7 +288,7 @@ def estimate_him_time(activities):
     """
 
     HIM_HM_PER_100KM = 44 / 90 * 100  # ~49 hm/100km (Knokke, vrijwel vlak)
-    MAX_HR  = 191
+    MAX_HR  = 204
     REST_HR = 50
 
     # ── ZWEMMEN ──
@@ -410,6 +409,68 @@ def estimate_him_time(activities):
     }
 
 
+
+# ── IRONMAN EINDTIJD SCHATTING ──
+def estimate_im_time(him):
+    """
+    Schat de volledige Ironman eindtijd op basis van de HIM schatting.
+
+    Afstanden IM: 3,8 km zwem · 180 km fiets · 42,2 km lopen
+    Afstanden HIM: 1,9 km zwem · 90 km fiets · 21,1 km lopen
+
+    Vermoeidheidscorrecties tov HIM (niet gewoon 2x):
+    - Zwemmen:  IM = HIM x2 x 1.02  (+2% tempo verlies door cumulatieve vermoeidheid)
+    - Fietsen:  IM = HIM x2 x 1.06  (+6% tempo verlies — langere inspanning + wind/warmte)
+    - Lopen:    IM = HIM x2 x 1.18  (+18% tempo verlies — grootste impact, muur bij km 30)
+    - Transities: IM heeft langere T1/T2 (~5 min elk ipv 2.5 min)
+
+    Bron: empirische data van finishers op alltriathlontimes.com en Slowtwitch forums.
+    """
+    # HIM splits in seconden
+    def parse_hm(s):
+        parts = s.split(':')
+        return int(parts[0]) * 3600 + int(parts[1]) * 60
+
+    him_swim_secs = parse_hm(him['swim_time'])
+    him_bike_secs = parse_hm(him['bike_time'])
+    him_run_secs  = parse_hm(him['run_time'])
+
+    # IM schatting met vermoeidheidscorrecties
+    im_swim_secs = round(him_swim_secs * 2 * 1.02)
+    im_bike_secs = round(him_bike_secs * 2 * 1.06)
+    im_run_secs  = round(him_run_secs  * 2 * 1.18)
+    im_t1_t2     = 600  # 2x 5 min transities bij IM
+
+    im_total_secs = im_swim_secs + im_bike_secs + im_run_secs + im_t1_t2
+
+    def hm(s):
+        return f"{s//3600}:{(s%3600)//60:02d}"
+
+    def hms(s):
+        h   = s // 3600
+        m   = (s % 3600) // 60
+        sec = s % 60
+        return str(h) + "u" + f"{m:02d}m" + f"{sec:02d}s"
+
+    # Tempo berekeningen
+    im_swim_speed_ms = 3800 / im_swim_secs
+    im_bike_speed_ms = 180000 / im_bike_secs
+    im_run_speed_ms  = 42200 / im_run_secs
+
+    print(f"   IM: zwem {hm(im_swim_secs)} fiets {hm(im_bike_secs)} run {hm(im_run_secs)} totaal {hms(im_total_secs)}")
+
+    return {
+        "swim_time":  hm(im_swim_secs),
+        "bike_time":  hm(im_bike_secs),
+        "run_time":   hm(im_run_secs),
+        "total_time": hms(im_total_secs),
+        "swim_pace":  f"{int((100/im_swim_speed_ms)//60)}:{int((100/im_swim_speed_ms)%60):02d}/100m",
+        "bike_kmh":   f"{im_bike_speed_ms*3.6:.1f} km/u",
+        "run_pace":   f"{int((1000/im_run_speed_ms)//60)}:{int((1000/im_run_speed_ms)%60):02d}/km",
+        "total_secs": im_total_secs,
+    }
+
+
 # ── HTML GENERATORS ──
 def activity_card_html(a):
     t     = a.get("type", "Workout")
@@ -453,7 +514,7 @@ def activity_card_html(a):
         for lbl, val in metrics[:6]
     )
 
-    zbar = zone_bar(avg_hr, max_hr or 191)
+    zbar = zone_bar(avg_hr, max_hr or 204)
 
     return f"""
     <div class="sact">
@@ -482,10 +543,11 @@ def build_strava_section(activities, stats, athlete):
     vo2  = stats["vo2max"] or 48
     swim = stats["best_swim"] or "—"
     bcad = stats["bike_cadence"] or 77
-    rcad = stats["run_cadence"] or 166
+    rcad = stats["run_cadence"] or 165
 
     # HIM eindtijd schatting
     him = estimate_him_time(activities)
+    im  = estimate_im_time(him)
 
     # VO2max breakdown tabel
     breakdown = stats.get("vo2max_breakdown", [])
@@ -550,6 +612,41 @@ def build_strava_section(activities, stats, athlete):
     </div>
   </div>
 
+  <!-- ── IRONMAN SCHATTING ── -->
+  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2.5rem 0 1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">Ironman Tijd</span></h3>
+  <div style="background:var(--card);border:1px solid rgba(160,80,255,.35);border-radius:14px;padding:1.5rem">
+    <div style="display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:900;line-height:1;color:#a050ff;letter-spacing:-.01em">{im['total_time']}</div>
+      <div style="font-size:.78rem;color:var(--muted);font-weight:500">geschatte eindtijd<br>volledige Ironman</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem">
+      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:.8rem">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:.35rem">🏊 Zwemmen</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{im['swim_time']}</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">3,8 km · {im['swim_pace']}</div>
+      </div>
+      <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:10px;padding:.8rem">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#3a8fff;margin-bottom:.35rem">🚴 Fietsen</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{im['bike_time']}</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">180 km · {im['bike_kmh']}</div>
+      </div>
+      <div style="background:rgba(160,80,255,.07);border:1px solid rgba(160,80,255,.2);border-radius:10px;padding:.8rem">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a050ff;margin-bottom:.35rem">🏃 Lopen</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{im['run_time']}</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">42,2 km · {im['run_pace']}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;background:rgba(160,80,255,.05);border-radius:8px;margin-bottom:.8rem">
+      <div style="font-size:.72rem;color:var(--muted);line-height:1.5">
+        <span style="font-weight:600;color:#a050ff">HIM → IM correcties:</span>
+        zwem +2% · fiets +6% · lopen +18% vermoeidheid
+      </div>
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:.8rem">
+      Extrapolatie op basis van HIM schatting · Vermoeidheidsfactoren gebaseerd op empirische finishersdata · Geen garantie maar een eerlijke benadering van huidig niveau.
+    </div>
+  </div>
+
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">Schatting</span></h3>
   <div class="vo2-row">
     <div class="vo2-card">
@@ -600,11 +697,7 @@ def generate_ai_update(activities, stats, him):
     """
 
     ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-    print(f"  🤖 ANTHROPIC_API_KEY aanwezig: {'ja' if ANTHROPIC_API_KEY else 'NEE — ontbreekt'}")
-    if ANTHROPIC_API_KEY:
-        print(f"  🤖 Key begint met: {ANTHROPIC_API_KEY[:8]}...")
     if not ANTHROPIC_API_KEY:
-        print("  ❌ ANTHROPIC_API_KEY niet gevonden als environment variable")
         return (
             "AI update niet beschikbaar — voeg ANTHROPIC_API_KEY toe als GitHub Secret.",
             ""
@@ -702,12 +795,13 @@ Schrijf in vloeiende lopende tekst zonder opsomming of titels. Gebruik de exacte
         return text, meta
 
     except Exception as e:
-        print(f"  ❌ Claude API fout: {type(e).__name__}: {e}")
+        print(f"   Claude API fout: {type(e).__name__}: {e}")
+        # Log response if available
         try:
-            print(f"  ❌ Response status: {response.status_code}")
-            print(f"  ❌ Response body: {response.text[:500]}")
-        except Exception as log_err:
-            print(f"  ❌ Response niet beschikbaar: {log_err}")
+            print(f"   Response status: {response.status_code}")
+            print(f"   Response body: {response.text[:200]}")
+        except:
+            pass
         return (
             f"Je staat er goed voor richting HIM Knokke. VO2max ~{stats['vo2max']} ml/kg/min, FTP {stats['ftp']}W. Blijf consistent trainen!",
             f"— Automatische fallback · {datetime.now().strftime('%-d %B %Y')}"
@@ -750,10 +844,12 @@ def main():
     wkg  = round(ftp / 71, 2)
     mhr  = stats["max_hr"]
     vo2  = stats["vo2max"] or 48
-    swim = stats["best_swim"] or "1:40"
+    swim = stats["best_swim"] or "1:52"
 
     # HIM eindtijd berekenen (nodig voor AI update)
     him_time = estimate_him_time(activities)
+    im_time  = estimate_im_time(him_time)
+    print(f"   IM schatting: {im_time['total_time']}")
 
     print("🤖 AI update genereren...")
     ai_text, ai_meta = generate_ai_update(activities, stats, him_time)
@@ -762,7 +858,7 @@ def main():
     import re
 
     # ── Update STRAVA_DATA JS object zodat progressiebalken live werken ──
-    swim_raw = stats.get("best_swim") or "1:40"
+    swim_raw = stats.get("best_swim") or "1:52"
     swim_val = swim_raw.replace("/100m", "").strip()
     run_raw  = stats.get("best_run_pace") or "6:16"
     run_val  = run_raw.replace("/km", "").strip()
@@ -834,7 +930,7 @@ def main():
         rf'\g<1>{mhr}\2', new_html
     )
     # Rust HS — uit Strava athlete profiel indien beschikbaar, anders 50 bpm
-    rhr = stats.get("rest_hr") or 49
+    rhr = stats.get("rest_hr") or 50
     new_html = re.sub(
         r'(<div class="hstat-val gr" id="hero-rhr">)\d+(</div>)',
         rf'\g<1>{rhr}\2', new_html
@@ -879,9 +975,7 @@ def main():
         rf'\g<1>{rcad}\2', new_html
     )
     # ── VO2max ringen ──
-    # FIX: correcte formule is (ftp / gewicht) * 10.8 + 7
-    # Oude code: ftp/wkg/71*71 = ftp/wkg = gewicht_kg → fout
-    vo2bike = round((ftp / 71) * 10.8 + 7)
+    vo2bike = round(ftp / float(str(wkg).replace(",",".")) / 71 * 71 * 10.8 + 7) if wkg else round(ftp / 71 * 10.8 + 7)
     new_html = re.sub(
         r'(id="ring-vo2">)~?\d+(<)',
         rf'\g<1>~{vo2}\2', new_html
@@ -915,6 +1009,27 @@ def main():
         r'(id="disp-footer-info">)[^<]+(<)',
         rf'\g<1>{weight_val} kg · 182 cm · FTP {ftp}W ({wkg} W/kg) · Halve Ironman Knokke 6 september 2026\2', new_html
     )
+
+    # ── HIM + IM kaarten updaten ──
+    def fmtHM(s):
+        return str(s//3600) + 'u' + f"{(s%3600)//60:02d}m"
+    def fmtSplit(s):
+        return str(s//3600) + ':' + f"{(s%3600)//60:02d}"
+
+    for elem_id, val in [
+        ('him-total-time', fmtHM(him_time['total_secs'])),
+        ('him-swim-time',  him_time['swim_time']),
+        ('him-bike-time',  him_time['bike_time']),
+        ('him-run-time',   him_time['run_time']),
+        ('im-total-time',  fmtHM(im_time['total_secs'])),
+        ('im-swim-time',   im_time['swim_time']),
+        ('im-bike-time',   im_time['bike_time']),
+        ('im-run-time',    im_time['run_time']),
+    ]:
+        new_html = re.sub(
+            rf'(id="{elem_id}">)[^<]+(<)',
+            rf'\g<1>{val}\2', new_html
+        )
 
     # ── Progressie balk VO2max huidige waarde ──
     new_html = re.sub(
