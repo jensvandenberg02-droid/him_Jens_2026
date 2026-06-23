@@ -1027,6 +1027,40 @@ html[data-theme="light"] .hero-flag-wrap { opacity: .14; }
 }
 .wksm strong { color: var(--text); font-weight: 700; }
 
+/* ── ACTIVITEITEN PER WEEK GEGROEPEERD ── */
+.week-activity-group {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.week-activity-group:last-child { border-bottom: none; margin-bottom: 0; }
+.wag-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.wag-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.wag-range {
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.wag-total {
+  font-size: .78rem;
+  color: var(--dim);
+}
+.wag-chart {
+  margin-bottom: 1.2rem;
+}
+
 /* ── STRAVA ANALYSIS ── */
 .strava-grid {
   display: grid;
@@ -1262,6 +1296,41 @@ footer {
 .fcl-line { width: 16px; height: 2px; display: inline-block; }
 .fcl-line.fcl-load  { background: var(--blue); }
 .fcl-line.fcl-trend { background: var(--accent); border-top: 1px dashed var(--accent); height: 0; }
+
+/* ── FITNESS DASHBOARD GRAFIEK ── */
+.dashboard-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 2rem;
+}
+.dashboard-label {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.dashboard-svg { width: 100%; height: 280px; display: block; }
+.dashboard-legend {
+  display: flex;
+  gap: 1.4rem;
+  margin-top: .8rem;
+  flex-wrap: wrap;
+}
+.dl-item {
+  font-size: .72rem;
+  color: var(--dim);
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+}
+.dl-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+@media (max-width: 768px) {
+  .dashboard-svg { height: 220px; }
+}
 
 /* ── HERSTEL (GARMIN) ── */
 .recovery-card {
@@ -1646,9 +1715,11 @@ footer {
   body { background: white !important; color: #111 !important; }
   nav, .hero-pulse-wrap, .hero-glow, .hero-glow2, .hero-grid-bg,
   .weight-bar, .itb-widget, .week-comparison-text,
-  .form-curve-card, .recovery-card, footer, .theme-toggle,
+  .form-curve-card, .recovery-card, .dashboard-card, footer, .theme-toggle,
   #ai-update, .strava-grid, .vo2-row,
-  section#analyse > *:not(.sec-label):not(.sec-title) { display: none !important; }
+  section#garmin-data > *:not(.sec-label):not(.sec-title),
+  section#activiteiten > *:not(.sec-label):not(.sec-title),
+  section#fitnesswaarden > *:not(.sec-label):not(.sec-title) { display: none !important; }
 
   .hero { min-height: 0; padding: 1rem 0; }
   .hero-stats { display: none; }
@@ -1686,8 +1757,9 @@ footer {
     <li><a href="#profiel">Profiel</a></li>
     <li><a href="#races">Races</a></li>
     <li><a href="#doelen">Doelen</a></li>
+    <li><a href="#garmin-data">Garmin</a></li>
     <li><a href="#plan">Plan</a></li>
-    <li><a href="#analyse">Analyse</a></li>
+    <li><a href="#fitnesswaarden">Fitness</a></li>
   </ul>
   <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Wissel licht/donker thema" title="Licht/donker thema">🌙</button>
   <button class="theme-toggle" onclick="window.print()" aria-label="Trainingsplan afdrukken" title="Trainingsplan afdrukken">🖨️</button>
@@ -1724,32 +1796,32 @@ footer {
 
     <div class="hero-stats">
       <div class="hstat">
-        <div class="hstat-val ac" id="hero-ftp">165<small style="font-size:.9rem">W</small></div>
+        <div class="hstat-val ac" id="hero-ftp">203<small style="font-size:.9rem">W</small></div>
         <div class="hstat-lbl">FTP Fiets</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val" id="hero-wkg">2.32</div>
+        <div class="hstat-val" id="hero-wkg">2,86</div>
         <div class="hstat-lbl">W/kg</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val bl" id="hero-swim">1:37/100m</div>
+        <div class="hstat-val bl" id="hero-swim">1:40</div>
         <div class="hstat-lbl">CSS /100m</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val gr" id="hero-vo2">~54</div>
+        <div class="hstat-val gr" id="hero-vo2">~53</div>
         <div class="hstat-lbl">VO2max</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val" id="hero-mhr">193.0</div>
+        <div class="hstat-val" id="hero-mhr">191</div>
         <div class="hstat-lbl">Max HS bpm</div>
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val gr" id="hero-rhr">50</div>
+        <div class="hstat-val gr" id="hero-rhr">49</div>
         <div class="hstat-lbl">Rust HS bpm</div>
       </div>
     </div>
@@ -1778,8 +1850,12 @@ footer {
     <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.6rem 1.8rem;position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--accent),var(--blue))"></div>
       <div style="padding-left:.6rem">
-        <div id="ai-update-text" style="font-size:.95rem;line-height:1.9;color:var(--dim)"><p># Dagelijkse Update – Dinsdag 23 juni</p><p style="margin-top:.8rem">Gisteren heb je goed getest met die TT-bars: 67,4 km aan 32,0 km/u met een gemiddelde hartslag van 164 bpm is solide tempo-werk, en je cadans van 84 rpm zit precies waar je hem wilt hebben. Wat opvalt is dat je hartslag op dit snelheidsniveau vrij gecontroleerd blijft – dat duidt erop dat je basisconditie goed op orde is en je maximaal hart van 193 bpm nog flinke reserve oplevert. Vergeleken met je brick-training van zaterdag (waar je op de fiets 159 bpm haalde) zit je nu net iets hoger, maar dat is logisch omdat gisteren puur tempo was zonder direct daarna lopen. Je zwemwerk deze week (1:37/100m op donderdag) onderstreept dat je op alle drie de onderdelen in goede vorm zit.</p><p style="margin-top:.8rem">Je hersteldata is momenteel groen: 8,5 uur slaap met een score van 77/100, Body Battery op 89/100 en een rustinghartslag van 50 bpm geven aan dat je centraal zenuwstelsel goed herstelt – hoewel je HRV van 80ms nog even "ongebalanceerd" is, wat suggereert dat er nog lichte adrenaline in je systeem zit. Dit betekent dat je vandaag een matige inspanning prima aankan, maar een all-out sessie zou ik nog één dag uitstellen. Met 6 september in zicht (je geschatte eindtijd 6:05:57 is realistisch gezien je huidige FTP van 165W en je zwemtempo) is nu niet het moment om jezelf compleet uit te putten; consistentie wint het van heroïsche inspanningen. Pak vandaag een losse spin-sessie of recovery-zwem, zorg dat je HRV morgen wat verder klimt, en donderdag kan je voluit gaan – dan heb je nog ruim 10 weken om gericht te scherpenen en naar die finish te werken.</p></div>
-        <div id="ai-update-meta" style="margin-top:1rem;font-size:.72rem;color:var(--muted);letter-spacing:.06em">— Gegenereerd door Claude op 23 June 2026 om 09:52 op basis van Strava data</div>
+        <div id="ai-update-text" style="font-size:.95rem;line-height:1.9;color:var(--dim)">
+          Wordt bijgewerkt na de volgende Strava sync...
+        </div>
+        <div id="ai-update-meta" style="margin-top:1rem;font-size:.72rem;color:var(--muted);letter-spacing:.06em">
+          — Gegenereerd door Claude op basis van Strava data
+        </div>
       </div>
     </div>
   </div>
@@ -1865,7 +1941,7 @@ footer {
   <h2 class="sec-title">Van Nu naar <span>HIM</span></h2>
 
   <div class="intro-text" id="doelen-intro">
-    Op <span id="disp-weight">71</span> kg en 182 cm heeft Jens een solide amateuratleten basis. De voornaamste verbeterpunten zijn het FTP op de fiets, looptempo aan lactaatdrempel, en zwem-CSS. De VO2max van <span id="ring-vo2-aw-intro">54</span> ml/kg/min (Garmin) is al dichtbij het HIM-doelniveau.
+    Op <span id="disp-weight">71</span> kg en 182 cm heeft Jens een solide amateuratleten basis. De voornaamste verbeterpunten zijn het FTP op de fiets, looptempo aan lactaatdrempel, en zwem-CSS. De VO2max van <span id="ring-vo2-aw-intro">53</span> ml/kg/min (Garmin) is al dichtbij het HIM-doelniveau.
   </div>
 
   <div class="weight-bar">
@@ -1913,15 +1989,15 @@ footer {
 
   <div class="mhc-grid">
     <div class="mhc"><div class="mhc-lbl">Gewicht</div><div class="mhc-val" id="mhc-weight">71 kg</div><div class="mhc-sub">182 cm</div></div>
-    <div class="mhc"><div class="mhc-lbl">FTP nu</div><div class="mhc-val ac" id="mhc-ftp">165 W</div><div class="mhc-sub" id="mhc-wkg">2.32 W/kg</div></div>
+    <div class="mhc"><div class="mhc-lbl">FTP nu</div><div class="mhc-val ac" id="mhc-ftp">203 W</div><div class="mhc-sub" id="mhc-wkg">2,86 W/kg</div></div>
     <div class="mhc"><div class="mhc-lbl">FTP doel HIM</div><div class="mhc-val gr">199–227 W</div><div class="mhc-sub">2,8–3,2 W/kg</div></div>
-    <div class="mhc"><div class="mhc-lbl">Looptempo LT</div><div class="mhc-val yl" id="mhc-runpace">5:39/km</div><div class="mhc-sub">doel: 5:40/km</div></div>
-    <div class="mhc"><div class="mhc-lbl">Zwem CSS</div><div class="mhc-val bl" id="mhc-swim">1:37/100m</div><div class="mhc-sub">doel: 1:40/100m</div></div>
-    <div class="mhc"><div class="mhc-lbl">Fiets cadans</div><div class="mhc-val ac" id="mhc-bcad">83 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Loop cadans</div><div class="mhc-val yl" id="mhc-rcad">167 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr" id="mhc-vo2">54</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
-    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val ac" id="mhc-mhr">193.0 bpm</div><div class="mhc-sub">gemeten max</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="mhc-rhr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
+    <div class="mhc"><div class="mhc-lbl">Looptempo LT</div><div class="mhc-val yl" id="mhc-runpace">6:16/km</div><div class="mhc-sub">doel: 5:40/km</div></div>
+    <div class="mhc"><div class="mhc-lbl">Zwem CSS</div><div class="mhc-val bl" id="mhc-swim">1:40</div><div class="mhc-sub">doel: 1:40/100m</div></div>
+    <div class="mhc"><div class="mhc-lbl">Fiets cadans</div><div class="mhc-val ac" id="mhc-bcad">77 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
+    <div class="mhc"><div class="mhc-lbl">Loop cadans</div><div class="mhc-val yl" id="mhc-rcad">162 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
+    <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr" id="mhc-vo2">~53</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
+    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val ac" id="mhc-mhr">191 bpm</div><div class="mhc-sub">gemeten max</div></div>
+    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="mhc-rhr">49 bpm</div><div class="mhc-sub">uitstekend</div></div>
   </div>
 
   <div class="goals-grid">
@@ -2072,6 +2148,55 @@ footer {
 <div class="divider-line"></div>
 
 <!-- ── PLAN ── -->
+<!-- ── GARMIN DATA ── -->
+<section class="section" id="garmin-data">
+  <div class="sec-label">⌚ Garmin Connect</div>
+  <h2 class="sec-title">Herstel & <span>Trainingsstatus</span></h2>
+
+  <!-- ── HERSTEL (GARMIN) ── -->
+  <div class="recovery-card">
+    <div class="recovery-label">⌚ Herstel vannacht · Garmin Connect</div>
+    <div id="recovery-card-content"><div class="recovery-unavailable">Wordt bijgewerkt na de volgende sync...</div></div> <!-- /recovery-card -->
+  </div>
+
+  <!-- ── PRESTATIE & TRAININGSSTATUS (GARMIN) ── -->
+  <div class="recovery-card">
+    <div class="recovery-label">📊 Trainingsstatus & Race Predictor · Forerunner 965</div>
+    <div id="performance-card-content"><div class="recovery-unavailable">Wordt bijgewerkt na de volgende sync...</div></div> <!-- /performance-card -->
+  </div>
+
+  <!-- ── VORM-CURVE ── -->
+  <div class="form-curve-card">
+    <div class="form-curve-label">Trainingsbelasting · laatste 4 weken</div>
+    <svg class="form-curve-svg" viewBox="0 0 600 140" preserveAspectRatio="none" id="form-curve-svg">
+      <!-- Wordt dynamisch gevuld door renderFormCurve() -->
+      <line x1="0" y1="115" x2="600" y2="115" stroke="var(--border)" stroke-width="1" />
+    </svg>
+    <div class="form-curve-legend">
+      <span class="fcl-item"><span class="fcl-line fcl-load"></span>Belasting (sessies × volume)</span>
+      <span class="fcl-item"><span class="fcl-line fcl-trend"></span>4-weken trend</span>
+    </div>
+  </div>
+
+  <!-- ── FITNESS DASHBOARD GRAFIEK ── -->
+  <div class="dashboard-card">
+    <div class="dashboard-label">📈 Evolutie · FTP, VO2max, gewicht en hartslag over tijd</div>
+    <svg class="dashboard-svg" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet" id="dashboard-svg">
+      <!-- Wordt dynamisch gevuld door renderDashboardChart() -->
+      <line x1="0" y1="280" x2="900" y2="280" stroke="var(--border)" stroke-width="1" />
+    </svg>
+    <div class="dashboard-legend" id="dashboard-legend">
+      <span class="dl-item"><span class="dl-dot" style="background:var(--blue)"></span>FTP (W)</span>
+      <span class="dl-item"><span class="dl-dot" style="background:var(--green)"></span>VO2max</span>
+      <span class="dl-item"><span class="dl-dot" style="background:var(--accent)"></span>Rust HS</span>
+      <span class="dl-item"><span class="dl-dot" style="background:var(--yellow)"></span>Gewicht</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ── TRAININGSPLAN ── -->
 <div class="plan-bg section-full" id="plan">
   <div class="section-inner">
     <div class="sec-label">W1 t/m W23</div>
@@ -2093,306 +2218,104 @@ footer {
       <!-- Wordt dynamisch gegenereerd door renderPlan() -->
       <div style="color:var(--muted);font-size:.85rem;padding:2rem 0">Plan wordt geladen...</div>
     </div>
-
-<!-- ── ANALYSE ── -->
-<section class="section" id="analyse">
-  <div class="sec-label">Live via Strava API</div>
-  <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 23 June 2026 om 09:52</p>
-
-  <div class="strava-grid">
-    
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">De TT bars eens testen :-)</div>
-          <div class="sact-date">Mon 22 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">67.4km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">32.0km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">2u06</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">84 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">130m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">164 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Brick training pt2 (Run)</div>
-          <div class="sact-date">Sat 20 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">4.5km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:14/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">28:08</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">164 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">25m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">157 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-b">🚴</div>
-        <div>
-          <div class="sact-name">Brick training pt1 (Bike)</div>
-          <div class="sact-date">Sat 20 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">27.4km</div></div>
-<div><div class="sm-lbl">Snelheid</div><div class="sm-val">30.5km/u</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">54:01</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">81 rpm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">68m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">159 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-s">🏊</div>
-        <div>
-          <div class="sact-name">Morning Swim</div>
-          <div class="sact-date">Sat 20 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">1022m</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">1:54/100m</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">19:32</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">155 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">169 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Afternoon Weight Training</div>
-          <div class="sact-date">Fri 19 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">1u15</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">108 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">151 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-s">🏊</div>
-        <div>
-          <div class="sact-name">Zalige intervalsessie :-)</div>
-          <div class="sact-date">Thu 18 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">2075m</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">1:37/100m</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">33:42</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">144 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">182 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Kniebesparingsmodus pt.8 (lopen)</div>
-          <div class="sact-date">Wed 17 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">7.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:46/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">47:27</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">166 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">22m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">140 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-w">💪</div>
-        <div>
-          <div class="sact-name">Evening Weight Training</div>
-          <div class="sact-date">Tue 16 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Tijd</div><div class="sm-val">1u04</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">103 bpm</div></div>
-<div><div class="sm-lbl">Max. HS</div><div class="sm-val">145 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz1" style="width:5%"></div><div class="szs sz2" style="width:70%"></div><div class="szs sz3" style="width:20%"></div><div class="szs sz4" style="width:5%"></div></div>
-    </div>
-
-    <div class="sact">
-      <div class="sact-hd">
-        <div class="sact-icon si-r">🏃</div>
-        <div>
-          <div class="sact-name">Kniebesparingsmodus pt.7 (lopen)</div>
-          <div class="sact-date">Sun 14 Jun</div>
-        </div>
-      </div>
-      <div class="sact-metrics">
-        <div><div class="sm-lbl">Afstand</div><div class="sm-val">7.0km</div></div>
-<div><div class="sm-lbl">Tempo</div><div class="sm-val">6:38/km</div></div>
-<div><div class="sm-lbl">Tijd</div><div class="sm-val">46:29</div></div>
-<div><div class="sm-lbl">Cadans</div><div class="sm-val">169 spm</div></div>
-<div><div class="sm-lbl">Hoogte</div><div class="sm-val">60m</div></div>
-<div><div class="sm-lbl">Gem. HS</div><div class="sm-val">151 bpm</div></div>
-      </div>
-      <div class="sact-zbar"><div class="szs sz2" style="width:30%"></div><div class="szs sz3" style="width:40%"></div><div class="szs sz4" style="width:30%"></div></div>
-    </div>
   </div>
+</div>
+
+<div class="divider-line"></div>
+
+<!-- ── RECENTE ACTIVITEITEN (PER WEEK GEGROEPEERD) ── -->
+<section class="section" id="activiteiten">
+  <div class="sec-label">Strava · automatisch bijgewerkt</div>
+  <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem" id="activiteiten-sync-info">Wordt bijgewerkt na de volgende sync...</p>
+
+  <div id="activities-by-week-container">
+    <!-- Wordt dynamisch gegenereerd door update_site.py: activiteiten gegroepeerd per week met mini-grafiek -->
+    <div style="color:var(--muted);font-size:.85rem;padding:2rem 0">Activiteiten worden geladen na de volgende sync...</div>
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- ── FITNESSWAARDEN & EINDTIJD ── -->
+<section class="section" id="fitnesswaarden">
+  <div class="sec-label">Live via Strava + Garmin</div>
+  <h2 class="sec-title">Fitnesswaarden & <span>Eindtijd</span></h2>
 
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Live <span style="color:var(--text)">Fitnesswaarden</span></h3>
 
-  <div class="mhc-grid" style="margin-bottom:2.5rem">
-    <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac" id="live-ftp">165 W</div><div class="mhc-sub" id="live-wkg">2.32 W/kg</div></div>
-    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val" id="live-mhr">193.0 bpm</div><div class="mhc-sub">gemeten in training</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max (Garmin)</div><div class="mhc-val gr" id="live-vo2">54</div><div class="mhc-sub">ml/kg/min</div></div>
-    <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl" id="live-swim">1:37/100m</div><div class="mhc-sub">snelste gemiddelde</div></div>
-    <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val ac" id="live-bcad">83 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val ay" id="live-rcad">167 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
-    <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val">30</div><div class="mhc-sub">🏃 7 · 🚴 8 · 🏊 7</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="live-rhr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
+  <div class="mhc-grid" style="margin-bottom:2.5rem" id="live-fitness-grid">
+    <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac" id="live-ftp">203 W</div><div class="mhc-sub" id="live-wkg">2,86 W/kg</div></div>
+    <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val" id="live-mhr">191 bpm</div><div class="mhc-sub">gemeten in training</div></div>
+    <div class="mhc"><div class="mhc-lbl">VO2max (Garmin)</div><div class="mhc-val gr" id="live-vo2">53</div><div class="mhc-sub">ml/kg/min</div></div>
+    <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl" id="live-swim">1:40</div><div class="mhc-sub">snelste gemiddelde</div></div>
+    <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val ac" id="live-bcad">77 rpm</div><div class="mhc-sub">doel: 90 rpm</div></div>
+    <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val yl" id="live-rcad">162 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
+    <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val" id="live-activity-count">—</div><div class="mhc-sub" id="live-activity-breakdown">🏃 · 🚴 · 🏊</div></div>
+    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="live-rhr">49 bpm</div><div class="mhc-sub">uitstekend</div></div>
   </div>
 
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">HIM Eindtijd</span></h3>
+  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">Race Tijden</span></h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2.5rem">
 
-  <div style="background:var(--card);border:1px solid rgba(232,81,42,.35);border-radius:14px;padding:1.5rem 1.8rem;margin-bottom:2.5rem;max-width:580px">
-    <div style="display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:900;line-height:1;color:var(--yellow);letter-spacing:-.01em">6u05m57s</div>
-      <div style="font-size:.78rem;color:var(--muted);font-weight:500">geschatte eindtijd<br>incl. transities</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem">
-      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4de88a;margin-bottom:.35rem">🏊 Zwemmen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">0:31</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">1,9 km · 1:40/100m</div>
+    <div style="background:var(--card);border:1px solid rgba(232,81,42,.35);border-radius:14px;padding:1.4rem">
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem">🏊🚴🏃 Halve Ironman</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:900;line-height:1;color:var(--yellow);letter-spacing:-.01em;margin-bottom:1rem" id="him-total-time">5u50m00s</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.8rem">
+        <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:.25rem">ZWEM</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="him-swim-time">0:30</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">1,9 km · doel &lt;32min</div>
+        </div>
+        <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#3a8fff;margin-bottom:.25rem">FIETS</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="him-bike-time">2:50</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">90 km · doel &lt;2u50</div>
+        </div>
+        <div style="background:rgba(232,81,42,.07);border:1px solid rgba(232,81,42,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem">RUN</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="him-run-time">1:55</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">21,1 km · doel &lt;1u55</div>
+        </div>
       </div>
-      <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6ab4ff;margin-bottom:.35rem">🚴 Fietsen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">3:06</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">90 km · 29.0 km/u</div>
-      </div>
-      <div style="background:rgba(232,81,42,.07);border:1px solid rgba(232,81,42,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ff8060;margin-bottom:.35rem">🏃 Lopen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">2:23</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">21,1 km · 6:48/km</div>
-      </div>
+      <div style="font-size:.68rem;color:var(--muted)">Knokke-Heist · 6 september 2026</div>
     </div>
-    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:.8rem">
-      Schatting op basis van actuele Strava data · Open water −3% zwem · HIM-tempo correctie −12% fiets en run · Transities inbegrepen in totaal · Wordt automatisch bijgewerkt bij elke sync.
+
+    <div style="background:var(--card);border:1px solid rgba(160,80,255,.35);border-radius:14px;padding:1.4rem">
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#a050ff;margin-bottom:.5rem">🏊🚴🏃 Volledige Ironman</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:900;line-height:1;color:#a050ff;letter-spacing:-.01em;margin-bottom:1rem" id="im-total-time">12u45m00s</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.8rem">
+        <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:.25rem">ZWEM</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="im-swim-time">1:17</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">3,8 km</div>
+        </div>
+        <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#3a8fff;margin-bottom:.25rem">FIETS</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="im-bike-time">6:05</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">180 km</div>
+        </div>
+        <div style="background:rgba(160,80,255,.07);border:1px solid rgba(160,80,255,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a050ff;margin-bottom:.25rem">RUN</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="im-run-time">5:19</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">42,2 km</div>
+        </div>
+      </div>
+      <div style="font-size:.68rem;color:var(--muted)">Extrapolatie · zwem +2% · fiets +6% · run +18%</div>
     </div>
+
   </div>
 
+  <!-- VO2MAX -->
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">— Garmin</span></h3>
   <div class="vo2-row vo2-row-single">
     <div class="vo2-card">
       <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="var(--green)" stroke-dasharray="289" stroke-dashoffset="143"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:var(--green)">54</div><div class="ring-unit">ml/kg/min</div></div>
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="var(--green)" stroke-dasharray="289" stroke-dashoffset="82" id="ring-svg-aw"/></svg>
+        <div class="ring-center"><div class="ring-val" id="ring-vo2-aw" style="color:var(--green)">53</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
       <div class="vo2-label">Garmin<br><span style="font-size:.62rem;color:#666">directe schatting</span></div>
     </div>
-  </div>
-
-  <!-- ── HERSTEL (GARMIN) ── -->
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2.5rem 0 1.2rem;color:var(--dim)">⌚ Herstel <span style="color:var(--text)">vannacht</span></h3>
-  <div class="recovery-card">
-    <div class="recovery-grid">
-        <div class="rec-stat">
-          <div class="rec-lbl">🎯 Training Readiness</div>
-          <div class="rec-val" style="color:var(--accent)">1/100</div>
-          <div class="rec-sub">POOR</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">💤 Slaap</div>
-          <div class="rec-val" style="color:var(--green)">8.5u</div>
-          <div class="rec-sub">77/100 score</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">💓 HRV</div>
-          <div class="rec-val">80ms</div>
-          <div class="rec-sub">UNBALANCED</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">❤️ Rust HS</div>
-          <div class="rec-val" style="color:var(--green)">50 bpm</div>
-          <div class="rec-sub">vannacht</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🔋 Body Battery</div>
-          <div class="rec-val" style="color:var(--green)">89/100</div>
-          <div class="rec-sub">huidig niveau</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">😌 Stress (rust %)</div>
-          <div class="rec-val">—</div>
-          <div class="rec-sub">gem. 15</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">👟 Stappen</div>
-          <div class="rec-val">171</div>
-          <div class="rec-sub">gisteren</div>
-        </div>
-      </div>
-      <div class="rec-feedback">💬 POOR_HRV_UNBALANCED</div>
-  </div>
-
-  <!-- ── PRESTATIE & TRAININGSSTATUS (GARMIN) ── -->
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2.5rem 0 1.2rem;color:var(--dim)">📊 Trainingsstatus <span style="color:var(--text)">& Race Predictor</span></h3>
-  <div class="recovery-card">
-    <div class="perf-status-row">
-        <div class="perf-status-badge" style="color:var(--blue);border-color:var(--blue)">
-          📈 Onderhoud
-        </div>
-        <div class="perf-status-sub">ABOVE_TARGETS</div>
-      </div>
-      <div class="recovery-grid recovery-grid-4">
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 5K</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 10K</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 Halve marathon</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 Marathon</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-      </div>
   </div>
 
 </section>
@@ -2400,22 +2323,28 @@ footer {
 <!-- ── FOOTER ── -->
 <footer>
   <div class="ft-brand">JENS<span>.</span>VANDENBERG</div>
-  <div class="ft-info" id="disp-footer-info">71 kg · 182 cm · FTP 165W (2.32 W/kg) · Halve Ironman Knokke 6 september 2026</div>
+  <div class="ft-info" id="disp-footer-info">71 kg · 182 cm · FTP 2,32 W/kg · Halve Ironman Knokke 6 september 2026</div>
   <div class="ft-info" style="color:var(--accent)">Altijd trainen met een plan.</div>
 </footer>
 
 <script>
 // ── GEWICHT & PROGRESSIE LIVE UPDATE ──
 const STRAVA_DATA = {
-  ftp:       165,
-  wkg:       2.32,
-  bcad:      83,
-  rcad:      167,
-  runpace:   '5:39',
-  swim:      '1:37',
-  vo2:       54,
-  max_hr:    193.0,
+  ftp:       203,
+  wkg:       2.86,
+  bcad:      79,
+  rcad:      166,
+  runpace:   '6:16',
+  swim:      '1:40',
+  vo2:       53,
+  max_hr:    191,
 };
+
+// Geschiedenis van kernwaarden over tijd — wordt bij elke sync door update_site.py
+// uitgebreid met één nieuw datapunt (max 1 per dag). Voedt de dashboard-grafiek.
+const FITNESS_HISTORY = [
+  { date: '2026-06-23', ftp: 203, vo2: 53, rhr: 49, weight: 71 },
+];
 
 function paceToSecs(p) {
   const parts = p.split(':');
@@ -2666,8 +2595,8 @@ function updateWeight() { saveHealthData(); }
 // Leest publiek (geen key), schrijft met API key
 // JSONBin keys worden niet geblokkeerd door GitHub push protection
 
-const JSONBIN_BIN_ID  = '69f3489d36566621a80c818e';
-const JSONBIN_API_KEY = '$2a$10$8Qyvt86PwPuXvC.w1Vcff.bN05kyJEoY5DOEz5hlR1mwiW5vKuHka';
+const JSONBIN_BIN_ID  = 'JSONBIN_BIN_ID_PLACEHOLDER';
+const JSONBIN_API_KEY = 'JSONBIN_API_KEY_PLACEHOLDER';
 const JSONBIN_READ_URL  = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
 const JSONBIN_WRITE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
@@ -2698,7 +2627,7 @@ function setSyncStatus(status, msg) {
 }
 
 async function loadFromCloud() {
-  if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === '69f3489d36566621a80c818e') {
+  if (!JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'JSONBIN_BIN_ID_PLACEHOLDER') {
     loadFromLocalStorage(); return;
   }
   setSyncStatus('loading');
@@ -2738,7 +2667,7 @@ function scheduleSync() {
 }
 
 async function saveToCloud() {
-  if (!_syncDirty || !JSONBIN_BIN_ID || JSONBIN_BIN_ID === '69f3489d36566621a80c818e') return;
+  if (!_syncDirty || !JSONBIN_BIN_ID || JSONBIN_BIN_ID === 'JSONBIN_BIN_ID_PLACEHOLDER') return;
   _syncDirty = false;
   setSyncStatus('saving');
   try {
@@ -2792,6 +2721,7 @@ function applyUserData() {
   renderItbWidget();
   renderWeekComparison();
   renderFormCurve();
+  renderDashboardChart();
   renderNextRaceFlag();
   // renderPlan wordt aangeroepen na alle declaraties via window.onload of laatste regel
   if (typeof renderPlan === 'function') renderPlan();
@@ -2950,6 +2880,79 @@ function renderFormCurve() {
 
   svgContent += `<path d="${linePath}" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />`;
   svgContent += `<line x1="${trendX1}" y1="${trendY1}" x2="${trendX2}" y2="${trendY2}" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="4 3" />`;
+
+  svg.innerHTML = svgContent;
+}
+
+// ── FITNESS DASHBOARD GRAFIEK ──
+// Toont FTP, VO2max, Rust HS en gewicht in één gecombineerde grafiek.
+// Elke metric wordt genormaliseerd naar 0-100% van zijn eigen min/max bereik
+// in FITNESS_HISTORY, zodat heel verschillende schalen (Watt vs ml/kg/min vs
+// bpm vs kg) toch leesbaar samen getoond kunnen worden op één grafiek.
+function renderDashboardChart() {
+  const svg = document.getElementById('dashboard-svg');
+  if (!svg || !Array.isArray(FITNESS_HISTORY) || FITNESS_HISTORY.length === 0) return;
+
+  const history = FITNESS_HISTORY.slice(-16); // laatste 16 datapunten, voorkomt overvolle grafiek
+  const W = 900, H = 320, padL = 36, padR = 16, padT = 20, padB = 36;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const n = history.length;
+
+  const METRICS = [
+    { key: 'ftp',    color: 'var(--blue)',   label: 'FTP' },
+    { key: 'vo2',    color: 'var(--green)',  label: 'VO2max' },
+    { key: 'rhr',    color: 'var(--accent)', label: 'Rust HS' },
+    { key: 'weight', color: 'var(--yellow)', label: 'Gewicht' },
+  ];
+
+  function xPos(i) {
+    return n <= 1 ? padL + plotW / 2 : padL + (i / (n - 1)) * plotW;
+  }
+
+  let svgContent = `<line x1="${padL}" y1="${padT+plotH}" x2="${W-padR}" y2="${padT+plotH}" stroke="var(--border)" stroke-width="1" />`;
+
+  // Horizontale hulplijnen
+  for (let g = 1; g < 4; g++) {
+    const y = padT + (plotH / 4) * g;
+    svgContent += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--border)" stroke-width="1" opacity=".4" />`;
+  }
+
+  METRICS.forEach(metric => {
+    const values = history.map(h => h[metric.key]).filter(v => v != null && !isNaN(v));
+    if (values.length === 0) return;
+    let min = Math.min(...values), max = Math.max(...values);
+    if (min === max) { min -= 1; max += 1; } // voorkom deling door 0 bij gelijke waarden
+
+    const points = history.map((h, i) => {
+      const v = h[metric.key];
+      if (v == null || isNaN(v)) return null;
+      const normPct = (v - min) / (max - min);
+      const y = padT + plotH - normPct * plotH;
+      return [xPos(i), y, v];
+    }).filter(p => p !== null);
+
+    if (points.length === 0) return;
+
+    const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+    svgContent += `<path d="${linePath}" fill="none" stroke="${metric.color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />`;
+
+    points.forEach(p => {
+      svgContent += `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="${metric.color}" />`;
+    });
+
+    // Laatste waarde als label naast het laatste punt
+    const last = points[points.length - 1];
+    svgContent += `<text x="${last[0]+8}" y="${last[1]+3}" font-size="10" font-weight="700" fill="${metric.color}">${last[2]}</text>`;
+  });
+
+  // X-as datumlabels (om en om om overlap te vermijden bij veel punten)
+  history.forEach((h, i) => {
+    if (n > 8 && i % 2 !== 0 && i !== n - 1) return;
+    const d = new Date(h.date);
+    const lbl = `${d.getDate()}/${d.getMonth()+1}`;
+    svgContent += `<text x="${xPos(i)}" y="${H-12}" text-anchor="middle" font-size="9" fill="var(--muted)">${lbl}</text>`;
+  });
 
   svg.innerHTML = svgContent;
 }
@@ -4128,6 +4131,7 @@ function toggleTheme() {
 
 // ── START ── alles gedeclareerd, nu laden en renderen
 renderPlan();
+renderDashboardChart();
 renderNextRaceFlag();
 loadFromCloud(); // Laadt cloud data → overschrijft met opgeslagen waarden
 </script>
