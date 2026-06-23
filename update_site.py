@@ -60,13 +60,13 @@ def get_garmin_health_data():
     garmin_password = os.environ.get("GARMIN_PASSWORD", "")
     if not garmin_email or not garmin_password:
         print("  ⚠️ GARMIN_EMAIL/GARMIN_PASSWORD niet gevonden — health data overgeslagen")
-        return defaults
+        return defaults, None
 
     try:
         import garminconnect
     except ImportError:
         print("  ⚠️ garminconnect package niet geïnstalleerd — health data overgeslagen")
-        return defaults
+        return defaults, None
 
     try:
         client = garminconnect.Garmin(garmin_email, garmin_password)
@@ -74,7 +74,7 @@ def get_garmin_health_data():
         print("  ✅ Garmin Connect login geslaagd")
     except Exception as e:
         print(f"  ❌ Garmin login mislukt: {e}")
-        return defaults
+        return defaults, None
 
     today = datetime.now().strftime("%Y-%m-%d")
     result = dict(defaults)
@@ -228,15 +228,19 @@ def get_garmin_health_data():
     except Exception as e:
         print(f"  ⚠️ Stress data ophalen mislukt: {e}")
 
-    return result
+    return result, client
 
 
-def backfill_fitness_history(days=30):
+def backfill_fitness_history(client, days=30):
     """
     Vult de FITNESS_HISTORY met terugwerkende kracht met data uit het verleden,
     zodat de dashboard-evolutiegrafiek niet pas na weken van dagelijkse syncs
     een zinvolle lijn toont. Wordt alleen aangeroepen als de bestaande
     geschiedenis nog kort is (zie main()).
+
+    Hergebruikt de al ingelogde Garmin-client uit get_garmin_health_data() —
+    een tweede, losse login binnen dezelfde run verhoogt onnodig het risico
+    op een tijdelijke blokkade door Garmin's (onofficiële) endpoints.
 
     Haalt per historische dag bij Garmin op: rust-HS (get_stats) en VO2max
     (get_max_metrics, met get_user_summary als fallback). FTP wordt niet per
@@ -250,18 +254,8 @@ def backfill_fitness_history(days=30):
     Bij elke fout per dag wordt die dag overgeslagen zonder de hele backfill
     te laten mislukken.
     """
-    garmin_email    = os.environ.get("GARMIN_EMAIL", "")
-    garmin_password = os.environ.get("GARMIN_PASSWORD", "")
-    if not garmin_email or not garmin_password:
-        print("  ⚠️ Backfill overgeslagen — geen Garmin credentials")
-        return []
-
-    try:
-        import garminconnect
-        client = garminconnect.Garmin(garmin_email, garmin_password)
-        client.login()
-    except Exception as e:
-        print(f"  ❌ Backfill: Garmin login mislukt: {e}")
+    if client is None:
+        print("  ⚠️ Backfill overgeslagen — geen actieve Garmin-sessie beschikbaar")
         return []
 
     today = datetime.now().date()
@@ -1471,7 +1465,7 @@ def main():
     print(f"   → Max HS: {stats['max_hr']} · VO2max: {stats['vo2max']} · FTP: {stats['ftp']}W")
 
     print("⌚ Garmin health data ophalen...")
-    health = get_garmin_health_data()
+    health, garmin_client = get_garmin_health_data()
 
     # Lees de huidige site
     with open("index.html", "r", encoding="utf-8") as f:
@@ -1581,7 +1575,7 @@ def main():
     backfill_points = None
     if existing_count <= 2:
         print("📅 Weinig fitness-geschiedenis gevonden — eenmalige backfill ophalen...")
-        backfill_points = backfill_fitness_history(days=30)
+        backfill_points = backfill_fitness_history(garmin_client, days=30)
 
     new_html = update_fitness_history(new_html, ftp, vo2, rhr_for_history, weight_for_history, backfill_points)
 
