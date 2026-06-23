@@ -812,11 +812,111 @@ def build_performance_card_html(health):
       </div>"""
 
 
-def build_strava_section(activities, stats, athlete, health=None):
-    now = datetime.now().strftime("%-d %B %Y om %H:%M")
-    name = f"{athlete.get('firstname','')} {athlete.get('lastname','')}".strip()
+def iso_week_label(dt):
+    """Geeft een leesbaar (jaar, weeknummer) label terug voor groepering per week."""
+    iso_year, iso_week, _ = dt.isocalendar()
+    return iso_year, iso_week
 
-    cards = "\n".join(activity_card_html(a) for a in activities[:9])
+
+def week_range_label(iso_year, iso_week):
+    """Zet (jaar, weeknummer) om naar een leesbare 'ma–zo' datumrange string."""
+    monday = datetime.fromisocalendar(iso_year, iso_week, 1)
+    sunday = datetime.fromisocalendar(iso_year, iso_week, 7)
+    if monday.month == sunday.month:
+        return f"{monday.day}–{sunday.day} {MONTH_NL_SHORT[monday.month]}"
+    return f"{monday.day} {MONTH_NL_SHORT[monday.month]} – {sunday.day} {MONTH_NL_SHORT[sunday.month]}"
+
+
+MONTH_NL_SHORT = {
+    1: "jan", 2: "feb", 3: "mrt", 4: "apr", 5: "mei", 6: "jun",
+    7: "jul", 8: "aug", 9: "sep", 10: "okt", 11: "nov", 12: "dec",
+}
+
+
+def mini_week_chart_svg(day_durations):
+    """
+    Bouwt een kleine SVG-staafgrafiek (7 staven, ma t/m zo) van trainingsduur
+    per dag in minuten, voor gebruik bovenaan elke weekgroep in de activiteiten-
+    sectie. day_durations is een lijst van 7 waarden in minuten (0 als rustdag).
+    """
+    W, H = 280, 56
+    bar_w = 28
+    gap = 6
+    max_val = max(day_durations) if max(day_durations) > 0 else 1
+    bars = ""
+    days_nl = ["M", "D", "W", "D", "V", "Z", "Z"]
+    for i, val in enumerate(day_durations):
+        x = i * (bar_w + gap)
+        bar_h = round((val / max_val) * 38) if val > 0 else 0
+        y = 40 - bar_h
+        color = "var(--accent)" if val > 0 else "var(--border2)"
+        bars += f'<rect x="{x}" y="{y}" width="{bar_w}" height="{max(bar_h, 2)}" rx="3" fill="{color}" />'
+        bars += f'<text x="{x + bar_w/2}" y="52" text-anchor="middle" font-size="9" fill="var(--muted)">{days_nl[i]}</text>'
+    return f'<svg viewBox="0 0 {W} {H}" style="width:100%;max-width:240px;height:56px;display:block">{bars}</svg>'
+
+
+def build_activities_by_week_html(activities):
+    """
+    Groepeert activiteiten per ISO-week (meest recente week eerst) en geeft voor
+    elke week een mini-staafgrafiek van trainingsduur per dag plus de individuele
+    activiteit-kaarten. Toont maximaal de laatste 4 weken om de pagina behapbaar
+    te houden.
+    """
+    if not activities:
+        return '<div style="color:var(--muted);font-size:.85rem;padding:2rem 0">Geen recente activiteiten gevonden.</div>'
+
+    weeks = {}  # (jaar, weeknum) -> list van activities
+    for a in activities:
+        try:
+            dt = datetime.fromisoformat(a["start_date_local"].replace("Z", ""))
+        except Exception:
+            continue
+        key = iso_week_label(dt)
+        weeks.setdefault(key, []).append((dt, a))
+
+    sorted_keys = sorted(weeks.keys(), reverse=True)[:4]  # laatste 4 weken met activiteit
+
+    blocks = []
+    for (iso_year, iso_week) in sorted_keys:
+        entries = sorted(weeks[(iso_year, iso_week)], key=lambda x: x[0])
+
+        # Duur per weekdag (ma=0 .. zo=6) in minuten, voor de mini-grafiek
+        day_durations = [0.0] * 7
+        for dt, a in entries:
+            weekday = dt.weekday()
+            day_durations[weekday] += (a.get("moving_time", 0) or 0) / 60
+
+        total_minutes = sum(day_durations)
+        total_h = int(total_minutes // 60)
+        total_m = int(total_minutes % 60)
+
+        cards = "\n".join(activity_card_html(a) for _, a in reversed(entries))  # meest recente eerst binnen de week
+
+        blocks.append(f"""
+    <div class="week-activity-group">
+      <div class="wag-header">
+        <div class="wag-title">Week {iso_week} <span class="wag-range">· {week_range_label(iso_year, iso_week)}</span></div>
+        <div class="wag-total">{total_h}u{total_m:02d}m totaal · {len(entries)} sessies</div>
+      </div>
+      <div class="wag-chart">{mini_week_chart_svg(day_durations)}</div>
+      <div class="strava-grid">
+        {cards}
+      </div>
+    </div>""")
+
+    return "\n".join(blocks)
+
+
+def build_strava_section(activities, stats, athlete, health=None):
+    """
+    Genereert de drie HTML-blokken die bij elke sync vervangen worden:
+      1. garmin_html       → herstel, prestatie, vormcurve, dashboard-grafiek
+      2. activities_html   → recente activiteiten gegroepeerd per week
+      3. fitness_html      → live fitnesswaarden, geschatte race tijden, VO2max
+    Wordt teruggegeven als dict zodat main() elk blok naar zijn eigen plek in
+    de HTML kan injecteren.
+    """
+    now = datetime.now().strftime("%-d %B %Y om %H:%M")
 
     ftp  = stats["ftp"]
     wkg  = round(ftp / 71, 2)  # gewicht 71kg
@@ -833,56 +933,131 @@ def build_strava_section(activities, stats, athlete, health=None):
     # VO2max ring offset (schaal 30–75 → dashoffset 250–50), uitsluitend Garmin-waarde
     vo2_offset = round(250 - ((vo2 - 30) / 45) * 200)
 
-    return f"""<!-- ── ANALYSE ── -->
-<section class="section" id="analyse">
-  <div class="sec-label">Live via Strava API</div>
+    # ── 1. GARMIN DATA SECTIE ──
+    garmin_html = f"""<!-- ── GARMIN DATA ── -->
+<section class="section" id="garmin-data">
+  <div class="sec-label">⌚ Garmin Connect</div>
+  <h2 class="sec-title">Herstel & <span>Trainingsstatus</span></h2>
+
+  <!-- ── HERSTEL (GARMIN) ── -->
+  <div class="recovery-card">
+    <div class="recovery-label">⌚ Herstel vannacht · Garmin Connect</div>
+    {build_recovery_card_html(health)}
+  </div>
+
+  <!-- ── PRESTATIE & TRAININGSSTATUS (GARMIN) ── -->
+  <div class="recovery-card">
+    <div class="recovery-label">📊 Trainingsstatus & Race Predictor · Forerunner 965</div>
+    {build_performance_card_html(health)}
+  </div>
+
+  <!-- ── VORM-CURVE ── -->
+  <div class="form-curve-card">
+    <div class="form-curve-label">Trainingsbelasting · laatste 4 weken</div>
+    <svg class="form-curve-svg" viewBox="0 0 600 140" preserveAspectRatio="none" id="form-curve-svg">
+      <line x1="0" y1="115" x2="600" y2="115" stroke="var(--border)" stroke-width="1" />
+    </svg>
+    <div class="form-curve-legend">
+      <span class="fcl-item"><span class="fcl-line fcl-load"></span>Belasting (sessies × volume)</span>
+      <span class="fcl-item"><span class="fcl-line fcl-trend"></span>4-weken trend</span>
+    </div>
+  </div>
+
+  <!-- ── FITNESS DASHBOARD GRAFIEK ── -->
+  <div class="dashboard-card">
+    <div class="dashboard-label">📈 Evolutie · FTP, VO2max, gewicht en hartslag over tijd</div>
+    <svg class="dashboard-svg" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet" id="dashboard-svg">
+      <line x1="0" y1="280" x2="900" y2="280" stroke="var(--border)" stroke-width="1" />
+    </svg>
+    <div class="dashboard-legend" id="dashboard-legend">
+      <span class="dl-item"><span class="dl-dot" style="background:var(--blue)"></span>FTP (W)</span>
+      <span class="dl-item"><span class="dl-dot" style="background:var(--green)"></span>VO2max</span>
+      <span class="dl-item"><span class="dl-dot" style="background:var(--accent)"></span>Rust HS</span>
+      <span class="dl-item"><span class="dl-dot" style="background:var(--yellow)"></span>Gewicht</span>
+    </div>
+  </div>
+</section>"""
+
+    # ── 2. RECENTE ACTIVITEITEN SECTIE (PER WEEK GEGROEPEERD) ──
+    activities_html = f"""<!-- ── RECENTE ACTIVITEITEN (PER WEEK GEGROEPEERD) ── -->
+<section class="section" id="activiteiten">
+  <div class="sec-label">Strava · automatisch bijgewerkt</div>
   <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
   <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: {now}</p>
 
-  <div class="strava-grid">
-    {cards}
+  <div id="activities-by-week-container">
+    {build_activities_by_week_html(activities)}
   </div>
+</section>"""
+
+    # ── 3. FITNESSWAARDEN & EINDTIJD SECTIE ──
+    fitness_html = f"""<!-- ── FITNESSWAARDEN & EINDTIJD ── -->
+<section class="section" id="fitnesswaarden">
+  <div class="sec-label">Live via Strava + Garmin</div>
+  <h2 class="sec-title">Fitnesswaarden & <span>Eindtijd</span></h2>
 
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Live <span style="color:var(--text)">Fitnesswaarden</span></h3>
 
-  <div class="mhc-grid" style="margin-bottom:2.5rem">
+  <div class="mhc-grid" style="margin-bottom:2.5rem" id="live-fitness-grid">
     <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac" id="live-ftp">{ftp} W</div><div class="mhc-sub" id="live-wkg">{wkg} W/kg</div></div>
     <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val" id="live-mhr">{mhr} bpm</div><div class="mhc-sub">gemeten in training</div></div>
     <div class="mhc"><div class="mhc-lbl">VO2max (Garmin)</div><div class="mhc-val gr" id="live-vo2">{vo2}</div><div class="mhc-sub">ml/kg/min</div></div>
     <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl" id="live-swim">{swim}</div><div class="mhc-sub">snelste gemiddelde</div></div>
     <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val {'gr' if bcad >= 88 else 'ac'}" id="live-bcad">{bcad} rpm</div><div class="mhc-sub">{'✓ op schema' if bcad >= 88 else 'doel: 90 rpm'}</div></div>
     <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val {'gr' if rcad >= 168 else 'ay'}" id="live-rcad">{rcad} spm</div><div class="mhc-sub">{'✓ goed' if rcad >= 168 else 'doel: 168–172 spm'}</div></div>
-    <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val">{len(activities)}</div><div class="mhc-sub">🏃 {stats['total_runs']} · 🚴 {stats['total_rides']} · 🏊 {stats['total_swims']}</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="live-rhr">50 bpm</div><div class="mhc-sub">uitstekend</div></div>
+    <div class="mhc"><div class="mhc-lbl">Activiteiten (recent)</div><div class="mhc-val" id="live-activity-count">{len(activities)}</div><div class="mhc-sub" id="live-activity-breakdown">🏃 {stats['total_runs']} · 🚴 {stats['total_rides']} · 🏊 {stats['total_swims']}</div></div>
+    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="live-rhr">{stats.get('rest_hr', 49)} bpm</div><div class="mhc-sub">uitstekend</div></div>
   </div>
 
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">HIM Eindtijd</span></h3>
+  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">Race Tijden</span></h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2.5rem">
 
-  <div style="background:var(--card);border:1px solid rgba(232,81,42,.35);border-radius:14px;padding:1.5rem 1.8rem;margin-bottom:2.5rem;max-width:580px">
-    <div style="display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:900;line-height:1;color:var(--yellow);letter-spacing:-.01em">{him['total_time']}</div>
-      <div style="font-size:.78rem;color:var(--muted);font-weight:500">geschatte eindtijd<br>incl. transities</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem">
-      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4de88a;margin-bottom:.35rem">🏊 Zwemmen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{him['swim_time']}</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">1,9 km · {him['swim_pace']}</div>
+    <div style="background:var(--card);border:1px solid rgba(232,81,42,.35);border-radius:14px;padding:1.4rem">
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem">🏊🚴🏃 Halve Ironman</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:900;line-height:1;color:var(--yellow);letter-spacing:-.01em;margin-bottom:1rem" id="him-total-time">{him['total_time']}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.8rem">
+        <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:.25rem">ZWEM</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="him-swim-time">{him['swim_time']}</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">1,9 km · doel &lt;32min</div>
+        </div>
+        <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#3a8fff;margin-bottom:.25rem">FIETS</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="him-bike-time">{him['bike_time']}</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">90 km · doel &lt;2u50</div>
+        </div>
+        <div style="background:rgba(232,81,42,.07);border:1px solid rgba(232,81,42,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.25rem">RUN</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="him-run-time">{him['run_time']}</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">21,1 km · doel &lt;1u55</div>
+        </div>
       </div>
-      <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6ab4ff;margin-bottom:.35rem">🚴 Fietsen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{him['bike_time']}</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">90 km · {him['bike_kmh']}</div>
-      </div>
-      <div style="background:rgba(232,81,42,.07);border:1px solid rgba(232,81,42,.2);border-radius:9px;padding:.9rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ff8060;margin-bottom:.35rem">🏃 Lopen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{him['run_time']}</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">21,1 km · {him['run_pace']}</div>
-      </div>
+      <div style="font-size:.68rem;color:var(--muted)">Knokke-Heist · 6 september 2026</div>
     </div>
-    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:.8rem">
-      Schatting op basis van actuele Strava data · Open water −3% zwem · HIM-tempo correctie −12% fiets en run · Transities inbegrepen in totaal · Wordt automatisch bijgewerkt bij elke sync.
+
+    <div style="background:var(--card);border:1px solid rgba(160,80,255,.35);border-radius:14px;padding:1.4rem">
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#a050ff;margin-bottom:.5rem">🏊🚴🏃 Volledige Ironman</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:900;line-height:1;color:#a050ff;letter-spacing:-.01em;margin-bottom:1rem" id="im-total-time">{him['total_time']}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.8rem">
+        <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:.25rem">ZWEM</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="im-swim-time">{him['swim_time']}</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">3,8 km</div>
+        </div>
+        <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#3a8fff;margin-bottom:.25rem">FIETS</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="im-bike-time">{him['bike_time']}</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">180 km</div>
+        </div>
+        <div style="background:rgba(160,80,255,.07);border:1px solid rgba(160,80,255,.2);border-radius:8px;padding:.6rem">
+          <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a050ff;margin-bottom:.25rem">RUN</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text);line-height:1" id="im-run-time">{him['run_time']}</div>
+          <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">42,2 km</div>
+        </div>
+      </div>
+      <div style="font-size:.68rem;color:var(--muted)">Extrapolatie · zwem +2% · fiets +6% · run +18%</div>
     </div>
+
   </div>
 
   <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">— Garmin</span></h3>
@@ -890,25 +1065,19 @@ def build_strava_section(activities, stats, athlete, health=None):
     <div class="vo2-card">
       <div class="ring-svg">
         <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="var(--green)" stroke-dasharray="289" stroke-dashoffset="{vo2_offset}"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:var(--green)">{vo2}</div><div class="ring-unit">ml/kg/min</div></div>
+        <div class="ring-center"><div class="ring-val" id="ring-vo2-aw" style="color:var(--green)">{vo2}</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
       <div class="vo2-label">Garmin<br><span style="font-size:.62rem;color:#666">directe schatting</span></div>
     </div>
   </div>
 
-  <!-- ── HERSTEL (GARMIN) ── -->
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2.5rem 0 1.2rem;color:var(--dim)">⌚ Herstel <span style="color:var(--text)">vannacht</span></h3>
-  <div class="recovery-card">
-    {build_recovery_card_html(health)}
-  </div>
-
-  <!-- ── PRESTATIE & TRAININGSSTATUS (GARMIN) ── -->
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2.5rem 0 1.2rem;color:var(--dim)">📊 Trainingsstatus <span style="color:var(--text)">& Race Predictor</span></h3>
-  <div class="recovery-card">
-    {build_performance_card_html(health)}
-  </div>
-
 </section>"""
+
+    return {
+        "garmin": garmin_html,
+        "activities": activities_html,
+        "fitness": fitness_html,
+    }
 
 def generate_ai_update(activities, stats, him, health=None):
     """
@@ -1088,6 +1257,66 @@ def ai_update_already_done_today(html):
     return False, None, None
 
 
+def update_fitness_history(html, ftp, vo2, rhr, weight):
+    """
+    Werkt de FITNESS_HISTORY array in de HTML bij met een nieuw datapunt voor
+    vandaag (of overschrijft het datapunt van vandaag als die er al is — bij
+    meerdere syncs op dezelfde dag blijft er dus maar 1 datapunt per dag over).
+    Voedt de dashboard-evolutiegrafiek (FTP, VO2max, rust-HS, gewicht over tijd).
+
+    De array staat in de HTML als JavaScript-object-literal syntax (unquoted
+    keys, single-quoted strings) — geen geldige JSON. We parsen elk object
+    daarom met een gerichte regex in plaats van een JSON-parser te misbruiken.
+    """
+    today_iso = datetime.now().strftime("%Y-%m-%d")
+
+    match = re.search(r'const FITNESS_HISTORY = (\[.*?\]);', html, flags=re.DOTALL)
+    history = []
+    if match:
+        raw = match.group(1)
+        entry_pattern = re.compile(
+            r"date:\s*'([^']+)'\s*,\s*ftp:\s*([\d.]+)\s*,\s*vo2:\s*([\d.]+)\s*,\s*rhr:\s*([\d.]+)\s*,\s*weight:\s*([\d.]+)"
+        )
+        for d, f, v, r, w in entry_pattern.findall(raw):
+            history.append({
+                "date": d, "ftp": float(f), "vo2": float(v),
+                "rhr": float(r), "weight": float(w),
+            })
+        if not history:
+            print("  ⚠️ FITNESS_HISTORY array gevonden maar leeg of onverwacht formaat — start opnieuw")
+
+    # Verwijder een eventueel bestaand datapunt van vandaag, voeg het nieuwe toe
+    history = [h for h in history if h.get("date") != today_iso]
+    history.append({
+        "date":   today_iso,
+        "ftp":    ftp,
+        "vo2":    vo2,
+        "rhr":    rhr,
+        "weight": weight,
+    })
+    history.sort(key=lambda h: h["date"])
+    # Bewaar maximaal de laatste 60 datapunten zodat het bestand niet onbeperkt groeit
+    history = history[-60:]
+
+    def fmt_num(v):
+        # Toon hele getallen zonder onnodige .0, decimalen blijven behouden
+        return str(int(v)) if float(v) == int(v) else str(v)
+
+    new_array = "[\n" + ",\n".join(
+        f"  {{ date: '{h['date']}', ftp: {fmt_num(h['ftp'])}, vo2: {fmt_num(h['vo2'])}, "
+        f"rhr: {fmt_num(h['rhr'])}, weight: {fmt_num(h['weight'])} }}"
+        for h in history
+    ) + "\n]"
+    new_block = f"const FITNESS_HISTORY = {new_array};"
+
+    result = re.sub(r'const FITNESS_HISTORY = \[.*?\];', new_block, html, count=1, flags=re.DOTALL)
+    if result != html:
+        print(f"  ✓ FITNESS_HISTORY bijgewerkt ({len(history)} datapunten, vandaag: ftp={ftp} vo2={vo2} rhr={rhr} gewicht={weight})")
+    else:
+        print(f"  ✗ FITNESS_HISTORY NIET GEVONDEN in HTML")
+    return result
+
+
 def main():
     print("🔄 Strava token ophalen...")
     token = get_access_token()
@@ -1110,17 +1339,34 @@ def main():
     with open("index.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    # Vervang de analyse sectie
-    new_section = build_strava_section(activities, stats, athlete, health)
+    # Genereer de drie aparte secties (Garmin-data, Activiteiten, Fitnesswaarden)
+    sections = build_strava_section(activities, stats, athlete, health)
 
-    start = html.find("<!-- ── ANALYSE ── -->")
-    end   = html.find("<!-- ── FOOTER ── -->")
+    def replace_section(html_str, start_marker, end_marker, new_content, label):
+        start = html_str.find(start_marker)
+        end   = html_str.find(end_marker)
+        if start == -1 or end == -1:
+            print(f"❌ {label} sectie niet gevonden in HTML (marker '{start_marker}' of '{end_marker}' ontbreekt)")
+            return html_str, False
+        return html_str[:start] + new_content + "\n\n" + html_str[end:], True
 
-    if start == -1 or end == -1:
-        print("❌ Analyse sectie niet gevonden in HTML")
+    new_html = html
+    new_html, ok1 = replace_section(
+        new_html, "<!-- ── GARMIN DATA ── -->", '<div class="divider-line"></div>\n\n<!-- ── TRAININGSPLAN ── -->',
+        sections["garmin"] + "\n\n", "Garmin data"
+    )
+    new_html, ok2 = replace_section(
+        new_html, "<!-- ── RECENTE ACTIVITEITEN (PER WEEK GEGROEPEERD) ── -->", '<div class="divider-line"></div>\n\n<!-- ── FITNESSWAARDEN & EINDTIJD ── -->',
+        sections["activities"] + "\n\n", "Recente activiteiten"
+    )
+    new_html, ok3 = replace_section(
+        new_html, "<!-- ── FITNESSWAARDEN & EINDTIJD ── -->", "<!-- ── FOOTER ── -->",
+        sections["fitness"], "Fitnesswaarden"
+    )
+
+    if not (ok1 and ok2 and ok3):
+        print("❌ Niet alle secties konden bijgewerkt worden — controleer of index.html de juiste markers bevat")
         return
-
-    new_html = html[:start] + new_section + "\n\n" + html[end:]
 
     # Update alle waarden doorheen de volledige pagina
     ftp  = stats["ftp"]
@@ -1184,6 +1430,11 @@ def main():
         new_html,
         flags=re.DOTALL
     )
+
+    # ── Fitness-geschiedenis bijwerken (voedt de dashboard-evolutiegrafiek) ──
+    weight_for_history = stats.get("weight") or 71
+    rhr_for_history     = stats.get("rest_hr") or 49
+    new_html = update_fitness_history(new_html, ftp, vo2, rhr_for_history, weight_for_history)
 
     # Injecteer AI update tekst — HTML-safe verwerken
     # Bij hergebruik (already_done) is ai_text al de kant-en-klare HTML uit een
