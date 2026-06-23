@@ -684,12 +684,13 @@ def activity_card_html(a):
     </div>"""
 
 
-def inject_recovery_card(html, health):
+def build_recovery_card_html(health):
     """
-    Injecteert of update de herstel-kaart (slaap/HRV/rust-HS/stappen/Body Battery)
-    in de HTML. Zoekt naar het blok met id="recovery-card" en vervangt de inhoud.
-    Als Garmin data niet beschikbaar is, toont de kaart een duidelijke melding
-    in plaats van leeg te blijven of fouten te geven.
+    Genereert de HTML-inhoud van de herstel-kaart (Training Readiness, slaap, HRV,
+    rust-HS, Body Battery, stress, stappen). Wordt rechtstreeks binnen
+    build_strava_section() gebruikt zodat de kaart elke sync meegegenereerd wordt
+    in plaats van achteraf via regex te worden geïnjecteerd in mogelijk al
+    overschreven HTML.
     """
     if health and health.get("available"):
         def fmt(val, suffix="", fallback="—"):
@@ -743,26 +744,19 @@ def inject_recovery_card(html, health):
         if health.get("readiness_feedback"):
             card_html += f"""
       <div class="rec-feedback">💬 {health['readiness_feedback']}</div>"""
-    else:
-        card_html = """<div class="recovery-unavailable">
+        return card_html
+
+    return """<div class="recovery-unavailable">
         ⚠️ Garmin gezondheidsdata niet beschikbaar — controleer of GARMIN_EMAIL en
         GARMIN_PASSWORD correct zijn ingesteld als GitHub Secrets.
       </div>"""
 
-    pattern = r'(<div[^>]*id="recovery-card-content"[^>]*>)(.*?)(</div>\s*<!-- /recovery-card -->)'
-    replacement = rf'\g<1>{card_html}\3'
-    result = re.sub(pattern, replacement, html, count=1, flags=re.DOTALL)
-    if result != html:
-        print(f"  ✓ Herstel-kaart bijgewerkt")
-    else:
-        print(f"  ✗ recovery-card-content NIET GEVONDEN in HTML")
-    return result
 
-
-def inject_performance_card(html, health):
+def build_performance_card_html(health):
     """
-    Injecteert of update de prestatie-kaart (Training Status + Race Predictor)
-    in de HTML. Zoekt naar het blok met id="performance-card-content".
+    Genereert de HTML-inhoud van de prestatie-kaart (Training Status + Race
+    Predictor). Wordt rechtstreeks binnen build_strava_section() gebruikt,
+    zelfde reden als build_recovery_card_html().
     """
     def fmt_race_time(seconds):
         if not seconds:
@@ -783,7 +777,7 @@ def inject_performance_card(html, health):
         }
         status_color = STATUS_COLORS.get(health.get("training_status_label"), "var(--muted)")
 
-        card_html = f"""<div class="perf-status-row">
+        return f"""<div class="perf-status-row">
         <div class="perf-status-badge" style="color:{status_color};border-color:{status_color}">
           📈 {health['training_status_label']}
         </div>
@@ -811,20 +805,11 @@ def inject_performance_card(html, health):
           <div class="rec-sub">Garmin predictor</div>
         </div>
       </div>"""
-    else:
-        card_html = """<div class="recovery-unavailable">
+
+    return """<div class="recovery-unavailable">
         ⚠️ Garmin trainingsstatus niet beschikbaar — komt beschikbaar zodra er genoeg
         trainingsdata is opgebouwd op je Forerunner 965 en Edge 840.
       </div>"""
-
-    pattern = r'(<div[^>]*id="performance-card-content"[^>]*>)(.*?)(</div>\s*<!-- /performance-card -->)'
-    replacement = rf'\g<1>{card_html}\3'
-    result = re.sub(pattern, replacement, html, count=1, flags=re.DOTALL)
-    if result != html:
-        print(f"  ✓ Prestatie-kaart bijgewerkt")
-    else:
-        print(f"  ✗ performance-card-content NIET GEVONDEN in HTML")
-    return result
 
 
 def build_strava_section(activities, stats, athlete, health=None):
@@ -909,6 +894,18 @@ def build_strava_section(activities, stats, athlete, health=None):
       </div>
       <div class="vo2-label">Garmin<br><span style="font-size:.62rem;color:#666">directe schatting</span></div>
     </div>
+  </div>
+
+  <!-- ── HERSTEL (GARMIN) ── -->
+  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2.5rem 0 1.2rem;color:var(--dim)">⌚ Herstel <span style="color:var(--text)">vannacht</span></h3>
+  <div class="recovery-card">
+    {build_recovery_card_html(health)}
+  </div>
+
+  <!-- ── PRESTATIE & TRAININGSSTATUS (GARMIN) ── -->
+  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2.5rem 0 1.2rem;color:var(--dim)">📊 Trainingsstatus <span style="color:var(--text)">& Race Predictor</span></h3>
+  <div class="recovery-card">
+    {build_performance_card_html(health)}
   </div>
 
 </section>"""
@@ -1111,9 +1108,8 @@ def main():
 
     import re
 
-    # ── Herstel-kaart injecteren (Garmin health data) ──
-    new_html = inject_recovery_card(new_html, health)
-    new_html = inject_performance_card(new_html, health)
+    # Herstel- en prestatie-kaarten worden nu rechtstreeks binnen build_strava_section()
+    # gegenereerd (zie new_section hierboven), dus geen losse injectie meer nodig.
 
     # ── Update STRAVA_DATA JS object zodat progressiebalken live werken ──
     swim_raw = stats.get("best_swim") or "1:40"
