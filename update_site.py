@@ -2,19 +2,141 @@
 """
 Strava → GitHub Pages auto-updater
 Haalt elke nacht activiteiten op van Strava en werkt de atletensite bij.
+Haalt ook Garmin Connect gezondheidsdata op (slaap, HRV, stappen, rust HS).
 """
 
 import os
 import re
 import json
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from collections import defaultdict
 
 # ── STRAVA AUTH ──
 CLIENT_ID     = os.environ["STRAVA_CLIENT_ID"]
 CLIENT_SECRET = os.environ["STRAVA_CLIENT_SECRET"]
 REFRESH_TOKEN = os.environ["STRAVA_REFRESH_TOKEN"]
+
+# ── GARMIN CONNECT HEALTH DATA ──
+def get_garmin_health_data():
+    """
+    Haalt slaap, HRV, stappen en rust-HS op via Garmin Connect.
+    Gebruikt GARMIN_EMAIL / GARMIN_PASSWORD secrets (zelfde als garmin_sync.py).
+    Geeft een dict terug met defaults bij elke fout zodat de rest van het
+    script altijd kan doorlopen, ook zonder Garmin-credentials.
+    """
+    defaults = {
+        "available":      False,
+        "sleep_hours":    None,
+        "sleep_score":    None,
+        "hrv_status":     None,
+        "hrv_value":      None,
+        "resting_hr":     None,
+        "steps":          None,
+        "body_battery":   None,
+        "vo2max":         None,
+        "max_hr":         None,
+    }
+
+    garmin_email    = os.environ.get("GARMIN_EMAIL", "")
+    garmin_password = os.environ.get("GARMIN_PASSWORD", "")
+    if not garmin_email or not garmin_password:
+        print("  ⚠️ GARMIN_EMAIL/GARMIN_PASSWORD niet gevonden — health data overgeslagen")
+        return defaults
+
+    try:
+        import garminconnect
+    except ImportError:
+        print("  ⚠️ garminconnect package niet geïnstalleerd — health data overgeslagen")
+        return defaults
+
+    try:
+        client = garminconnect.Garmin(garmin_email, garmin_password)
+        client.login()
+        print("  ✅ Garmin Connect login geslaagd")
+    except Exception as e:
+        print(f"  ❌ Garmin login mislukt: {e}")
+        return defaults
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    result = dict(defaults)
+    result["available"] = True
+
+    # ── Slaap ──
+    try:
+        sleep = client.get_sleep_data(today)
+        dto = sleep.get("dailySleepDTO", {}) if sleep else {}
+        sleep_secs = dto.get("sleepTimeSeconds")
+        if sleep_secs:
+            result["sleep_hours"] = round(sleep_secs / 3600, 1)
+        result["sleep_score"] = (dto.get("sleepScores") or {}).get("overall", {}).get("value")
+        print(f"  💤 Slaap: {result['sleep_hours']}u · score {result['sleep_score']}")
+    except Exception as e:
+        print(f"  ⚠️ Slaapdata ophalen mislukt: {e}")
+
+    # ── HRV ──
+    try:
+        hrv = client.get_hrv_data(today)
+        if hrv:
+            summary = hrv.get("hrvSummary", {})
+            result["hrv_status"] = summary.get("status")
+            result["hrv_value"]  = summary.get("lastNightAvg")
+            print(f"  💓 HRV: {result['hrv_value']} ({result['hrv_status']})")
+    except Exception as e:
+        print(f"  ⚠️ HRV-data ophalen mislukt: {e}")
+
+    # ── Stappen (laatste dag) ──
+    try:
+        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+        steps_data = client.get_daily_steps(yesterday, today)
+        if steps_data:
+            result["steps"] = steps_data[-1].get("totalSteps")
+            print(f"  👟 Stappen: {result['steps']}")
+    except Exception as e:
+        print(f"  ⚠️ Stappendata ophalen mislukt: {e}")
+
+    # ── Rust HS + Body Battery via get_stats ──
+    try:
+        stats = client.get_stats(today)
+        if stats:
+            result["resting_hr"]   = stats.get("restingHeartRate")
+            result["body_battery"] = stats.get("bodyBatteryMostRecentValue")
+            print(f"  ❤️ Rust HS: {result['resting_hr']} · Body Battery: {result['body_battery']}")
+    except Exception as e:
+        print(f"  ⚠️ Stats ophalen mislukt: {e}")
+
+    # ── VO2max + Max HS via get_max_metrics (fallback: get_user_summary) ──
+    try:
+        max_metrics = client.get_max_metrics(today)
+        if max_metrics:
+            entry = max_metrics[0] if isinstance(max_metrics, list) else max_metrics
+            generic = entry.get("generic", {}) if isinstance(entry, dict) else {}
+            vo2 = generic.get("vo2MaxPreciseValue") or generic.get("vo2MaxValue")
+            if vo2:
+                result["vo2max"] = round(vo2, 1)
+                print(f"  🫁 VO2max (Garmin): {result['vo2max']} ml/kg/min")
+    except Exception as e:
+        print(f"  ⚠️ Max metrics ophalen mislukt: {e}")
+
+    if not result.get("vo2max"):
+        try:
+            summary = client.get_user_summary(today)
+            if summary and summary.get("vo2Max"):
+                result["vo2max"] = round(summary["vo2Max"], 1)
+                print(f"  🫁 VO2max (via user summary): {result['vo2max']} ml/kg/min")
+        except Exception as e:
+            print(f"  ⚠️ User summary VO2max ophalen mislukt: {e}")
+
+    try:
+        summary = client.get_user_summary(today)
+        if summary and summary.get("maxHeartRate"):
+            result["max_hr"] = summary["maxHeartRate"]
+            print(f"  💓 Max HS (Garmin, 24u): {result['max_hr']} bpm")
+    except Exception as e:
+        print(f"  ⚠️ Max HS ophalen mislukt: {e}")
+
+    return result
+
 
 def get_access_token():
     r = requests.post("https://www.strava.com/oauth/token", data={
@@ -119,7 +241,7 @@ def compute_stats(activities, athlete):
     stats = {
         "max_hr":    204,
         "ftp":       athlete.get("ftp") or 165,
-        "rest_hr":   athlete.get("measurement_preference") and 50 or 50,
+        "rest_hr":   athlete.get("measurement_preference") and 49 or 49,
         "vo2max":    None,
         "best_swim": None,
         "best_run_pace": None,
@@ -190,7 +312,7 @@ def compute_stats(activities, athlete):
     if min_avg_hr < 60:
         stats["rest_hr"] = round(min_avg_hr)
     else:
-        stats["rest_hr"] = 50
+        stats["rest_hr"] = 49
 
     if swim_speeds:
         best = max(swim_speeds)
@@ -409,68 +531,6 @@ def estimate_him_time(activities):
     }
 
 
-
-# ── IRONMAN EINDTIJD SCHATTING ──
-def estimate_im_time(him):
-    """
-    Schat de volledige Ironman eindtijd op basis van de HIM schatting.
-
-    Afstanden IM: 3,8 km zwem · 180 km fiets · 42,2 km lopen
-    Afstanden HIM: 1,9 km zwem · 90 km fiets · 21,1 km lopen
-
-    Vermoeidheidscorrecties tov HIM (niet gewoon 2x):
-    - Zwemmen:  IM = HIM x2 x 1.02  (+2% tempo verlies door cumulatieve vermoeidheid)
-    - Fietsen:  IM = HIM x2 x 1.06  (+6% tempo verlies — langere inspanning + wind/warmte)
-    - Lopen:    IM = HIM x2 x 1.18  (+18% tempo verlies — grootste impact, muur bij km 30)
-    - Transities: IM heeft langere T1/T2 (~5 min elk ipv 2.5 min)
-
-    Bron: empirische data van finishers op alltriathlontimes.com en Slowtwitch forums.
-    """
-    # HIM splits in seconden
-    def parse_hm(s):
-        parts = s.split(':')
-        return int(parts[0]) * 3600 + int(parts[1]) * 60
-
-    him_swim_secs = parse_hm(him['swim_time'])
-    him_bike_secs = parse_hm(him['bike_time'])
-    him_run_secs  = parse_hm(him['run_time'])
-
-    # IM schatting met vermoeidheidscorrecties
-    im_swim_secs = round(him_swim_secs * 2 * 1.02)
-    im_bike_secs = round(him_bike_secs * 2 * 1.06)
-    im_run_secs  = round(him_run_secs  * 2 * 1.18)
-    im_t1_t2     = 600  # 2x 5 min transities bij IM
-
-    im_total_secs = im_swim_secs + im_bike_secs + im_run_secs + im_t1_t2
-
-    def hm(s):
-        return f"{s//3600}:{(s%3600)//60:02d}"
-
-    def hms(s):
-        h   = s // 3600
-        m   = (s % 3600) // 60
-        sec = s % 60
-        return str(h) + "u" + f"{m:02d}m" + f"{sec:02d}s"
-
-    # Tempo berekeningen
-    im_swim_speed_ms = 3800 / im_swim_secs
-    im_bike_speed_ms = 180000 / im_bike_secs
-    im_run_speed_ms  = 42200 / im_run_secs
-
-    print(f"   IM: zwem {hm(im_swim_secs)} fiets {hm(im_bike_secs)} run {hm(im_run_secs)} totaal {hms(im_total_secs)}")
-
-    return {
-        "swim_time":  hm(im_swim_secs),
-        "bike_time":  hm(im_bike_secs),
-        "run_time":   hm(im_run_secs),
-        "total_time": hms(im_total_secs),
-        "swim_pace":  f"{int((100/im_swim_speed_ms)//60)}:{int((100/im_swim_speed_ms)%60):02d}/100m",
-        "bike_kmh":   f"{im_bike_speed_ms*3.6:.1f} km/u",
-        "run_pace":   f"{int((1000/im_run_speed_ms)//60)}:{int((1000/im_run_speed_ms)%60):02d}/km",
-        "total_secs": im_total_secs,
-    }
-
-
 # ── HTML GENERATORS ──
 def activity_card_html(a):
     t     = a.get("type", "Workout")
@@ -531,7 +591,67 @@ def activity_card_html(a):
       {zbar}
     </div>"""
 
-def build_strava_section(activities, stats, athlete):
+
+def inject_recovery_card(html, health):
+    """
+    Injecteert of update de herstel-kaart (slaap/HRV/rust-HS/stappen/Body Battery)
+    in de HTML. Zoekt naar het blok met id="recovery-card" en vervangt de inhoud.
+    Als Garmin data niet beschikbaar is, toont de kaart een duidelijke melding
+    in plaats van leeg te blijven of fouten te geven.
+    """
+    if health and health.get("available"):
+        def fmt(val, suffix="", fallback="—"):
+            return f"{val}{suffix}" if val is not None else fallback
+
+        sleep_color = "var(--green)" if (health.get("sleep_hours") or 0) >= 7 else (
+            "var(--yellow)" if (health.get("sleep_hours") or 0) >= 6 else "var(--accent)")
+        bb_color = "var(--green)" if (health.get("body_battery") or 0) >= 60 else (
+            "var(--yellow)" if (health.get("body_battery") or 0) >= 30 else "var(--accent)")
+
+        card_html = f"""<div class="recovery-grid">
+        <div class="rec-stat">
+          <div class="rec-lbl">💤 Slaap</div>
+          <div class="rec-val" style="color:{sleep_color}">{fmt(health.get('sleep_hours'), 'u')}</div>
+          <div class="rec-sub">{fmt(health.get('sleep_score'), '/100 score') if health.get('sleep_score') else 'geen score'}</div>
+        </div>
+        <div class="rec-stat">
+          <div class="rec-lbl">💓 HRV</div>
+          <div class="rec-val">{fmt(health.get('hrv_value'), 'ms')}</div>
+          <div class="rec-sub">{fmt(health.get('hrv_status'))}</div>
+        </div>
+        <div class="rec-stat">
+          <div class="rec-lbl">❤️ Rust HS</div>
+          <div class="rec-val" style="color:var(--green)">{fmt(health.get('resting_hr'), ' bpm')}</div>
+          <div class="rec-sub">vannacht</div>
+        </div>
+        <div class="rec-stat">
+          <div class="rec-lbl">🔋 Body Battery</div>
+          <div class="rec-val" style="color:{bb_color}">{fmt(health.get('body_battery'), '/100')}</div>
+          <div class="rec-sub">huidig niveau</div>
+        </div>
+        <div class="rec-stat">
+          <div class="rec-lbl">👟 Stappen</div>
+          <div class="rec-val">{fmt(health.get('steps'))}</div>
+          <div class="rec-sub">gisteren</div>
+        </div>
+      </div>"""
+    else:
+        card_html = """<div class="recovery-unavailable">
+        ⚠️ Garmin gezondheidsdata niet beschikbaar — controleer of GARMIN_EMAIL en
+        GARMIN_PASSWORD correct zijn ingesteld als GitHub Secrets.
+      </div>"""
+
+    pattern = r'(<div[^>]*id="recovery-card-content"[^>]*>)(.*?)(</div>\s*<!-- /recovery-card -->)'
+    replacement = rf'\g<1>{card_html}\3'
+    result = re.sub(pattern, replacement, html, count=1, flags=re.DOTALL)
+    if result != html:
+        print(f"  ✓ Herstel-kaart bijgewerkt")
+    else:
+        print(f"  ✗ recovery-card-content NIET GEVONDEN in HTML")
+    return result
+
+
+def build_strava_section(activities, stats, athlete, health=None):
     now = datetime.now().strftime("%-d %B %Y om %H:%M")
     name = f"{athlete.get('firstname','')} {athlete.get('lastname','')}".strip()
 
@@ -540,25 +660,17 @@ def build_strava_section(activities, stats, athlete):
     ftp  = stats["ftp"]
     wkg  = round(ftp / 71, 2)  # gewicht 71kg
     mhr  = stats["max_hr"]
-    vo2  = stats["vo2max"] or 48
+    # VO2max: uitsluitend via Garmin — geen eigen Firstbeat-berekening meer.
+    vo2  = health.get("vo2max") if (health and health.get("vo2max")) else (stats["vo2max"] or 53)
     swim = stats["best_swim"] or "—"
     bcad = stats["bike_cadence"] or 77
     rcad = stats["run_cadence"] or 165
 
     # HIM eindtijd schatting
     him = estimate_him_time(activities)
-    im  = estimate_im_time(him)
 
-    # VO2max breakdown tabel
-    breakdown = stats.get("vo2max_breakdown", [])
-    breakdown_rows = ""
-    for v, w, bname in breakdown:
-        pct = round(w * 100)
-        breakdown_rows += f'<tr><td>{bname}</td><td style="text-align:right;font-weight:600;color:var(--text)">{v:.1f}</td><td style="text-align:right;color:var(--muted)">{pct}%</td></tr>'
-
-    # VO2max ring offset (schaal 30–75 → dashoffset 250–50)
+    # VO2max ring offset (schaal 30–75 → dashoffset 250–50), uitsluitend Garmin-waarde
     vo2_offset = round(250 - ((vo2 - 30) / 45) * 200)
-    ftp_offset = round(250 - ((min(ftp, 250) - 100) / 150) * 200)
 
     return f"""<!-- ── ANALYSE ── -->
 <section class="section" id="analyse">
@@ -575,7 +687,7 @@ def build_strava_section(activities, stats, athlete):
   <div class="mhc-grid" style="margin-bottom:2.5rem">
     <div class="mhc"><div class="mhc-lbl">FTP</div><div class="mhc-val ac" id="live-ftp">{ftp} W</div><div class="mhc-sub" id="live-wkg">{wkg} W/kg</div></div>
     <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val" id="live-mhr">{mhr} bpm</div><div class="mhc-sub">gemeten in training</div></div>
-    <div class="mhc"><div class="mhc-lbl">VO2max (schatting)</div><div class="mhc-val gr" id="live-vo2">~{vo2}</div><div class="mhc-sub">ml/kg/min</div></div>
+    <div class="mhc"><div class="mhc-lbl">VO2max (Garmin)</div><div class="mhc-val gr" id="live-vo2">{vo2}</div><div class="mhc-sub">ml/kg/min</div></div>
     <div class="mhc"><div class="mhc-lbl">Beste zwemtempo</div><div class="mhc-val bl" id="live-swim">{swim}</div><div class="mhc-sub">snelste gemiddelde</div></div>
     <div class="mhc"><div class="mhc-lbl">Fietscadans gem.</div><div class="mhc-val {'gr' if bcad >= 88 else 'ac'}" id="live-bcad">{bcad} rpm</div><div class="mhc-sub">{'✓ op schema' if bcad >= 88 else 'doel: 90 rpm'}</div></div>
     <div class="mhc"><div class="mhc-lbl">Loopcadans gem.</div><div class="mhc-val {'gr' if rcad >= 168 else 'ay'}" id="live-rcad">{rcad} spm</div><div class="mhc-sub">{'✓ goed' if rcad >= 168 else 'doel: 168–172 spm'}</div></div>
@@ -612,86 +724,20 @@ def build_strava_section(activities, stats, athlete):
     </div>
   </div>
 
-  <!-- ── IRONMAN SCHATTING ── -->
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:2.5rem 0 1.2rem;color:var(--dim)">Geschatte <span style="color:var(--text)">Ironman Tijd</span></h3>
-  <div style="background:var(--card);border:1px solid rgba(160,80,255,.35);border-radius:14px;padding:1.5rem">
-    <div style="display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:900;line-height:1;color:#a050ff;letter-spacing:-.01em">{im['total_time']}</div>
-      <div style="font-size:.78rem;color:var(--muted);font-weight:500">geschatte eindtijd<br>volledige Ironman</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem">
-      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:.8rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:.35rem">🏊 Zwemmen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{im['swim_time']}</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">3,8 km · {im['swim_pace']}</div>
-      </div>
-      <div style="background:rgba(58,143,255,.07);border:1px solid rgba(58,143,255,.2);border-radius:10px;padding:.8rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#3a8fff;margin-bottom:.35rem">🚴 Fietsen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{im['bike_time']}</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">180 km · {im['bike_kmh']}</div>
-      </div>
-      <div style="background:rgba(160,80,255,.07);border:1px solid rgba(160,80,255,.2);border-radius:10px;padding:.8rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a050ff;margin-bottom:.35rem">🏃 Lopen</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.7rem;font-weight:900;color:var(--text);line-height:1">{im['run_time']}</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">42,2 km · {im['run_pace']}</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;background:rgba(160,80,255,.05);border-radius:8px;margin-bottom:.8rem">
-      <div style="font-size:.72rem;color:var(--muted);line-height:1.5">
-        <span style="font-weight:600;color:#a050ff">HIM → IM correcties:</span>
-        zwem +2% · fiets +6% · lopen +18% vermoeidheid
-      </div>
-    </div>
-    <div style="font-size:.72rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:.8rem">
-      Extrapolatie op basis van HIM schatting · Vermoeidheidsfactoren gebaseerd op empirische finishersdata · Geen garantie maar een eerlijke benadering van huidig niveau.
-    </div>
-  </div>
-
-  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">Schatting</span></h3>
-  <div class="vo2-row">
+  <h3 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.2rem;color:var(--dim)">VO2max <span style="color:var(--text)">— Garmin</span></h3>
+  <div class="vo2-row vo2-row-single">
     <div class="vo2-card">
       <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#e8512a" stroke-dasharray="289" stroke-dashoffset="{vo2_offset}"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:#e8512a">~{vo2}</div><div class="ring-unit">ml/kg/min</div></div>
+        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="var(--green)" stroke-dasharray="289" stroke-dashoffset="{vo2_offset}"/></svg>
+        <div class="ring-center"><div class="ring-val" style="color:var(--green)">{vo2}</div><div class="ring-unit">ml/kg/min</div></div>
       </div>
-      <div class="vo2-label">VO2max Schatting<br><span style="font-size:.62rem;color:#444">via looptempo 71kg</span></div>
+      <div class="vo2-label">Garmin<br><span style="font-size:.62rem;color:#666">directe schatting</span></div>
     </div>
-    <div class="vo2-card">
-      <div class="ring-svg">
-        <svg viewBox="0 0 110 110"><circle class="rbg" cx="55" cy="55" r="46"/><circle class="rfill" cx="55" cy="55" r="46" stroke="#3a8fff" stroke-dasharray="289" stroke-dashoffset="{ftp_offset}"/></svg>
-        <div class="ring-center"><div class="ring-val" style="color:#3a8fff">{ftp}W</div><div class="ring-unit">{wkg} W/kg</div></div>
-      </div>
-      <div class="vo2-label">FTP Fietsen<br><span style="font-size:.62rem;color:#444">doel: 199–227W</span></div>
-    </div>
-    <div class="vo2-card" style="justify-content:center">
-      <div class="mhc-lbl" style="text-align:center;margin-bottom:.8rem">HIM Doelniveau</div>
-      <div class="ring-val" style="color:var(--green);font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;text-align:center">52+</div>
-      <div style="font-size:.75rem;color:var(--muted);text-align:center;margin-top:.4rem">ml/kg/min vereist</div>
-      <div style="font-size:.75rem;color:var(--accent);text-align:center;margin-top:.3rem">Gap: ~{max(0, 52 - vo2)} punten te winnen</div>
-    </div>
-  </div>
-
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.4rem;margin-top:1.5rem;max-width:420px">
-    <div style="font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">VO2max — Firstbeat methode (top 5 runs)</div>
-    <table style="width:100%;border-collapse:collapse;font-size:.82rem">
-      <tr style="border-bottom:1px solid var(--border)">
-        <th style="text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Run</th>
-        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Schatting</th>
-        <th style="text-align:right;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.3rem .4rem;font-weight:500">Gewicht</th>
-      </tr>
-      {breakdown_rows}
-      <tr style="border-top:1px solid var(--border)">
-        <td style="padding:.4rem .4rem;font-weight:600;color:var(--text)">Gemiddeld</td>
-        <td style="text-align:right;font-weight:600;color:var(--accent);font-size:1rem">{vo2}</td>
-        <td></td>
-      </tr>
-    </table>
-    <div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">Firstbeat: tempo + hartslag per run → extrapoleer naar max. Mediaan van beste 5 runs om uitschieters te vermijden.</div>
   </div>
 
 </section>"""
 
-def generate_ai_update(activities, stats, him):
+def generate_ai_update(activities, stats, him, health=None):
     """
     Roept de Anthropic Claude API aan om een persoonlijke trainingsupdate te schrijven.
     """
@@ -747,6 +793,23 @@ def generate_ai_update(activities, stats, him):
 
     recent_text = "\n".join(recent_lines) if recent_lines else "Geen andere recente activiteiten"
 
+    # ── Herstel-context uit Garmin health data ──
+    health_text = ""
+    if health and health.get("available"):
+        lines = []
+        if health.get("sleep_hours"):
+            lines.append(f"- Slaap afgelopen nacht: {health['sleep_hours']}u" + (f" (score {health['sleep_score']}/100)" if health.get('sleep_score') else ""))
+        if health.get("hrv_value"):
+            lines.append(f"- HRV: {health['hrv_value']}ms ({health.get('hrv_status', 'onbekend')})")
+        if health.get("resting_hr"):
+            lines.append(f"- Rust hartslag vannacht: {health['resting_hr']} bpm")
+        if health.get("body_battery") is not None:
+            lines.append(f"- Body Battery: {health['body_battery']}/100")
+        if health.get("steps"):
+            lines.append(f"- Stappen gisteren: {health['steps']}")
+        if lines:
+            health_text = "\n\nHERSTEL- EN GEZONDHEIDSDATA (Garmin):\n" + "\n".join(lines)
+
     prompt = f"""Je bent een persoonlijke triatleetcoach van Jens van den Berg (71kg, 182cm), die traint voor de Halve Ironman Knokke op 6 september 2026. Schrijf een persoonlijke dagelijkse update in het Nederlands.
 
 LAATSTE ACTIVITEIT ({last_date}):
@@ -763,13 +826,14 @@ HUIDIGE FITNESSWAARDEN:
 - Max hartslag ooit gemeten: {stats['max_hr']} bpm
 - Beste zwemtempo: {stats.get('best_swim') or '—'}
 - Fietscadans gemiddeld: {stats.get('bike_cadence') or '—'} rpm
-- Geschatte HIM eindtijd: {him['total_time']} (zwem {him['swim_time']} / fiets {him['bike_time']} / run {him['run_time']})
+- Geschatte HIM eindtijd: {him['total_time']} (zwem {him['swim_time']} / fiets {him['bike_time']} / run {him['run_time']}){health_text}
 
 SCHRIJF een persoonlijke update van MINIMUM 6 zinnen en MAXIMUM 8 zinnen. Structuur:
 1. Analyseer de laatste activiteit CONCREET — noem de exacte cijfers (tempo, hartslag, cadans, hoogtemeters). Wat valt op? Is de hartslag lager dan verwacht bij dit tempo? Is de cadans verbeterd?
 2. Vergelijk met de vorige activiteiten — zit hij in een goede lijn of is er iets dat opvalt?
-3. Koppel dit aan de HIM-voorbereiding — wat betekent dit concreet voor 6 september?
-4. Geef één concrete, specifieke actietip voor de komende 2–3 dagen gebaseerd op de data.
+3. Indien herstel-data beschikbaar is: koppel slaap/HRV/rust-HS aan trainingsbereidheid — is hij klaar voor een zware sessie, of moet hij voorzichtig zijn?
+4. Koppel dit aan de HIM-voorbereiding — wat betekent dit concreet voor 6 september?
+5. Geef één concrete, specifieke actietip voor de komende 2–3 dagen gebaseerd op de data.
 
 Schrijf in vloeiende lopende tekst zonder opsomming of titels. Gebruik de exacte cijfers uit de data. Schrijf in de tweede persoon ("je")."""
 
@@ -823,12 +887,15 @@ def main():
     stats = compute_stats(activities, athlete)
     print(f"   → Max HS: {stats['max_hr']} · VO2max: {stats['vo2max']} · FTP: {stats['ftp']}W")
 
+    print("⌚ Garmin health data ophalen...")
+    health = get_garmin_health_data()
+
     # Lees de huidige site
     with open("index.html", "r", encoding="utf-8") as f:
         html = f.read()
 
     # Vervang de analyse sectie
-    new_section = build_strava_section(activities, stats, athlete)
+    new_section = build_strava_section(activities, stats, athlete, health)
 
     start = html.find("<!-- ── ANALYSE ── -->")
     end   = html.find("<!-- ── FOOTER ── -->")
@@ -843,22 +910,36 @@ def main():
     ftp  = stats["ftp"]
     wkg  = round(ftp / 71, 2)
     mhr  = stats["max_hr"]
-    vo2  = stats["vo2max"] or 48
-    swim = stats["best_swim"] or "1:52"
+    vo2  = stats["vo2max"] or 53
+    swim = stats["best_swim"] or "1:40"
+
+    # ── Garmin overschrijft VO2max (directe schatting) en max HS (alleen als hoger) ──
+    # Max HS uit een racewedstrijd/test is betrouwbaarder dan een 24u-gemiddelde — daarom
+    # nooit naar beneden bijstellen, alleen omhoog als Garmin een hogere piek meet.
+    if health and health.get("vo2max"):
+        vo2 = health["vo2max"]
+        print(f"  🫁 VO2max overgenomen van Garmin: {vo2}")
+    if health and health.get("max_hr") and health["max_hr"] > mhr:
+        mhr = health["max_hr"]
+        print(f"  💓 Max HS opgehoogd via Garmin: {mhr}")
+    if health and health.get("resting_hr"):
+        stats["rest_hr"] = health["resting_hr"]
+        print(f"  ❤️ Rust HS overgenomen van Garmin: {stats['rest_hr']}")
 
     # HIM eindtijd berekenen (nodig voor AI update)
     him_time = estimate_him_time(activities)
-    im_time  = estimate_im_time(him_time)
-    print(f"   IM schatting: {im_time['total_time']}")
 
     print("🤖 AI update genereren...")
-    ai_text, ai_meta = generate_ai_update(activities, stats, him_time)
+    ai_text, ai_meta = generate_ai_update(activities, stats, him_time, health)
     print(f"   → {ai_text[:60]}...")
 
     import re
 
+    # ── Herstel-kaart injecteren (Garmin health data) ──
+    new_html = inject_recovery_card(new_html, health)
+
     # ── Update STRAVA_DATA JS object zodat progressiebalken live werken ──
-    swim_raw = stats.get("best_swim") or "1:52"
+    swim_raw = stats.get("best_swim") or "1:40"
     swim_val = swim_raw.replace("/100m", "").strip()
     run_raw  = stats.get("best_run_pace") or "6:16"
     run_val  = run_raw.replace("/km", "").strip()
@@ -930,7 +1011,7 @@ def main():
         rf'\g<1>{mhr}\2', new_html
     )
     # Rust HS — uit Strava athlete profiel indien beschikbaar, anders 50 bpm
-    rhr = stats.get("rest_hr") or 50
+    rhr = stats.get("rest_hr") or 49
     new_html = re.sub(
         r'(<div class="hstat-val gr" id="hero-rhr">)\d+(</div>)',
         rf'\g<1>{rhr}\2', new_html
@@ -947,7 +1028,7 @@ def main():
     )
     new_html = re.sub(
         r'(id="mhc-vo2">)~?\d+(<)',
-        rf'\g<1>~{vo2}\2', new_html
+        rf'\g<1>{vo2}\2', new_html
     )
     new_html = re.sub(
         r'(id="mhc-bcad">)\d+(\s*rpm)',
@@ -974,62 +1055,26 @@ def main():
         r'(id="mhc-rcad">)\d+( spm)',
         rf'\g<1>{rcad}\2', new_html
     )
-    # ── VO2max ringen ──
-    vo2bike = round(ftp / float(str(wkg).replace(",",".")) / 71 * 71 * 10.8 + 7) if wkg else round(ftp / 71 * 10.8 + 7)
-    new_html = re.sub(
-        r'(id="ring-vo2">)~?\d+(<)',
-        rf'\g<1>~{vo2}\2', new_html
-    )
-    new_html = re.sub(
-        r'(id="ring-vo2-bike">)~?\d+(<)',
-        rf'\g<1>~{vo2bike}\2', new_html
-    )
+    # ── VO2max ring — uitsluitend Garmin, geen eigen berekening meer ──
     new_html = re.sub(
         r'(id="ring-vo2-aw">)[\d,\.]+(<)',
         rf'\g<1>{vo2}\2', new_html
     )
-    # ── SVG ring fill (dashoffset = 289 - val/70*289) ──
-    run_offset  = round(289 - (min(vo2,    70) / 70 * 289))
-    bike_offset = round(289 - (min(vo2bike, 70) / 70 * 289))
     new_html = re.sub(
-        r'(id="ring-svg-run"[^/]*)stroke-dashoffset="\d+"',
-        rf'\g<1>stroke-dashoffset="{run_offset}"', new_html
+        r'(id="ring-vo2-aw-intro">)~?[\d,\.]+(<)',
+        rf'\g<1>{vo2}\2', new_html
     )
+    awn_offset = round(289 - (min(vo2, 70) / 70 * 289))
     new_html = re.sub(
-        r'(id="ring-svg-bike"[^/]*)stroke-dashoffset="\d+"',
-        rf'\g<1>stroke-dashoffset="{bike_offset}"', new_html
+        r'(id="ring-svg-aw"[^/]*)stroke-dashoffset="\d+"',
+        rf'\g<1>stroke-dashoffset="{awn_offset}"', new_html
     )
     # ── Fitnesswaarden footer label ──
     weight_val = stats.get("weight") or 71
     new_html = re.sub(
-        r'(id="disp-wkg-vo2">)via FTP [\d,\.]+ W/kg',
-        rf'\g<1>via FTP {wkg} W/kg', new_html
-    )
-    new_html = re.sub(
         r'(id="disp-footer-info">)[^<]+(<)',
         rf'\g<1>{weight_val} kg · 182 cm · FTP {ftp}W ({wkg} W/kg) · Halve Ironman Knokke 6 september 2026\2', new_html
     )
-
-    # ── HIM + IM kaarten updaten ──
-    def fmtHM(s):
-        return str(s//3600) + 'u' + f"{(s%3600)//60:02d}m"
-    def fmtSplit(s):
-        return str(s//3600) + ':' + f"{(s%3600)//60:02d}"
-
-    for elem_id, val in [
-        ('him-total-time', fmtHM(him_time['total_secs'])),
-        ('him-swim-time',  him_time['swim_time']),
-        ('him-bike-time',  him_time['bike_time']),
-        ('him-run-time',   him_time['run_time']),
-        ('im-total-time',  fmtHM(im_time['total_secs'])),
-        ('im-swim-time',   im_time['swim_time']),
-        ('im-bike-time',   im_time['bike_time']),
-        ('im-run-time',    im_time['run_time']),
-    ]:
-        new_html = re.sub(
-            rf'(id="{elem_id}">)[^<]+(<)',
-            rf'\g<1>{val}\2', new_html
-        )
 
     # ── Progressie balk VO2max huidige waarde ──
     new_html = re.sub(
