@@ -1,0 +1,64 @@
+name: Push Single Workout to Garmin
+
+on:
+  repository_dispatch:
+    types: [push-workout]
+  workflow_dispatch:
+    # Handmatig testen kan ook gewoon via de Actions tab
+    inputs:
+      week:
+        description: 'Weeknummer (bv. 13)'
+        required: true
+      name:
+        description: 'Sessienaam (bv. "Loop — kort herstart")'
+        required: true
+      day:
+        description: 'Dag (bv. "Dinsdag")'
+        required: true
+      color:
+        description: 'Sessie-type: run, bike, swim, str of rest'
+        required: false
+        default: 'run'
+      desc:
+        description: 'Beschrijving van de sessie'
+        required: false
+        default: ''
+      meta:
+        description: 'Meta-info (afstand/duur/hartslagzone)'
+        required: false
+        default: ''
+
+jobs:
+  push-workout:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@v4
+
+      - name: Python installeren
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Dependencies installeren
+        run: pip install garminconnect
+
+      - name: Push workout naar Garmin
+        env:
+          GARMIN_EMAIL:    ${{ secrets.GARMIN_EMAIL }}
+          GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
+          WEEK_NUM:  ${{ github.event.client_payload.week || github.event.inputs.week }}
+          SESS_NAME: ${{ github.event.client_payload.name || github.event.inputs.name }}
+          SESS_DAY:   ${{ github.event.client_payload.day || github.event.inputs.day }}
+          SESS_COLOR: ${{ github.event.client_payload.color || github.event.inputs.color }}
+          SESS_DESC:  ${{ github.event.client_payload.desc || github.event.inputs.desc }}
+          SESS_META:  ${{ github.event.client_payload.meta || github.event.inputs.meta }}
+        run: |
+          python push_single_workout.py \
+            --week "$WEEK_NUM" \
+            --name "$SESS_NAME" \
+            --day "$SESS_DAY" \
+            --color "$SESS_COLOR" \
+            --desc "$SESS_DESC" \
+            --meta "$SESS_META"
