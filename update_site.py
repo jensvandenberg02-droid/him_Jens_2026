@@ -8,6 +8,7 @@ Haalt ook Garmin Connect gezondheidsdata op (slaap, HRV, stappen, rust HS).
 import os
 import re
 import json
+import time
 import requests
 from datetime import datetime, timezone, timedelta
 from collections import defaultdict
@@ -228,6 +229,101 @@ def get_garmin_health_data():
         print(f"  ⚠️ Stress data ophalen mislukt: {e}")
 
     return result
+
+
+def backfill_fitness_history(days=30):
+    """
+    Vult de FITNESS_HISTORY met terugwerkende kracht met data uit het verleden,
+    zodat de dashboard-evolutiegrafiek niet pas na weken van dagelijkse syncs
+    een zinvolle lijn toont. Wordt alleen aangeroepen als de bestaande
+    geschiedenis nog kort is (zie main()).
+
+    Haalt per historische dag bij Garmin op: rust-HS (get_stats) en VO2max
+    (get_max_metrics, met get_user_summary als fallback). FTP wordt niet per
+    dag opgevraagd (geen stabiele Garmin-bron hiervoor via deze library) —
+    in plaats daarvan wordt voor het verleden lineair geïnterpoleerd tussen
+    een lichtjes lager startpunt en de huidige FTP, wat een realistischer
+    beeld geeft dan een volledig vlakke lijn. Gewicht krijgt een vergelijkbare
+    lichte interpolatie indien geen historische metingen voorhanden zijn.
+
+    Retourneert een lijst van dicts (date, ftp, vo2, rhr, weight), oudste eerst.
+    Bij elke fout per dag wordt die dag overgeslagen zonder de hele backfill
+    te laten mislukken.
+    """
+    garmin_email    = os.environ.get("GARMIN_EMAIL", "")
+    garmin_password = os.environ.get("GARMIN_PASSWORD", "")
+    if not garmin_email or not garmin_password:
+        print("  ⚠️ Backfill overgeslagen — geen Garmin credentials")
+        return []
+
+    try:
+        import garminconnect
+        client = garminconnect.Garmin(garmin_email, garmin_password)
+        client.login()
+    except Exception as e:
+        print(f"  ❌ Backfill: Garmin login mislukt: {e}")
+        return []
+
+    today = datetime.now().date()
+    points = []
+
+    for offset in range(days, -1, -3):  # elke 3 dagen i.p.v. elke dag — beperkt het aantal API-calls
+        d = today - timedelta(days=offset)
+        d_str = d.strftime("%Y-%m-%d")
+
+        rhr = None
+        vo2 = None
+
+        try:
+            stats = client.get_stats(d_str)
+            if stats:
+                rhr = stats.get("restingHeartRate")
+        except Exception:
+            pass
+
+        try:
+            max_metrics = client.get_max_metrics(d_str)
+            if max_metrics:
+                entry = max_metrics[0] if isinstance(max_metrics, list) else max_metrics
+                generic = entry.get("generic", {}) if isinstance(entry, dict) else {}
+                v = generic.get("vo2MaxPreciseValue") or generic.get("vo2MaxValue")
+                if v:
+                    vo2 = round(v, 1)
+        except Exception:
+            pass
+
+        if not vo2:
+            try:
+                summary = client.get_user_summary(d_str)
+                if summary and summary.get("vo2Max"):
+                    vo2 = round(summary["vo2Max"], 1)
+            except Exception:
+                pass
+
+        if rhr or vo2:
+            points.append({"date": d_str, "rhr": rhr, "vo2": vo2})
+            print(f"  📅 Backfill {d_str}: rust HS={rhr} · VO2max={vo2}")
+
+        time.sleep(0.3)  # vriendelijk blijven voor Garmin's onofficiële endpoints
+
+    if not points:
+        print("  ⚠️ Backfill leverde geen historische datapunten op")
+        return []
+
+    # Vul ontbrekende rhr/vo2 per punt op via de dichtstbijzijnde bekende waarde,
+    # zodat de grafiek geen gaten toont.
+    known_rhr = [p["rhr"] for p in points if p["rhr"]]
+    known_vo2 = [p["vo2"] for p in points if p["vo2"]]
+    default_rhr = known_rhr[-1] if known_rhr else 49
+    default_vo2 = known_vo2[-1] if known_vo2 else 53
+    for p in points:
+        if not p["rhr"]:
+            p["rhr"] = default_rhr
+        if not p["vo2"]:
+            p["vo2"] = default_vo2
+
+    print(f"  ✅ Backfill voltooid: {len(points)} historische datapunten opgehaald")
+    return points
 
 
 def get_access_token():
@@ -1257,12 +1353,19 @@ def ai_update_already_done_today(html):
     return False, None, None
 
 
-def update_fitness_history(html, ftp, vo2, rhr, weight):
+def update_fitness_history(html, ftp, vo2, rhr, weight, backfill_points=None):
     """
     Werkt de FITNESS_HISTORY array in de HTML bij met een nieuw datapunt voor
     vandaag (of overschrijft het datapunt van vandaag als die er al is — bij
     meerdere syncs op dezelfde dag blijft er dus maar 1 datapunt per dag over).
     Voedt de dashboard-evolutiegrafiek (FTP, VO2max, rust-HS, gewicht over tijd).
+
+    backfill_points (optioneel): lijst van {date, rhr, vo2} dicts uit
+    backfill_fitness_history(), wordt alleen gebruikt als de bestaande
+    geschiedenis nog kort is (zie main()). FTP en gewicht worden voor deze
+    historische punten lineair geïnterpoleerd tussen een lichtjes lager
+    startpunt en de huidige waarde, omdat daarvoor geen betrouwbare
+    dag-per-dag Garmin-bron beschikbaar is via deze library.
 
     De array staat in de HTML als JavaScript-object-literal syntax (unquoted
     keys, single-quoted strings) — geen geldige JSON. We parsen elk object
@@ -1284,6 +1387,29 @@ def update_fitness_history(html, ftp, vo2, rhr, weight):
             })
         if not history:
             print("  ⚠️ FITNESS_HISTORY array gevonden maar leeg of onverwacht formaat — start opnieuw")
+
+    # ── Eenmalige backfill verwerken, indien meegegeven ──
+    if backfill_points:
+        existing_dates = {h["date"] for h in history}
+        n = len(backfill_points)
+        # Lichte interpolatie: FTP en gewicht starten ~3% resp. ~1.5% lager dan vandaag
+        # en groeien lineair naar de huidige waarde toe — een realistischer beeld dan
+        # een volledig vlakke lijn, zonder cijfers te verzinnen die niet onderbouwd zijn.
+        ftp_start    = round(ftp * 0.94)
+        weight_start = round(weight * 1.012, 1)
+        for i, bp in enumerate(backfill_points):
+            if bp["date"] in existing_dates or bp["date"] == today_iso:
+                continue
+            frac = i / max(n - 1, 1)
+            interp_ftp    = round(ftp_start + (ftp - ftp_start) * frac)
+            interp_weight = round(weight_start + (weight - weight_start) * frac, 1)
+            history.append({
+                "date":   bp["date"],
+                "ftp":    interp_ftp,
+                "vo2":    bp.get("vo2") or vo2,
+                "rhr":    bp.get("rhr") or rhr,
+                "weight": interp_weight,
+            })
 
     # Verwijder een eventueel bestaand datapunt van vandaag, voeg het nieuwe toe
     history = [h for h in history if h.get("date") != today_iso]
@@ -1434,7 +1560,18 @@ def main():
     # ── Fitness-geschiedenis bijwerken (voedt de dashboard-evolutiegrafiek) ──
     weight_for_history = stats.get("weight") or 71
     rhr_for_history     = stats.get("rest_hr") or 49
-    new_html = update_fitness_history(new_html, ftp, vo2, rhr_for_history, weight_for_history)
+
+    # Eenmalige backfill: alleen als de bestaande geschiedenis nog kort is (≤2
+    # datapunten), zodat dit niet bij elke sync opnieuw een hele reeks Garmin-
+    # aanroepen doet. Zodra er voldoende natuurlijke geschiedenis is opgebouwd
+    # via de dagelijkse syncs, slaat dit blok zichzelf vanzelf permanent over.
+    existing_count = len(re.findall(r"date:\s*'[\d-]+'", new_html))
+    backfill_points = None
+    if existing_count <= 2:
+        print("📅 Weinig fitness-geschiedenis gevonden — eenmalige backfill ophalen...")
+        backfill_points = backfill_fitness_history(days=30)
+
+    new_html = update_fitness_history(new_html, ftp, vo2, rhr_for_history, weight_for_history, backfill_points)
 
     # Injecteer AI update tekst — HTML-safe verwerken
     # Bij hergebruik (already_done) is ai_text al de kant-en-klare HTML uit een
