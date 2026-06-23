@@ -266,6 +266,7 @@ def backfill_fitness_history(days=30):
 
     today = datetime.now().date()
     points = []
+    errors_seen = 0
 
     for offset in range(days, -1, -3):  # elke 3 dagen i.p.v. elke dag — beperkt het aantal API-calls
         d = today - timedelta(days=offset)
@@ -278,8 +279,10 @@ def backfill_fitness_history(days=30):
             stats = client.get_stats(d_str)
             if stats:
                 rhr = stats.get("restingHeartRate")
-        except Exception:
-            pass
+        except Exception as e:
+            errors_seen += 1
+            if errors_seen <= 3:  # toon de eerste paar fouten, niet alle 11 herhalingen
+                print(f"  ⚠️ get_stats({d_str}) mislukt: {type(e).__name__}: {e}")
 
         try:
             max_metrics = client.get_max_metrics(d_str)
@@ -289,25 +292,34 @@ def backfill_fitness_history(days=30):
                 v = generic.get("vo2MaxPreciseValue") or generic.get("vo2MaxValue")
                 if v:
                     vo2 = round(v, 1)
-        except Exception:
-            pass
+        except Exception as e:
+            errors_seen += 1
+            if errors_seen <= 3:
+                print(f"  ⚠️ get_max_metrics({d_str}) mislukt: {type(e).__name__}: {e}")
 
         if not vo2:
             try:
                 summary = client.get_user_summary(d_str)
                 if summary and summary.get("vo2Max"):
                     vo2 = round(summary["vo2Max"], 1)
-            except Exception:
-                pass
+            except Exception as e:
+                errors_seen += 1
+                if errors_seen <= 3:
+                    print(f"  ⚠️ get_user_summary({d_str}) mislukt: {type(e).__name__}: {e}")
 
         if rhr or vo2:
             points.append({"date": d_str, "rhr": rhr, "vo2": vo2})
             print(f"  📅 Backfill {d_str}: rust HS={rhr} · VO2max={vo2}")
+        else:
+            print(f"  · Backfill {d_str}: geen data beschikbaar")
 
         time.sleep(0.3)  # vriendelijk blijven voor Garmin's onofficiële endpoints
 
+    if errors_seen > 3:
+        print(f"  ⚠️ Nog {errors_seen - 3} verdere fouten onderdrukt (zelfde patroon)")
+
     if not points:
-        print("  ⚠️ Backfill leverde geen historische datapunten op")
+        print("  ⚠️ Backfill leverde geen historische datapunten op — alle dagen gaven een fout of geen data")
         return []
 
     # Vul ontbrekende rhr/vo2 per punt op via de dichtstbijzijnde bekende waarde,
