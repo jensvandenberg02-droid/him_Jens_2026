@@ -2,8 +2,19 @@ name: Strava Auto-Update
 
 on:
   schedule:
-    # Elke nacht om 03:00 UTC (05:00 Belgische tijd)
-    - cron: '0 3 * * *'
+    # 5x per dag, gespreid over de dag (tijden in UTC).
+    # Met Belgische zomertijd (UTC+2, momenteel van toepassing) komt dit overeen met:
+    #   04:00 UTC → 06:00 BE   (ochtend, na nacht/slaap)
+    #   08:00 UTC → 10:00 BE   (voormiddag)
+    #   12:00 UTC → 14:00 BE   (namiddag)
+    #   16:00 UTC → 18:00 BE   (na werk/avondtraining)
+    #   20:00 UTC → 22:00 BE   (late avond, vangt avondtraining + dagdata op)
+    # In de winter (CET, UTC+1) verschuiven deze tijden 1 uur vroeger lokaal.
+    - cron: '0 4 * * *'
+    - cron: '0 8 * * *'
+    - cron: '0 12 * * *'
+    - cron: '0 16 * * *'
+    - cron: '0 20 * * *'
   workflow_dispatch:
     # Ook manueel te starten via GitHub Actions tab
 
