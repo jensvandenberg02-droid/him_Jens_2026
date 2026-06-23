@@ -254,6 +254,7 @@ def backfill_fitness_history(client, days=30):
     Bij elke fout per dag wordt die dag overgeslagen zonder de hele backfill
     te laten mislukken.
     """
+    print(f"  🔍 backfill_fitness_history() gestart — client is None: {client is None}")
     if client is None:
         print("  ⚠️ Backfill overgeslagen — geen actieve Garmin-sessie beschikbaar")
         return []
@@ -261,8 +262,10 @@ def backfill_fitness_history(client, days=30):
     today = datetime.now().date()
     points = []
     errors_seen = 0
+    offsets = list(range(days, -1, -3))
+    print(f"  🔍 Backfill zal {len(offsets)} dagen proberen op te halen: offsets={offsets}")
 
-    for offset in range(days, -1, -3):  # elke 3 dagen i.p.v. elke dag — beperkt het aantal API-calls
+    for offset in offsets:  # elke 3 dagen i.p.v. elke dag — beperkt het aantal API-calls
         d = today - timedelta(days=offset)
         d_str = d.strftime("%Y-%m-%d")
 
@@ -271,15 +274,16 @@ def backfill_fitness_history(client, days=30):
 
         try:
             stats = client.get_stats(d_str)
+            print(f"  🔍 get_stats({d_str}) → type={type(stats).__name__}, keys={list(stats.keys())[:8] if isinstance(stats, dict) else 'n.v.t.'}")
             if stats:
                 rhr = stats.get("restingHeartRate")
         except Exception as e:
             errors_seen += 1
-            if errors_seen <= 3:  # toon de eerste paar fouten, niet alle 11 herhalingen
-                print(f"  ⚠️ get_stats({d_str}) mislukt: {type(e).__name__}: {e}")
+            print(f"  ⚠️ get_stats({d_str}) mislukt: {type(e).__name__}: {e}")
 
         try:
             max_metrics = client.get_max_metrics(d_str)
+            print(f"  🔍 get_max_metrics({d_str}) → type={type(max_metrics).__name__}, inhoud={str(max_metrics)[:200] if max_metrics else 'leeg/None'}")
             if max_metrics:
                 entry = max_metrics[0] if isinstance(max_metrics, list) else max_metrics
                 generic = entry.get("generic", {}) if isinstance(entry, dict) else {}
@@ -288,8 +292,7 @@ def backfill_fitness_history(client, days=30):
                     vo2 = round(v, 1)
         except Exception as e:
             errors_seen += 1
-            if errors_seen <= 3:
-                print(f"  ⚠️ get_max_metrics({d_str}) mislukt: {type(e).__name__}: {e}")
+            print(f"  ⚠️ get_max_metrics({d_str}) mislukt: {type(e).__name__}: {e}")
 
         if not vo2:
             try:
@@ -298,19 +301,17 @@ def backfill_fitness_history(client, days=30):
                     vo2 = round(summary["vo2Max"], 1)
             except Exception as e:
                 errors_seen += 1
-                if errors_seen <= 3:
-                    print(f"  ⚠️ get_user_summary({d_str}) mislukt: {type(e).__name__}: {e}")
+                print(f"  ⚠️ get_user_summary({d_str}) mislukt: {type(e).__name__}: {e}")
 
         if rhr or vo2:
             points.append({"date": d_str, "rhr": rhr, "vo2": vo2})
             print(f"  📅 Backfill {d_str}: rust HS={rhr} · VO2max={vo2}")
         else:
-            print(f"  · Backfill {d_str}: geen data beschikbaar")
+            print(f"  · Backfill {d_str}: geen rhr en geen vo2 gevonden in de responses")
 
         time.sleep(0.3)  # vriendelijk blijven voor Garmin's onofficiële endpoints
 
-    if errors_seen > 3:
-        print(f"  ⚠️ Nog {errors_seen - 3} verdere fouten onderdrukt (zelfde patroon)")
+    print(f"  🔍 Backfill loop klaar — {len(points)} punten verzameld, {errors_seen} fouten gezien")
 
     if not points:
         print("  ⚠️ Backfill leverde geen historische datapunten op — alle dagen gaven een fout of geen data")
@@ -1572,10 +1573,14 @@ def main():
     # aanroepen doet. Zodra er voldoende natuurlijke geschiedenis is opgebouwd
     # via de dagelijkse syncs, slaat dit blok zichzelf vanzelf permanent over.
     existing_count = len(re.findall(r"date:\s*'[\d-]+'", new_html))
+    print(f"  🔍 existing_count in FITNESS_HISTORY vóór backfill-check: {existing_count}")
     backfill_points = None
     if existing_count <= 2:
         print("📅 Weinig fitness-geschiedenis gevonden — eenmalige backfill ophalen...")
         backfill_points = backfill_fitness_history(garmin_client, days=30)
+        print(f"  🔍 backfill_fitness_history() retourneerde {len(backfill_points) if backfill_points else 0} punten")
+    else:
+        print(f"  · Backfill overgeslagen — al {existing_count} datapunten aanwezig")
 
     new_html = update_fitness_history(new_html, ftp, vo2, rhr_for_history, weight_for_history, backfill_points)
 
