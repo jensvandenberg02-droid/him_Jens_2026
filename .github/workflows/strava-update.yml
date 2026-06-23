@@ -24,9 +24,9 @@ jobs:
           python-version: '3.11'
 
       - name: Dependencies installeren
-        run: pip install requests
+        run: pip install requests garminconnect
 
-      - name: Site updaten met Strava data
+      - name: Site updaten met Strava + Garmin data
         env:
           STRAVA_CLIENT_ID:     ${{ secrets.STRAVA_CLIENT_ID }}
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
@@ -35,6 +35,8 @@ jobs:
           JSON_BIN_ID:          ${{ secrets.JSON_BIN_ID }}
           JSONBIN_BIN_ID:       ${{ secrets.JSONBIN_BIN_ID }}
           JSONBIN_API_KEY:      ${{ secrets.JSONBIN_API_KEY }}
+          GARMIN_EMAIL:         ${{ secrets.GARMIN_EMAIL }}
+          GARMIN_PASSWORD:      ${{ secrets.GARMIN_PASSWORD }}
         run: python update_site.py
 
       - name: Wijzigingen committen en pushen
@@ -42,5 +44,5 @@ jobs:
           git config user.name  "Strava Bot"
           git config user.email "bot@strava-update.local"
           git add index.html
-          git diff --staged --quiet || git commit -m "🏃 Auto-update: Strava data $(date +'%d/%m/%Y %H:%M')"
+          git diff --staged --quiet || git commit -m "🏃 Auto-update: Strava + Garmin data $(date +'%d/%m/%Y %H:%M')"
           git push
