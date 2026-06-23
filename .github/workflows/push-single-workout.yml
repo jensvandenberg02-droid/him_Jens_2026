@@ -44,16 +44,38 @@ jobs:
       - name: Dependencies installeren
         run: pip install garminconnect
 
+      - name: Payload bepalen (repository_dispatch of workflow_dispatch)
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "WEEK_NUM=${{ github.event.client_payload.week }}" >> "$GITHUB_ENV"
+            echo "SESS_NAME=${{ github.event.client_payload.name }}" >> "$GITHUB_ENV"
+            echo "SESS_DAY=${{ github.event.client_payload.day }}" >> "$GITHUB_ENV"
+            echo "SESS_COLOR=${{ github.event.client_payload.color }}" >> "$GITHUB_ENV"
+            echo "SESS_DESC=${{ github.event.client_payload.desc }}" >> "$GITHUB_ENV"
+            echo "SESS_META=${{ github.event.client_payload.meta }}" >> "$GITHUB_ENV"
+          else
+            echo "WEEK_NUM=${{ github.event.inputs.week }}" >> "$GITHUB_ENV"
+            echo "SESS_NAME=${{ github.event.inputs.name }}" >> "$GITHUB_ENV"
+            echo "SESS_DAY=${{ github.event.inputs.day }}" >> "$GITHUB_ENV"
+            echo "SESS_COLOR=${{ github.event.inputs.color }}" >> "$GITHUB_ENV"
+            echo "SESS_DESC=${{ github.event.inputs.desc }}" >> "$GITHUB_ENV"
+            echo "SESS_META=${{ github.event.inputs.meta }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Toon ontvangen payload (debug)
+        run: |
+          echo "Week: '$WEEK_NUM'"
+          echo "Naam: '$SESS_NAME'"
+          echo "Dag: '$SESS_DAY'"
+          echo "Kleur: '$SESS_COLOR'"
+          echo "Desc: '$SESS_DESC'"
+          echo "Meta: '$SESS_META'"
+
       - name: Push workout naar Garmin
         env:
           GARMIN_EMAIL:    ${{ secrets.GARMIN_EMAIL }}
           GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
-          WEEK_NUM:  ${{ github.event.client_payload.week || github.event.inputs.week }}
-          SESS_NAME: ${{ github.event.client_payload.name || github.event.inputs.name }}
-          SESS_DAY:   ${{ github.event.client_payload.day || github.event.inputs.day }}
-          SESS_COLOR: ${{ github.event.client_payload.color || github.event.inputs.color }}
-          SESS_DESC:  ${{ github.event.client_payload.desc || github.event.inputs.desc }}
-          SESS_META:  ${{ github.event.client_payload.meta || github.event.inputs.meta }}
         run: |
           python push_single_workout.py \
             --week "$WEEK_NUM" \
