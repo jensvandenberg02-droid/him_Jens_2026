@@ -1045,6 +1045,49 @@ Schrijf in vloeiende lopende tekst zonder opsomming of titels. Gebruik de exacte
         )
 
 
+def ai_update_already_done_today(html):
+    """
+    Checkt of de AI-coachingtekst vandaag al gegenereerd is, door de datum uit
+    het bestaande 'ai-update-meta' veld te lezen. Voorkomt onnodige extra
+    Anthropic API-aanroepen bij meerdere syncs per dag — de AI-tekst wordt
+    bewust maar 1x per dag vernieuwd, de rest van de data (Strava, Garmin)
+    elke sync.
+    Retourneert (True, oude_tekst, oude_meta) als de tekst al van vandaag is,
+    anders (False, None, None).
+    """
+    match = re.search(
+        r'<div[^>]*id="ai-update-text"[^>]*>(.*?)</div>\s*<div[^>]*id="ai-update-meta"[^>]*>(.*?)</div>',
+        html, flags=re.DOTALL
+    )
+    if not match:
+        return False, None, None
+
+    old_text, old_meta = match.group(1).strip(), match.group(2).strip()
+
+    # Maandnamen NL → nummer, voor het parsen van "5 juli 2026 om 14:32"
+    MONTHS_NL = {
+        "januari": 1, "februari": 2, "maart": 3, "april": 4, "mei": 5, "juni": 6,
+        "juli": 7, "augustus": 8, "september": 9, "oktober": 10, "november": 11, "december": 12,
+    }
+    date_match = re.search(r'(\d{1,2})\s+(\w+)\s+(\d{4})', old_meta)
+    if not date_match:
+        return False, None, None
+
+    day, month_name, year = date_match.groups()
+    month = MONTHS_NL.get(month_name.lower())
+    if not month:
+        return False, None, None
+
+    try:
+        old_date = datetime(int(year), month, int(day)).date()
+    except ValueError:
+        return False, None, None
+
+    if old_date == datetime.now().date():
+        return True, old_text, old_meta
+    return False, None, None
+
+
 def main():
     print("🔄 Strava token ophalen...")
     token = get_access_token()
@@ -1102,9 +1145,14 @@ def main():
     # HIM eindtijd berekenen (nodig voor AI update)
     him_time = estimate_him_time(activities)
 
-    print("🤖 AI update genereren...")
-    ai_text, ai_meta = generate_ai_update(activities, stats, him_time, health)
-    print(f"   → {ai_text[:60]}...")
+    already_done, cached_text, cached_meta = ai_update_already_done_today(html)
+    if already_done:
+        print("🤖 AI update vandaag al gegenereerd — hergebruik bestaande tekst (geen extra API-kosten)")
+        ai_text, ai_meta = cached_text, cached_meta
+    else:
+        print("🤖 AI update genereren...")
+        ai_text, ai_meta = generate_ai_update(activities, stats, him_time, health)
+        print(f"   → {ai_text[:60]}...")
 
     import re
 
@@ -1138,10 +1186,16 @@ def main():
     )
 
     # Injecteer AI update tekst — HTML-safe verwerken
-    # Vervang newlines door <br> zodat alinea's correct worden weergegeven
-    ai_text_html = ai_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-    ai_text_html = ai_text_html.replace('\n\n', '</p><p style="margin-top:.8rem">').replace('\n', ' ')
-    ai_text_html = '<p>' + ai_text_html + '</p>'
+    # Bij hergebruik (already_done) is ai_text al de kant-en-klare HTML uit een
+    # vorige sync vandaag — die mag NIET opnieuw geëscaped worden, anders
+    # ontstaat dubbele escaping (&amp;amp; etc.). Alleen verse tekst van de
+    # Anthropic API moet door de escape + <p>-wrap stap.
+    if already_done:
+        ai_text_html = ai_text  # al volledig voorbereide HTML uit het bestaande bestand
+    else:
+        ai_text_html = ai_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        ai_text_html = ai_text_html.replace('\n\n', '</p><p style="margin-top:.8rem">').replace('\n', ' ')
+        ai_text_html = '<p>' + ai_text_html + '</p>'
 
     # ── AI update tekst injecteren ──
     # Robuuste aanpak: zoek op volledige openingstag inclusief newlines
