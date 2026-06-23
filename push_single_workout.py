@@ -66,7 +66,15 @@ def parse_heart_rate_zone(text):
 
 
 def parse_duration_minutes(text):
-    """Zoekt een duur in minuten, bv. '~25 min', '55 min'. Geeft None als niet gevonden."""
+    """
+    Zoekt een duur in minuten, bv. '~25 min', '55 min', '70-90 min'.
+    Bij een range (zoals '70-90 min') wordt het EERSTE getal gebruikt — de
+    conservatievere, kortere kant van de range — niet het getal dat toevallig
+    direct voor 'min' staat. Geeft None als niet gevonden.
+    """
+    range_match = re.search(r"(\d+)\s*[–\-]\s*(\d+)\s*min", text)
+    if range_match:
+        return int(range_match.group(1))
     match = re.search(r"(\d+)\s*min", text)
     if match:
         return int(match.group(1))
@@ -74,7 +82,15 @@ def parse_duration_minutes(text):
 
 
 def parse_distance_km(text):
-    """Zoekt een afstand in km, bv. '5 km', '90 km'. Geeft None als niet gevonden."""
+    """
+    Zoekt een afstand in km, bv. '5 km', '90 km', '10–13 km'. Bij een range
+    wordt het EERSTE getal gebruikt (conservatiever, consistent met
+    parse_duration_minutes) — niet het getal dat toevallig direct voor 'km'
+    staat. Geeft None als niet gevonden.
+    """
+    range_match = re.search(r"(\d+(?:[.,]\d+)?)\s*[–\-]\s*(\d+(?:[.,]\d+)?)\s*km", text)
+    if range_match:
+        return float(range_match.group(1).replace(",", "."))
     match = re.search(r"(\d+(?:[.,]\d+)?)\s*km", text)
     if match:
         return float(match.group(1).replace(",", "."))
@@ -145,12 +161,21 @@ def build_workout_from_payload(payload):
     Bouwt een Garmin-workout-structuur op basis van de sessie-data zoals die
     op de site staat: name, day, color (bepaalt sporttype), desc, meta.
 
-    Voor loop/fiets: hartslagzone wordt uit desc/meta geparsed en als
-    heart.rate.zone target gebruikt over de hele hoofdduur van de sessie.
-    Voor zwemmen: geen target, enkel de afstand (Garmin's swim-stappen
-    ondersteunen geen hartslagzone-target op dezelfde manier).
-    Voor kracht/rust: retourneert None — deze hebben geen Garmin structured
-    workout-equivalent en worden overgeslagen.
+    Het hoofdblok wordt op AFSTAND gestuurd (km/m) wanneer de meta-tekst een
+    afstand vermeldt — bewuste keuze: bij hartslag-gestuurde training duurt
+    de sessie dan exact zo lang als nodig is om die afstand op de juiste
+    hartslagzone af te leggen, in plaats van een vast tijdsblok dat de
+    afstand kan laten variëren met het tempo van die dag.
+    Warming-up en cooldown blijven kort en TIJD-gestuurd (vast, niet
+    afstand-afhankelijk) — dat hoort gewoon bij elke sessie.
+    Als er geen afstand in de meta staat (bv. een fiets-sessie in "~70-90
+    min"), blijft het hoofdblok tijd-gestuurd — er is dan geen betrouwbare
+    afstand om op te sturen.
+
+    Voor zwemmen: geen hartslagzone-target (Garmin's swim-stappen
+    ondersteunen dat niet op dezelfde manier), enkel de afstand.
+    Voor kracht/rust: retourneert None — geen Garmin structured
+    workout-equivalent, wordt overgeslagen.
     """
     name      = payload.get("name", "Training")
     color     = payload.get("color", "rest")
@@ -162,10 +187,23 @@ def build_workout_from_payload(payload):
     if sport_key is None:
         return None, f"Sessie-type '{color}' heeft geen Garmin structured workout-equivalent (kracht/rust)."
 
+    # Brick-sessies (bv. "90 km + 20min run") combineren twee sporten in één
+    # sessie. Garmin's structured workouts ondersteunen geen sport-wissel
+    # binnen één workout via deze methode — een sessie pushen zou daardoor
+    # altijd maar de helft van de training dekken (bv. enkel de fietsrit,
+    # zonder het aansluitende loopstuk). Om geen misleidend incomplete
+    # workout te pushen, wordt dit patroon herkend en de sessie overgeslagen.
+    if re.search(r"\d+(?:[.,]\d+)?\s*(?:km|m)\s*\+\s*\d+\s*min", full_text):
+        return None, (
+            "Dit is een brick-sessie (combinatie van twee sporten in één training). "
+            "Garmin ondersteunt geen sport-wissel binnen één structured workout — "
+            "deze sessie kan niet volledig als één workout gepusht worden."
+        )
+
     hr_lo, hr_hi = parse_heart_rate_zone(full_text)
 
     if sport_key == "lap_swimming":
-        distance_m = parse_distance_m_swim(meta) or parse_distance_m_swim(desc) or 2000
+        distance_m = parse_distance_m_swim(meta) or 2000
         steps = [
             make_step(sport_key, 1, "warmup",   "distance", 400,
                       description="Warming-up 400m"),
@@ -177,30 +215,37 @@ def build_workout_from_payload(payload):
         workout = workout_envelope(name, sport_key, sport_id, steps, desc[:500])
         return workout, None
 
-    # Lopen of fietsen: warming-up + hoofdblok op hartslagzone + cooling-down
-    duration_min = parse_duration_minutes(meta) or parse_duration_minutes(desc)
-    distance_km  = parse_distance_km(meta) or parse_distance_km(desc)
+    # Lopen of fietsen — afstand wordt UITSLUITEND uit 'meta' gehaald, nooit
+    # uit de vrije beschrijvingstekst (desc), die vaak een ander getal bevat
+    # (bv. "warm op met 5 min stevig stappen") dat anders per ongeluk als
+    # sessieduur/afstand gelezen wordt.
+    distance_km  = parse_distance_km(meta)
+    duration_min = parse_duration_minutes(meta)
 
-    if duration_min:
-        total_secs = duration_min * 60
-    elif distance_km:
-        # Ruwe schatting: loop 6 min/km, fiets 30 km/u, enkel om een redelijke
-        # sessieduur te hebben als er geen expliciete duur vermeld staat.
-        pace_min_per_km = 6 if sport_key == "running" else 2
-        total_secs = round(distance_km * pace_min_per_km * 60)
+    # Vaste, korte tijd-gestuurde warmup/cooldown — onafhankelijk van afstand.
+    warmup_secs   = 300  # 5 min
+    cooldown_secs = 300  # 5 min
+
+    if distance_km:
+        distance_m = round(distance_km * 1000)
+        main_step = make_step(sport_key, 2, "interval", "distance", distance_m,
+                               hr_lo=hr_lo, hr_hi=hr_hi,
+                               description=desc[:200] or name)
     else:
-        total_secs = 30 * 60  # fallback: 30 minuten
-
-    warmup_secs   = min(600, round(total_secs * 0.15))
-    cooldown_secs = min(600, round(total_secs * 0.15))
-    main_secs     = max(total_secs - warmup_secs - cooldown_secs, 60)
+        # Geen afstand vermeld (bv. fiets-sessie in "~70-90 min") — dan blijft
+        # tijd de enige betrouwbare sturing voor het hoofdblok.
+        if duration_min:
+            main_secs = duration_min * 60
+        else:
+            main_secs = 30 * 60  # fallback: 30 minuten
+        main_step = make_step(sport_key, 2, "interval", "time", main_secs,
+                               hr_lo=hr_lo, hr_hi=hr_hi,
+                               description=desc[:200] or name)
 
     steps = [
         make_step(sport_key, 1, "warmup", "time", warmup_secs,
                   description="Inwarmen"),
-        make_step(sport_key, 2, "interval", "time", main_secs,
-                  hr_lo=hr_lo, hr_hi=hr_hi,
-                  description=desc[:200] or name),
+        main_step,
         make_step(sport_key, 3, "cooldown", "time", cooldown_secs,
                   description="Uitlopen/uitrijden"),
     ]
