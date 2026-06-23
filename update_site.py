@@ -36,6 +36,23 @@ def get_garmin_health_data():
         "body_battery":   None,
         "vo2max":         None,
         "max_hr":         None,
+        # Training Readiness
+        "readiness_score":  None,
+        "readiness_level":  None,
+        "readiness_feedback": None,
+        # Training Status
+        "training_status":  None,
+        "training_status_label": None,
+        "acute_load":        None,
+        "load_ratio":         None,
+        # Race Predictor
+        "predict_5k":      None,
+        "predict_10k":     None,
+        "predict_half":    None,
+        "predict_marathon": None,
+        # Dagelijkse stress
+        "stress_avg":      None,
+        "stress_rest_pct": None,
     }
 
     garmin_email    = os.environ.get("GARMIN_EMAIL", "")
@@ -134,6 +151,81 @@ def get_garmin_health_data():
             print(f"  💓 Max HS (Garmin, 24u): {result['max_hr']} bpm")
     except Exception as e:
         print(f"  ⚠️ Max HS ophalen mislukt: {e}")
+
+    # ── Training Readiness — "ben je klaar voor een zware training?" ──
+    try:
+        readiness = client.get_training_readiness(today)
+        if readiness:
+            entry = readiness[0] if isinstance(readiness, list) else readiness
+            if isinstance(entry, dict):
+                result["readiness_score"]    = entry.get("score")
+                result["readiness_level"]    = entry.get("level")
+                result["readiness_feedback"] = entry.get("feedbackLong") or entry.get("feedbackShort")
+                print(f"  🎯 Training Readiness: {result['readiness_score']}/100 ({result['readiness_level']})")
+    except Exception as e:
+        print(f"  ⚠️ Training Readiness ophalen mislukt: {e}")
+
+    # ── Training Status — Productive / Peaking / Overreaching / Detraining / ... ──
+    try:
+        tstatus = client.get_training_status(today)
+        if tstatus:
+            # Structuur varieert per Garmin firmware-versie; meest gebruikte sleutel eerst proberen
+            latest = (tstatus.get("mostRecentTrainingStatus") or {})
+            dev_dict = latest.get("latestTrainingStatusData") if isinstance(latest, dict) else None
+            if isinstance(dev_dict, dict) and dev_dict:
+                first_device = next(iter(dev_dict.values()))
+                status_code  = first_device.get("trainingStatus")
+                STATUS_LABELS = {
+                    0: "Geen status", 1: "Detraining", 2: "Herstel",
+                    3: "Onderhoud", 4: "Productief", 5: "Piekvorm",
+                    6: "Overbelasting", 7: "Onproductief", 8: "Geen data",
+                }
+                result["training_status"]       = status_code
+                result["training_status_label"] = STATUS_LABELS.get(status_code, "Onbekend")
+                result["acute_load"]            = first_device.get("loadLevelTrend")
+            print(f"  📈 Training Status: {result['training_status_label']}")
+    except Exception as e:
+        print(f"  ⚠️ Training Status ophalen mislukt: {e}")
+
+    # ── Acute:Chronic Load Ratio (trainingsbelasting-verhouding) ──
+    try:
+        load = client.get_training_status(today)
+        acute = (load.get("mostRecentTrainingLoadBalance") or {}) if load else {}
+        balance_dict = acute.get("metricsTrainingLoadBalanceDTOMap") if isinstance(acute, dict) else None
+        if isinstance(balance_dict, dict) and balance_dict:
+            first_balance = next(iter(balance_dict.values()))
+            result["load_ratio"] = first_balance.get("trainingBalanceFeedbackPhrase")
+            print(f"  ⚖️ Load balance: {result['load_ratio']}")
+    except Exception as e:
+        print(f"  ⚠️ Load balance ophalen mislukt: {e}")
+
+    # ── Race Predictor — Garmin's eigen tijdschattingen ──
+    try:
+        predictions = client.get_race_predictions(startdate=today, enddate=today)
+        if predictions:
+            entry = predictions[-1] if isinstance(predictions, list) and predictions else predictions
+            if isinstance(entry, dict):
+                result["predict_5k"]       = entry.get("time5K")
+                result["predict_10k"]      = entry.get("time10K")
+                result["predict_half"]     = entry.get("timeHalfMarathon")
+                result["predict_marathon"] = entry.get("timeMarathon")
+                print(f"  🏃 Race predictor: 5K {result['predict_5k']}s · 10K {result['predict_10k']}s · Half {result['predict_half']}s")
+    except Exception as e:
+        print(f"  ⚠️ Race predictions ophalen mislukt: {e}")
+
+    # ── Dagelijkse stress (los van slaap — overdag belasting) ──
+    try:
+        stress = client.get_all_day_stress(today)
+        if stress:
+            result["stress_avg"] = stress.get("avgStressLevel")
+            rest_secs   = stress.get("restStressDuration") or 0
+            total_secs  = (stress.get("totalStressDuration")
+                           or stress.get("activeStressDuration") or 0) + rest_secs
+            if total_secs:
+                result["stress_rest_pct"] = round(rest_secs / total_secs * 100)
+            print(f"  😌 Stress gem.: {result['stress_avg']} · rust {result['stress_rest_pct']}%")
+    except Exception as e:
+        print(f"  ⚠️ Stress data ophalen mislukt: {e}")
 
     return result
 
@@ -607,8 +699,15 @@ def inject_recovery_card(html, health):
             "var(--yellow)" if (health.get("sleep_hours") or 0) >= 6 else "var(--accent)")
         bb_color = "var(--green)" if (health.get("body_battery") or 0) >= 60 else (
             "var(--yellow)" if (health.get("body_battery") or 0) >= 30 else "var(--accent)")
+        readiness_color = "var(--green)" if (health.get("readiness_score") or 0) >= 70 else (
+            "var(--yellow)" if (health.get("readiness_score") or 0) >= 40 else "var(--accent)")
 
         card_html = f"""<div class="recovery-grid">
+        <div class="rec-stat">
+          <div class="rec-lbl">🎯 Training Readiness</div>
+          <div class="rec-val" style="color:{readiness_color}">{fmt(health.get('readiness_score'), '/100')}</div>
+          <div class="rec-sub">{fmt(health.get('readiness_level'))}</div>
+        </div>
         <div class="rec-stat">
           <div class="rec-lbl">💤 Slaap</div>
           <div class="rec-val" style="color:{sleep_color}">{fmt(health.get('sleep_hours'), 'u')}</div>
@@ -630,11 +729,20 @@ def inject_recovery_card(html, health):
           <div class="rec-sub">huidig niveau</div>
         </div>
         <div class="rec-stat">
+          <div class="rec-lbl">😌 Stress (rust %)</div>
+          <div class="rec-val">{fmt(health.get('stress_rest_pct'), '%')}</div>
+          <div class="rec-sub">{f"gem. {health.get('stress_avg')}" if health.get('stress_avg') is not None else 'geen data'}</div>
+        </div>
+        <div class="rec-stat">
           <div class="rec-lbl">👟 Stappen</div>
           <div class="rec-val">{fmt(health.get('steps'))}</div>
           <div class="rec-sub">gisteren</div>
         </div>
       </div>"""
+
+        if health.get("readiness_feedback"):
+            card_html += f"""
+      <div class="rec-feedback">💬 {health['readiness_feedback']}</div>"""
     else:
         card_html = """<div class="recovery-unavailable">
         ⚠️ Garmin gezondheidsdata niet beschikbaar — controleer of GARMIN_EMAIL en
@@ -648,6 +756,74 @@ def inject_recovery_card(html, health):
         print(f"  ✓ Herstel-kaart bijgewerkt")
     else:
         print(f"  ✗ recovery-card-content NIET GEVONDEN in HTML")
+    return result
+
+
+def inject_performance_card(html, health):
+    """
+    Injecteert of update de prestatie-kaart (Training Status + Race Predictor)
+    in de HTML. Zoekt naar het blok met id="performance-card-content".
+    """
+    def fmt_race_time(seconds):
+        if not seconds:
+            return "—"
+        h = int(seconds // 3600)
+        m = int((seconds % 3600) // 60)
+        s = int(seconds % 60)
+        if h:
+            return f"{h}:{m:02d}:{s:02d}"
+        return f"{m}:{s:02d}"
+
+    if health and health.get("available") and health.get("training_status_label"):
+        STATUS_COLORS = {
+            "Productief": "var(--green)", "Piekvorm": "var(--green)",
+            "Onderhoud": "var(--blue)", "Herstel": "var(--blue)",
+            "Overbelasting": "var(--accent)", "Detraining": "var(--accent)",
+            "Onproductief": "var(--yellow)",
+        }
+        status_color = STATUS_COLORS.get(health.get("training_status_label"), "var(--muted)")
+
+        card_html = f"""<div class="perf-status-row">
+        <div class="perf-status-badge" style="color:{status_color};border-color:{status_color}">
+          📈 {health['training_status_label']}
+        </div>
+        {f'<div class="perf-status-sub">{health["load_ratio"]}</div>' if health.get('load_ratio') else ''}
+      </div>
+      <div class="recovery-grid recovery-grid-4">
+        <div class="rec-stat">
+          <div class="rec-lbl">🏃 5K</div>
+          <div class="rec-val" style="font-size:1.2rem">{fmt_race_time(health.get('predict_5k'))}</div>
+          <div class="rec-sub">Garmin predictor</div>
+        </div>
+        <div class="rec-stat">
+          <div class="rec-lbl">🏃 10K</div>
+          <div class="rec-val" style="font-size:1.2rem">{fmt_race_time(health.get('predict_10k'))}</div>
+          <div class="rec-sub">Garmin predictor</div>
+        </div>
+        <div class="rec-stat">
+          <div class="rec-lbl">🏃 Halve marathon</div>
+          <div class="rec-val" style="font-size:1.2rem">{fmt_race_time(health.get('predict_half'))}</div>
+          <div class="rec-sub">Garmin predictor</div>
+        </div>
+        <div class="rec-stat">
+          <div class="rec-lbl">🏃 Marathon</div>
+          <div class="rec-val" style="font-size:1.2rem">{fmt_race_time(health.get('predict_marathon'))}</div>
+          <div class="rec-sub">Garmin predictor</div>
+        </div>
+      </div>"""
+    else:
+        card_html = """<div class="recovery-unavailable">
+        ⚠️ Garmin trainingsstatus niet beschikbaar — komt beschikbaar zodra er genoeg
+        trainingsdata is opgebouwd op je Forerunner 965 en Edge 840.
+      </div>"""
+
+    pattern = r'(<div[^>]*id="performance-card-content"[^>]*>)(.*?)(</div>\s*<!-- /performance-card -->)'
+    replacement = rf'\g<1>{card_html}\3'
+    result = re.sub(pattern, replacement, html, count=1, flags=re.DOTALL)
+    if result != html:
+        print(f"  ✓ Prestatie-kaart bijgewerkt")
+    else:
+        print(f"  ✗ performance-card-content NIET GEVONDEN in HTML")
     return result
 
 
@@ -937,6 +1113,7 @@ def main():
 
     # ── Herstel-kaart injecteren (Garmin health data) ──
     new_html = inject_recovery_card(new_html, health)
+    new_html = inject_performance_card(new_html, health)
 
     # ── Update STRAVA_DATA JS object zodat progressiebalken live werken ──
     swim_raw = stats.get("best_swim") or "1:40"
