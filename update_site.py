@@ -1317,47 +1317,72 @@ Schrijf in vloeiende lopende tekst zonder opsomming of titels. Gebruik de exacte
         )
 
 
-def ai_update_already_done_today(html):
+def ai_update_needed(html, activities):
     """
-    Checkt of de AI-coachingtekst vandaag al gegenereerd is, door de datum uit
-    het bestaande 'ai-update-meta' veld te lezen. Voorkomt onnodige extra
-    Anthropic API-aanroepen bij meerdere syncs per dag — de AI-tekst wordt
-    bewust maar 1x per dag vernieuwd, de rest van de data (Strava, Garmin)
-    elke sync.
-    Retourneert (True, oude_tekst, oude_meta) als de tekst al van vandaag is,
-    anders (False, None, None).
+    Checkt of de AI-coachingtekst opnieuw gegenereerd moet worden, op basis
+    van of er een NIEUWE Strava-activiteit is sinds de vorige keer dat de
+    AI-tekst geschreven werd — niet op basis van de datum.
+
+    Dit betekent: bij 5 syncs per dag wordt de AI-tekst niet 5x herschreven,
+    maar wél meteen bijgewerkt zodra er een nieuwe training binnenkomt,
+    ongeacht op welk van de 5 dagelijkse moments dat gebeurt. Twee syncs
+    zonder nieuwe activiteit ertussen hergebruiken gewoon de bestaande tekst
+    — geen onnodige Anthropic API-kosten.
+
+    Het ID van de laatst-verwerkte activiteit wordt bewaard in een verborgen
+    HTML-comment marker (<!-- LAST_AI_ACTIVITY_ID:12345 -->), die bij elke
+    sync wordt bijgewerkt.
+
+    Retourneert (needed: bool, cached_text, cached_meta, last_activity_id).
+    Als needed=False, zijn cached_text/cached_meta de te hergebruiken
+    waarden. Als needed=True, is er geen cache (of de cache is verouderd)
+    en moet generate_ai_update() opnieuw aangeroepen worden.
     """
-    match = re.search(
+    current_id = activities[0].get("id") if activities else None
+
+    id_match = re.search(r'<!-- LAST_AI_ACTIVITY_ID:(\S+?) -->', html)
+    last_processed_id = id_match.group(1) if id_match else None
+
+    text_match = re.search(
         r'<div[^>]*id="ai-update-text"[^>]*>(.*?)</div>\s*<div[^>]*id="ai-update-meta"[^>]*>(.*?)</div>',
         html, flags=re.DOTALL
     )
-    if not match:
-        return False, None, None
+    cached_text = text_match.group(1).strip() if text_match else None
+    cached_meta = text_match.group(2).strip() if text_match else None
 
-    old_text, old_meta = match.group(1).strip(), match.group(2).strip()
+    # Geen cache aanwezig (allereerste run) — altijd genereren.
+    if not text_match or not last_processed_id:
+        return True, None, None, current_id
 
-    # Maandnamen NL → nummer, voor het parsen van "5 juli 2026 om 14:32"
-    MONTHS_NL = {
-        "januari": 1, "februari": 2, "maart": 3, "april": 4, "mei": 5, "juni": 6,
-        "juli": 7, "augustus": 8, "september": 9, "oktober": 10, "november": 11, "december": 12,
-    }
-    date_match = re.search(r'(\d{1,2})\s+(\w+)\s+(\d{4})', old_meta)
-    if not date_match:
-        return False, None, None
+    # Geen activiteiten beschikbaar deze keer (bv. tijdelijke Strava-storing) —
+    # behoud gewoon de bestaande marker en hergebruik de cache, in plaats van
+    # een AI-aanroep te forceren op basis van ontbrekende data.
+    if current_id is None:
+        return False, cached_text, cached_meta, last_processed_id
 
-    day, month_name, year = date_match.groups()
-    month = MONTHS_NL.get(month_name.lower())
-    if not month:
-        return False, None, None
+    # Activiteit-ID ongewijzigd sinds de vorige keer — geen nieuwe training,
+    # dus de bestaande AI-tekst hergebruiken.
+    if str(current_id) == last_processed_id:
+        return False, cached_text, cached_meta, current_id
 
-    try:
-        old_date = datetime(int(year), month, int(day)).date()
-    except ValueError:
-        return False, None, None
+    # Nieuwe (of andere) activiteit gevonden — AI-tekst moet vernieuwd worden.
+    return True, None, None, current_id
 
-    if old_date == datetime.now().date():
-        return True, old_text, old_meta
-    return False, None, None
+
+def update_last_ai_activity_marker(html, activity_id):
+    """
+    Werkt de verborgen marker bij die onthoudt welke activiteit het laatst
+    door de AI-coach verwerkt is. Voegt de marker toe als die nog niet
+    bestaat (allereerste run).
+    """
+    new_marker = f'<!-- LAST_AI_ACTIVITY_ID:{activity_id} -->'
+    if re.search(r'<!-- LAST_AI_ACTIVITY_ID:\S+? -->', html):
+        return re.sub(r'<!-- LAST_AI_ACTIVITY_ID:\S+? -->', new_marker, html, count=1)
+    # Nog geen marker aanwezig — voeg toe net vóór </head> zodat hij altijd
+    # op een voorspelbare, niet-zichtbare plek staat.
+    if '</head>' in html:
+        return html.replace('</head>', f'{new_marker}\n</head>', 1)
+    return html + f'\n{new_marker}\n'
 
 
 def update_fitness_history(html, ftp, vo2, rhr, weight, backfill_points=None):
@@ -1524,12 +1549,14 @@ def main():
     # HIM eindtijd berekenen (nodig voor AI update)
     him_time = estimate_him_time(activities)
 
-    already_done, cached_text, cached_meta = ai_update_already_done_today(html)
-    if already_done:
-        print("🤖 AI update vandaag al gegenereerd — hergebruik bestaande tekst (geen extra API-kosten)")
+    ai_needed, cached_text, cached_meta, current_activity_id = ai_update_needed(html, activities)
+    if not ai_needed:
+        print(f"🤖 Geen nieuwe Strava-activiteit sinds vorige check (id={current_activity_id}) — hergebruik bestaande AI-tekst (geen extra API-kosten)")
+        reused_cached_text = True
         ai_text, ai_meta = cached_text, cached_meta
     else:
-        print("🤖 AI update genereren...")
+        print(f"🤖 Nieuwe activiteit gevonden (id={current_activity_id}) — AI update genereren...")
+        reused_cached_text = False
         ai_text, ai_meta = generate_ai_update(activities, stats, him_time, health)
         print(f"   → {ai_text[:60]}...")
 
@@ -1585,11 +1612,11 @@ def main():
     new_html = update_fitness_history(new_html, ftp, vo2, rhr_for_history, weight_for_history, backfill_points)
 
     # Injecteer AI update tekst — HTML-safe verwerken
-    # Bij hergebruik (already_done) is ai_text al de kant-en-klare HTML uit een
-    # vorige sync vandaag — die mag NIET opnieuw geëscaped worden, anders
+    # Bij hergebruik (reused_cached_text) is ai_text al de kant-en-klare HTML uit
+    # een vorige sync — die mag NIET opnieuw geëscaped worden, anders
     # ontstaat dubbele escaping (&amp;amp; etc.). Alleen verse tekst van de
     # Anthropic API moet door de escape + <p>-wrap stap.
-    if already_done:
+    if reused_cached_text:
         ai_text_html = ai_text  # al volledig voorbereide HTML uit het bestaande bestand
     else:
         ai_text_html = ai_text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
@@ -1723,6 +1750,13 @@ def main():
         print(f"   JSONBin credentials geïnjecteerd (bin: {jsonbin_bin_id[:8]}...)")
     else:
         print(f"   ⚠️  JSONBIN credentials niet gevonden — sync uitgeschakeld")
+
+    # ── Marker bijwerken: welke activiteit heeft de AI-coach het laatst gezien ──
+    # Onafhankelijk van of de tekst hergebruikt of vernieuwd is — de marker
+    # moet altijd de huidige laatste activiteit weerspiegelen, zodat de
+    # volgende sync correct kan vergelijken.
+    if current_activity_id is not None:
+        new_html = update_last_ai_activity_marker(new_html, current_activity_id)
 
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(new_html)
