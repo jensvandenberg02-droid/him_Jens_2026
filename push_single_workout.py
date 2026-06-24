@@ -108,12 +108,66 @@ def parse_distance_m_swim(text):
     return None
 
 
+# ── INTERVAL-PATRONEN HERKENNEN ───────────────────────────────────────────────
+# Herkent herhalingsblokken zoals "6×100m CSS, 15s rust" of "3×8 min op
+# 163-170 bpm, 5 min herstel" en zet ze om naar (iteraties, werk_waarde,
+# werk_eenheid, rust_seconden, label) tuples, zodat ze als echte Garmin
+# RepeatGroupDTO-blokken gebouwd kunnen worden (zoals "2 keer" / "6 keer" in
+# de Garmin Connect app) in plaats van als platte tekstbeschrijving.
+
+SWIM_INTERVAL_PATTERN = re.compile(
+    r"(\d+)\s*[×x]\s*(\d+)\s*m\s*([A-Za-z]*)"          # 6×100m CSS
+    r"[^,·]*"                                          # alles tot de eerste komma/punt negeren (bv. tempo-tekst "1:37-1:43")
+    r"(?:,\s*(\d+)\s*s\s*rust)?",                       # , 15s rust  (optioneel)
+    re.IGNORECASE
+)
+
+TIME_INTERVAL_PATTERN = re.compile(
+    r"(\d+)\s*[×x]\s*(\d+)\s*min"                       # 3×8 min  /  2×18 min
+    r"[^,]*"                                            # alles tot de eerste komma (bv. "op 163-170 bpm (Z4 drempel)")
+    r"(?:,\s*(\d+)\s*min\s*(?:actief\s*)?(?:herstel|rust))?",  # , 5 min herstel  /  , 6 min actief herstel  (optioneel)
+    re.IGNORECASE
+)
+
+
+def parse_swim_intervals(text):
+    """
+    Zoekt zwem-interval-patronen zoals '6×100m CSS, 15s rust' in de tekst.
+    Geeft een lijst van dicts terug: [{reps, distance_m, label, rest_s}, ...]
+    in de volgorde waarin ze in de tekst voorkomen. Lege lijst als niets
+    gevonden wordt.
+    """
+    results = []
+    for m in SWIM_INTERVAL_PATTERN.finditer(text):
+        reps        = int(m.group(1))
+        distance_m  = int(m.group(2))
+        label       = (m.group(3) or "").strip()
+        rest_s      = int(m.group(4)) if m.group(4) else 0
+        results.append({"reps": reps, "distance_m": distance_m, "label": label, "rest_s": rest_s})
+    return results
+
+
+def parse_time_intervals(text):
+    """
+    Zoekt tijd-interval-patronen zoals '3×8 min op 163-170 bpm, 5 min
+    herstel' in de tekst. Geeft een lijst van dicts terug:
+    [{reps, duration_min, rest_min}, ...]. Lege lijst als niets gevonden.
+    """
+    results = []
+    for m in TIME_INTERVAL_PATTERN.finditer(text):
+        reps         = int(m.group(1))
+        duration_min = int(m.group(2))
+        rest_min     = int(m.group(3)) if m.group(3) else 0
+        results.append({"reps": reps, "duration_min": duration_min, "rest_min": rest_min})
+    return results
+
+
 # ── GARMIN STAP-BOUWBLOKKEN ───────────────────────────────────────────────────
 
 def make_step(sport, step_order, step_type, duration_type, duration_value,
               hr_lo=None, hr_hi=None, description=""):
     step_type_map = {"warmup": 1, "cooldown": 2, "interval": 3, "rest": 4, "other": 7}
-    cond_type_map = {"time": 2, "distance": 3}
+    cond_type_map = {"time": 2, "distance": 3, "lap": 1}
     step = {
         "type":           "ExecutableStepDTO",
         "stepId":         None,
@@ -138,6 +192,26 @@ def make_step(sport, step_order, step_type, duration_type, duration_value,
         step["targetValueOne"] = None
         step["targetValueTwo"] = None
     return step
+
+
+def make_repeat_group(step_order, iterations, workout_steps):
+    """
+    Bouwt een RepeatGroupDTO — een echt herhalingsblok zoals "2 keer" of
+    "6 keer" in de Garmin Connect app, met de meegegeven stappen erin
+    (bv. 1 werk-stap + 1 rust-stap, die samen 'iterations' keer herhaald
+    worden).
+    """
+    return {
+        "type":              "RepeatGroupDTO",
+        "stepOrder":         step_order,
+        "stepType":          {"stepTypeId": 6, "stepTypeKey": "repeat"},
+        "numberOfIterations": iterations,
+        "workoutSteps":      workout_steps,
+        "endCondition":      {"conditionTypeKey": "iterations", "conditionTypeId": 7},
+        "endConditionValue": float(iterations),
+        "childStepId":       None,
+        "smartRepeat":       False,
+    }
 
 
 def workout_envelope(name, sport_type_key, sport_type_id, steps, description=""):
@@ -203,52 +277,94 @@ def build_workout_from_payload(payload):
     hr_lo, hr_hi = parse_heart_rate_zone(full_text)
 
     if sport_key == "lap_swimming":
-        distance_m = parse_distance_m_swim(meta) or 2000
-        steps = [
-            make_step(sport_key, 1, "warmup",   "distance", 400,
-                      description="Warming-up 400m"),
-            make_step(sport_key, 2, "interval",  "distance", max(distance_m - 600, 400),
-                      description=desc[:200]),
-            make_step(sport_key, 3, "cooldown",  "distance", 200,
-                      description="Cooling-down 200m"),
-        ]
+        swim_intervals = parse_swim_intervals(full_text)
+        steps = [make_step(sport_key, 1, "warmup", "distance", 400, description="Warming-up 400m")]
+        step_order = 2
+
+        if swim_intervals:
+            # Echte herhalingsblokken bouwen: per interval-patroon één
+            # RepeatGroupDTO met een werk-stap (op afstand) + eventueel een
+            # korte rust-stap ertussen — net zoals "2 keer" / "6 keer" in de
+            # Garmin Connect app, in plaats van alles als platte tekst.
+            for iv in swim_intervals:
+                label = iv["label"] or "interval"
+                work_step = make_step(
+                    sport_key, 1, "interval", "distance", iv["distance_m"],
+                    description=f"{iv['distance_m']}m {label}"
+                )
+                if iv["rest_s"] > 0:
+                    rest_step = make_step(
+                        sport_key, 2, "rest", "time", iv["rest_s"],
+                        description=f"{iv['rest_s']}s rust"
+                    )
+                    group_steps = [work_step, rest_step]
+                else:
+                    group_steps = [work_step]
+                steps.append(make_repeat_group(step_order, iv["reps"], group_steps))
+                step_order += 1
+        else:
+            # Geen herkenbaar herhalingspatroon — val terug op één doorlopend
+            # blok over de totale afstand uit de meta-tekst.
+            distance_m = parse_distance_m_swim(meta) or 2000
+            steps.append(make_step(sport_key, step_order, "interval", "distance",
+                                    max(distance_m - 600, 400), description=desc[:200]))
+            step_order += 1
+
+        steps.append(make_step(sport_key, step_order, "cooldown", "distance", 200,
+                                description="Cooling-down 200m"))
         workout = workout_envelope(name, sport_key, sport_id, steps, desc[:500])
         return workout, None
 
-    # Lopen of fietsen — afstand wordt UITSLUITEND uit 'meta' gehaald, nooit
-    # uit de vrije beschrijvingstekst (desc), die vaak een ander getal bevat
-    # (bv. "warm op met 5 min stevig stappen") dat anders per ongeluk als
-    # sessieduur/afstand gelezen wordt.
-    distance_km  = parse_distance_km(meta)
-    duration_min = parse_duration_minutes(meta)
+    # Lopen of fietsen — eerst checken op tijd-interval-patronen (bv. "3×8 min
+    # op 163-170 bpm, 5 min herstel"). Als dat gevonden wordt, bouwen we een
+    # echt herhalingsblok. Anders valt het terug op het oude gedrag: één
+    # doorlopend blok op afstand (voorkeur) of tijd.
+    time_intervals = parse_time_intervals(full_text)
 
-    # Vaste, korte tijd-gestuurde warmup/cooldown — onafhankelijk van afstand.
-    warmup_secs   = 300  # 5 min
-    cooldown_secs = 300  # 5 min
+    warmup_secs   = 300  # 5 min, vast
+    cooldown_secs = 300  # 5 min, vast
+    steps = [make_step(sport_key, 1, "warmup", "time", warmup_secs, description="Inwarmen")]
+    step_order = 2
 
-    if distance_km:
-        distance_m = round(distance_km * 1000)
-        main_step = make_step(sport_key, 2, "interval", "distance", distance_m,
-                               hr_lo=hr_lo, hr_hi=hr_hi,
-                               description=desc[:200] or name)
+    if time_intervals:
+        for iv in time_intervals:
+            work_step = make_step(
+                sport_key, 1, "interval", "time", iv["duration_min"] * 60,
+                hr_lo=hr_lo, hr_hi=hr_hi,
+                description=desc[:200] or name
+            )
+            if iv["rest_min"] > 0:
+                rest_step = make_step(
+                    sport_key, 2, "rest", "time", iv["rest_min"] * 60,
+                    description=f"{iv['rest_min']} min herstel"
+                )
+                group_steps = [work_step, rest_step]
+            else:
+                group_steps = [work_step]
+            steps.append(make_repeat_group(step_order, iv["reps"], group_steps))
+            step_order += 1
     else:
-        # Geen afstand vermeld (bv. fiets-sessie in "~70-90 min") — dan blijft
-        # tijd de enige betrouwbare sturing voor het hoofdblok.
-        if duration_min:
-            main_secs = duration_min * 60
-        else:
-            main_secs = 30 * 60  # fallback: 30 minuten
-        main_step = make_step(sport_key, 2, "interval", "time", main_secs,
-                               hr_lo=hr_lo, hr_hi=hr_hi,
-                               description=desc[:200] or name)
+        # Geen interval-patroon — val terug op het oude gedrag: afstand
+        # (UITSLUITEND uit 'meta') heeft voorrang boven tijd, omdat afstand
+        # de meest betrouwbare sturing is bij hartslag-gestuurde training.
+        distance_km  = parse_distance_km(meta)
+        duration_min = parse_duration_minutes(meta)
 
-    steps = [
-        make_step(sport_key, 1, "warmup", "time", warmup_secs,
-                  description="Inwarmen"),
-        main_step,
-        make_step(sport_key, 3, "cooldown", "time", cooldown_secs,
-                  description="Uitlopen/uitrijden"),
-    ]
+        if distance_km:
+            distance_m = round(distance_km * 1000)
+            main_step = make_step(sport_key, step_order, "interval", "distance", distance_m,
+                                   hr_lo=hr_lo, hr_hi=hr_hi,
+                                   description=desc[:200] or name)
+        else:
+            main_secs = (duration_min * 60) if duration_min else 30 * 60
+            main_step = make_step(sport_key, step_order, "interval", "time", main_secs,
+                                   hr_lo=hr_lo, hr_hi=hr_hi,
+                                   description=desc[:200] or name)
+        steps.append(main_step)
+        step_order += 1
+
+    steps.append(make_step(sport_key, step_order, "cooldown", "time", cooldown_secs,
+                            description="Uitlopen/uitrijden"))
     workout = workout_envelope(name, sport_key, sport_id, steps, desc[:500])
     return workout, None
 
