@@ -2185,18 +2185,18 @@ footer {
     <div class="recovery-grid">
         <div class="rec-stat">
           <div class="rec-lbl">🎯 Training Readiness</div>
-          <div class="rec-val" style="color:var(--accent)">1/100</div>
-          <div class="rec-sub">POOR</div>
+          <div class="rec-val" style="color:var(--accent)">—</div>
+          <div class="rec-sub">—</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">💤 Slaap</div>
-          <div class="rec-val" style="color:var(--yellow)">6.2u</div>
-          <div class="rec-sub">43/100 score</div>
+          <div class="rec-val" style="color:var(--accent)">—</div>
+          <div class="rec-sub">geen score</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">💓 HRV</div>
-          <div class="rec-val">63ms</div>
-          <div class="rec-sub">BALANCED</div>
+          <div class="rec-val">—</div>
+          <div class="rec-sub">—</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">❤️ Rust HS</div>
@@ -2205,53 +2205,28 @@ footer {
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">🔋 Body Battery</div>
-          <div class="rec-val" style="color:var(--accent)">24/100</div>
+          <div class="rec-val" style="color:var(--yellow)">43/100</div>
           <div class="rec-sub">huidig niveau</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">😌 Stress (rust %)</div>
           <div class="rec-val">—</div>
-          <div class="rec-sub">gem. 30</div>
+          <div class="rec-sub">gem. 17</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">👟 Stappen</div>
-          <div class="rec-val">2783</div>
+          <div class="rec-val">—</div>
           <div class="rec-sub">gisteren</div>
         </div>
       </div>
-      <div class="rec-feedback">💬 POOR_RT_HIGH_SS_POOR</div>
   </div>
 
   <!-- ── PRESTATIE & TRAININGSSTATUS (GARMIN) ── -->
   <div class="recovery-card">
     <div class="recovery-label">📊 Trainingsstatus & Race Predictor · Forerunner 965</div>
-    <div class="perf-status-row">
-        <div class="perf-status-badge" style="color:var(--yellow);border-color:var(--yellow)">
-          📈 Onproductief
-        </div>
-        <div class="perf-status-sub">BALANCED</div>
-      </div>
-      <div class="recovery-grid recovery-grid-4">
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 5K</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 10K</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 Halve marathon</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 Marathon</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
+    <div class="recovery-unavailable">
+        ⚠️ Garmin trainingsstatus niet beschikbaar — komt beschikbaar zodra er genoeg
+        trainingsdata is opgebouwd op je Forerunner 965 en Edge 840.
       </div>
   </div>
 
@@ -2317,7 +2292,7 @@ footer {
 <section class="section" id="activiteiten">
   <div class="sec-label">Strava · automatisch bijgewerkt</div>
   <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 23 July 2026 om 21:02</p>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 24 July 2026 om 06:30</p>
 
   <div id="activities-by-week-container">
     
@@ -2835,7 +2810,8 @@ const FITNESS_HISTORY = [
   { date: '2026-07-20', ftp: 165, vo2: 54, rhr: 47, weight: 71 },
   { date: '2026-07-21', ftp: 165, vo2: 54, rhr: 42, weight: 71 },
   { date: '2026-07-22', ftp: 165, vo2: 54.9, rhr: 41, weight: 71 },
-  { date: '2026-07-23', ftp: 165, vo2: 55, rhr: 48, weight: 71 }
+  { date: '2026-07-23', ftp: 165, vo2: 55, rhr: 48, weight: 71 },
+  { date: '2026-07-24', ftp: 165, vo2: 55, rhr: 48, weight: 71 }
 ];
 
 function paceToSecs(p) {
