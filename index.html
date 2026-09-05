@@ -1850,7 +1850,7 @@ footer {
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val gr" id="hero-rhr">43</div>
+        <div class="hstat-val gr" id="hero-rhr">49</div>
         <div class="hstat-lbl">Rust HS bpm</div>
       </div>
     </div>
@@ -2022,7 +2022,7 @@ footer {
     <div class="mhc"><div class="mhc-lbl">Loop cadans</div><div class="mhc-val yl" id="mhc-rcad">169 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
     <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr" id="mhc-vo2">53.3</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
     <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val ac" id="mhc-mhr">194.0 bpm</div><div class="mhc-sub">gemeten max</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="mhc-rhr">43 bpm</div><div class="mhc-sub">uitstekend</div></div>
+    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="mhc-rhr">49 bpm</div><div class="mhc-sub">uitstekend</div></div>
   </div>
 
   <div class="goals-grid">
@@ -2182,76 +2182,18 @@ footer {
   <!-- ── HERSTEL (GARMIN) ── -->
   <div class="recovery-card">
     <div class="recovery-label">⌚ Herstel vannacht · Garmin Connect</div>
-    <div class="recovery-grid">
-        <div class="rec-stat">
-          <div class="rec-lbl">🎯 Training Readiness</div>
-          <div class="rec-val" style="color:var(--green)">76/100</div>
-          <div class="rec-sub">HIGH</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">💤 Slaap</div>
-          <div class="rec-val" style="color:var(--accent)">5.8u</div>
-          <div class="rec-sub">64/100 score</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">💓 HRV</div>
-          <div class="rec-val">102ms</div>
-          <div class="rec-sub">BALANCED</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">❤️ Rust HS</div>
-          <div class="rec-val" style="color:var(--green)">43 bpm</div>
-          <div class="rec-sub">vannacht</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🔋 Body Battery</div>
-          <div class="rec-val" style="color:var(--green)">81/100</div>
-          <div class="rec-sub">huidig niveau</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">😌 Stress (rust %)</div>
-          <div class="rec-val">—</div>
-          <div class="rec-sub">gem. 15</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">👟 Stappen</div>
-          <div class="rec-val">282</div>
-          <div class="rec-sub">gisteren</div>
-        </div>
+    <div class="recovery-unavailable">
+        ⚠️ Garmin gezondheidsdata niet beschikbaar — controleer of GARMIN_EMAIL en
+        GARMIN_PASSWORD correct zijn ingesteld als GitHub Secrets.
       </div>
-      <div class="rec-feedback">💬 HIGH_RT_HIGHEST_SS_AVAILABLE</div>
   </div>
 
   <!-- ── PRESTATIE & TRAININGSSTATUS (GARMIN) ── -->
   <div class="recovery-card">
     <div class="recovery-label">📊 Trainingsstatus & Race Predictor · Forerunner 965</div>
-    <div class="perf-status-row">
-        <div class="perf-status-badge" style="color:var(--green);border-color:var(--green)">
-          📈 Piekvorm
-        </div>
-        <div class="perf-status-sub">AEROBIC_LOW_SHORTAGE</div>
-      </div>
-      <div class="recovery-grid recovery-grid-4">
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 5K</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 10K</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 Halve marathon</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
-        <div class="rec-stat">
-          <div class="rec-lbl">🏃 Marathon</div>
-          <div class="rec-val" style="font-size:1.2rem">—</div>
-          <div class="rec-sub">Garmin predictor</div>
-        </div>
+    <div class="recovery-unavailable">
+        ⚠️ Garmin trainingsstatus niet beschikbaar — komt beschikbaar zodra er genoeg
+        trainingsdata is opgebouwd op je Forerunner 965 en Edge 840.
       </div>
   </div>
 
@@ -2317,7 +2259,7 @@ footer {
 <section class="section" id="activiteiten">
   <div class="sec-label">Strava · automatisch bijgewerkt</div>
   <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 5 September 2026 om 08:14</p>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 5 September 2026 om 11:26</p>
 
   <div id="activities-by-week-container">
     
@@ -2902,7 +2844,7 @@ const FITNESS_HISTORY = [
   { date: '2026-09-02', ftp: 165, vo2: 56, rhr: 46, weight: 71 },
   { date: '2026-09-03', ftp: 165, vo2: 56, rhr: 40, weight: 71 },
   { date: '2026-09-04', ftp: 165, vo2: 56, rhr: 43, weight: 71 },
-  { date: '2026-09-05', ftp: 165, vo2: 56, rhr: 43, weight: 71 }
+  { date: '2026-09-05', ftp: 165, vo2: 56, rhr: 49, weight: 71 }
 ];
 
 function paceToSecs(p) {
