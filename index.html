@@ -2185,17 +2185,17 @@ footer {
     <div class="recovery-grid">
         <div class="rec-stat">
           <div class="rec-lbl">🎯 Training Readiness</div>
-          <div class="rec-val" style="color:var(--green)">80/100</div>
+          <div class="rec-val" style="color:var(--green)">83/100</div>
           <div class="rec-sub">HIGH</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">💤 Slaap</div>
-          <div class="rec-val" style="color:var(--green)">9.6u</div>
-          <div class="rec-sub">77/100 score</div>
+          <div class="rec-val" style="color:var(--green)">7.9u</div>
+          <div class="rec-sub">75/100 score</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">💓 HRV</div>
-          <div class="rec-val">86ms</div>
+          <div class="rec-val">88ms</div>
           <div class="rec-sub">BALANCED</div>
         </div>
         <div class="rec-stat">
@@ -2205,17 +2205,17 @@ footer {
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">🔋 Body Battery</div>
-          <div class="rec-val" style="color:var(--yellow)">31/100</div>
+          <div class="rec-val" style="color:var(--green)">88/100</div>
           <div class="rec-sub">huidig niveau</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">😌 Stress (rust %)</div>
           <div class="rec-val">—</div>
-          <div class="rec-sub">gem. 36</div>
+          <div class="rec-sub">gem. 14</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">👟 Stappen</div>
-          <div class="rec-val">4036</div>
+          <div class="rec-val">28</div>
           <div class="rec-sub">gisteren</div>
         </div>
       </div>
@@ -2317,7 +2317,7 @@ footer {
 <section class="section" id="activiteiten">
   <div class="sec-label">Strava · automatisch bijgewerkt</div>
   <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 19 September 2026 om 22:06</p>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 20 September 2026 om 09:11</p>
 
   <div id="activities-by-week-container">
     
@@ -2766,7 +2766,6 @@ const STRAVA_DATA = {
 // Geschiedenis van kernwaarden over tijd — wordt bij elke sync door update_site.py
 // uitgebreid met één nieuw datapunt (max 1 per dag). Voedt de dashboard-grafiek.
 const FITNESS_HISTORY = [
-  { date: '2026-07-22', ftp: 165, vo2: 54.9, rhr: 41, weight: 71 },
   { date: '2026-07-23', ftp: 165, vo2: 55, rhr: 48, weight: 71 },
   { date: '2026-07-24', ftp: 165, vo2: 55, rhr: 48, weight: 71 },
   { date: '2026-07-25', ftp: 165, vo2: 55.2, rhr: 45, weight: 71 },
@@ -2825,7 +2824,8 @@ const FITNESS_HISTORY = [
   { date: '2026-09-16', ftp: 165, vo2: 55, rhr: 45, weight: 71 },
   { date: '2026-09-17', ftp: 165, vo2: 55, rhr: 49, weight: 71 },
   { date: '2026-09-18', ftp: 165, vo2: 55, rhr: 50, weight: 71 },
-  { date: '2026-09-19', ftp: 165, vo2: 55, rhr: 45, weight: 71 }
+  { date: '2026-09-19', ftp: 165, vo2: 55, rhr: 45, weight: 71 },
+  { date: '2026-09-20', ftp: 165, vo2: 55, rhr: 45, weight: 71 }
 ];
 
 function paceToSecs(p) {
