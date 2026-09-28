@@ -2190,12 +2190,12 @@ footer {
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">💤 Slaap</div>
-          <div class="rec-val" style="color:var(--accent)">5.2u</div>
-          <div class="rec-sub">33/100 score</div>
+          <div class="rec-val" style="color:var(--green)">9.2u</div>
+          <div class="rec-sub">78/100 score</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">💓 HRV</div>
-          <div class="rec-val">47ms</div>
+          <div class="rec-val">67ms</div>
           <div class="rec-sub">LOW</div>
         </div>
         <div class="rec-stat">
@@ -2205,17 +2205,17 @@ footer {
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">🔋 Body Battery</div>
-          <div class="rec-val" style="color:var(--accent)">10/100</div>
+          <div class="rec-val" style="color:var(--green)">60/100</div>
           <div class="rec-sub">huidig niveau</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">😌 Stress (rust %)</div>
           <div class="rec-val">—</div>
-          <div class="rec-sub">gem. 48</div>
+          <div class="rec-sub">gem. 20</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">👟 Stappen</div>
-          <div class="rec-val">3382</div>
+          <div class="rec-val">890</div>
           <div class="rec-sub">gisteren</div>
         </div>
       </div>
@@ -2317,7 +2317,7 @@ footer {
 <section class="section" id="activiteiten">
   <div class="sec-label">Strava · automatisch bijgewerkt</div>
   <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 27 September 2026 om 22:49</p>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 28 September 2026 om 10:44</p>
 
   <div id="activities-by-week-container">
     
@@ -2763,7 +2763,6 @@ const STRAVA_DATA = {
 // Geschiedenis van kernwaarden over tijd — wordt bij elke sync door update_site.py
 // uitgebreid met één nieuw datapunt (max 1 per dag). Voedt de dashboard-grafiek.
 const FITNESS_HISTORY = [
-  { date: '2026-07-30', ftp: 165, vo2: 55.5, rhr: 40, weight: 71 },
   { date: '2026-07-31', ftp: 165, vo2: 56, rhr: 43, weight: 71 },
   { date: '2026-08-01', ftp: 165, vo2: 56, rhr: 48, weight: 71 },
   { date: '2026-08-02', ftp: 165, vo2: 56, rhr: 48, weight: 71 },
@@ -2822,7 +2821,8 @@ const FITNESS_HISTORY = [
   { date: '2026-09-24', ftp: 165, vo2: 56, rhr: 54, weight: 71 },
   { date: '2026-09-25', ftp: 165, vo2: 56, rhr: 53, weight: 71 },
   { date: '2026-09-26', ftp: 165, vo2: 56.3, rhr: 53, weight: 71 },
-  { date: '2026-09-27', ftp: 165, vo2: 58, rhr: 54, weight: 71 }
+  { date: '2026-09-27', ftp: 165, vo2: 58, rhr: 54, weight: 71 },
+  { date: '2026-09-28', ftp: 165, vo2: 58, rhr: 54, weight: 71 }
 ];
 
 function paceToSecs(p) {
