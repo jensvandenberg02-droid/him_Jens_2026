@@ -1850,7 +1850,7 @@ footer {
       </div>
       <div class="hero-divider"></div>
       <div class="hstat">
-        <div class="hstat-val gr" id="hero-rhr">45</div>
+        <div class="hstat-val gr" id="hero-rhr">52</div>
         <div class="hstat-lbl">Rust HS bpm</div>
       </div>
     </div>
@@ -2022,7 +2022,7 @@ footer {
     <div class="mhc"><div class="mhc-lbl">Loop cadans</div><div class="mhc-val yl" id="mhc-rcad">169 spm</div><div class="mhc-sub">doel: 168–172 spm</div></div>
     <div class="mhc"><div class="mhc-lbl">VO2max</div><div class="mhc-val gr" id="mhc-vo2">53.3</div><div class="mhc-sub">doel: 52+ ml/kg/min</div></div>
     <div class="mhc"><div class="mhc-lbl">Max HS</div><div class="mhc-val ac" id="mhc-mhr">198.0 bpm</div><div class="mhc-sub">gemeten max</div></div>
-    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="mhc-rhr">45 bpm</div><div class="mhc-sub">uitstekend</div></div>
+    <div class="mhc"><div class="mhc-lbl">Rust HS</div><div class="mhc-val gr" id="mhc-rhr">52 bpm</div><div class="mhc-sub">uitstekend</div></div>
   </div>
 
   <div class="goals-grid">
@@ -2190,36 +2190,36 @@ footer {
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">💤 Slaap</div>
-          <div class="rec-val" style="color:var(--green)">8.9u</div>
-          <div class="rec-sub">84/100 score</div>
+          <div class="rec-val" style="color:var(--yellow)">6.3u</div>
+          <div class="rec-sub">48/100 score</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">💓 HRV</div>
-          <div class="rec-val">94ms</div>
-          <div class="rec-sub">UNBALANCED</div>
+          <div class="rec-val">68ms</div>
+          <div class="rec-sub">BALANCED</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">❤️ Rust HS</div>
-          <div class="rec-val" style="color:var(--green)">45 bpm</div>
+          <div class="rec-val" style="color:var(--green)">52 bpm</div>
           <div class="rec-sub">vannacht</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">🔋 Body Battery</div>
-          <div class="rec-val" style="color:var(--accent)">11/100</div>
+          <div class="rec-val" style="color:var(--yellow)">41/100</div>
           <div class="rec-sub">huidig niveau</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">😌 Stress (rust %)</div>
           <div class="rec-val">—</div>
-          <div class="rec-sub">gem. 46</div>
+          <div class="rec-sub">gem. 29</div>
         </div>
         <div class="rec-stat">
           <div class="rec-lbl">👟 Stappen</div>
-          <div class="rec-val">5590</div>
+          <div class="rec-val">106</div>
           <div class="rec-sub">gisteren</div>
         </div>
       </div>
-      <div class="rec-feedback">💬 POOR_HRV_UNBALANCED</div>
+      <div class="rec-feedback">💬 POOR_RT_HIGH_SS_POOR</div>
   </div>
 
   <!-- ── PRESTATIE & TRAININGSSTATUS (GARMIN) ── -->
@@ -2229,7 +2229,7 @@ footer {
         <div class="perf-status-badge" style="color:var(--yellow);border-color:var(--yellow)">
           📈 Onproductief
         </div>
-        <div class="perf-status-sub">BALANCED</div>
+        <div class="perf-status-sub">AEROBIC_HIGH_SHORTAGE</div>
       </div>
       <div class="recovery-grid recovery-grid-4">
         <div class="rec-stat">
@@ -2317,7 +2317,7 @@ footer {
 <section class="section" id="activiteiten">
   <div class="sec-label">Strava · automatisch bijgewerkt</div>
   <h2 class="sec-title">Recente <span>Activiteiten</span></h2>
-  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 3 October 2026 om 22:41</p>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:2rem">Automatisch bijgewerkt · Laatste sync: 4 October 2026 om 10:29</p>
 
   <div id="activities-by-week-container">
     
@@ -2746,7 +2746,6 @@ const STRAVA_DATA = {
 // Geschiedenis van kernwaarden over tijd — wordt bij elke sync door update_site.py
 // uitgebreid met één nieuw datapunt (max 1 per dag). Voedt de dashboard-grafiek.
 const FITNESS_HISTORY = [
-  { date: '2026-08-05', ftp: 165, vo2: 56, rhr: 50, weight: 71 },
   { date: '2026-08-06', ftp: 165, vo2: 56, rhr: 48, weight: 71 },
   { date: '2026-08-07', ftp: 165, vo2: 55.4, rhr: 48, weight: 71 },
   { date: '2026-08-08', ftp: 165, vo2: 56, rhr: 50, weight: 71 },
@@ -2805,7 +2804,8 @@ const FITNESS_HISTORY = [
   { date: '2026-09-30', ftp: 165, vo2: 56.7, rhr: 53, weight: 71 },
   { date: '2026-10-01', ftp: 165, vo2: 59, rhr: 52, weight: 71 },
   { date: '2026-10-02', ftp: 165, vo2: 56.8, rhr: 49, weight: 71 },
-  { date: '2026-10-03', ftp: 165, vo2: 60, rhr: 45, weight: 71 }
+  { date: '2026-10-03', ftp: 165, vo2: 60, rhr: 45, weight: 71 },
+  { date: '2026-10-04', ftp: 165, vo2: 60, rhr: 52, weight: 71 }
 ];
 
 function paceToSecs(p) {
